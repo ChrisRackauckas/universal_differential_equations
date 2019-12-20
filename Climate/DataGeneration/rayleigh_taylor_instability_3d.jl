@@ -1,4 +1,5 @@
-using Plots, Printf
+using Statistics, Printf
+using Plots
 
 using Oceananigans
 using Oceananigans.Diagnostics
@@ -79,13 +80,33 @@ cfl = AdvectiveCFL(wizard)
 # statement and updating the adaptive time step.
 Ni = 20
 
+function coarse_grain(data, resolution)
+    @assert length(data) % resolution == 0
+    s = length(data) / resolution
+    
+    data_cs = zeros(resolution)
+    for i in 1:resolution
+        t = data[Int((i-1)*s+1):Int(i*s)]
+        data_cs[i] = mean(t)
+    end
+    
+    return data_cs
+end
+
 function plot_buoyancy(model)
     t_str = @sprintf("t = %.2f", model.clock.time)
     xC, zC = model.grid.xC, model.grid.zC
     
-    b_profile = plot(b̅(model)[2:end-1], zC, title=t_str, label="", xlabel="buoyancy", ylabel="z",
-                     xlims=(-1, 1), ylims=(-L/2, L/2), aspect_ratio=:equal)
-    
+    b_horizontal_average = b̅(model)[2:end-1]
+    b_profile = plot(b_horizontal_average, zC, title=t_str, label="simulation", xlabel="buoyancy", ylabel="z",
+                     xlims=(-1, 1), ylims=(-L/2, L/2))
+
+    coarse_resolution = cr = 16
+    b_cr = coarse_grain(b_horizontal_average, cr)
+    zC_cr = coarse_grain(collect(zC), cr)
+
+    plot!(b_cr, zC_cr, label="coarsened")
+
     j½ = Int(model.grid.Ny/2)
     b_xz_data = interior(model.tracers.b)[:, j½, :]'
     b_slice = heatmap(xC, zC, b_xz_data, title="buoyancy slice", color=:balance,
