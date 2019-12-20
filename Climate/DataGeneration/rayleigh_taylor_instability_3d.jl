@@ -113,10 +113,10 @@ function plot_buoyancy(model)
                       xlims=(-L/2, L/2), ylims=(-L/2, L/2), clims=(-1, 1), aspect_ratio=:equal)
     
     display(plot(b_profile, b_slice, layout=(1, 2), show=true))
-    return nothing
 end
 
-while model.clock.time < end_time
+# while model.clock.time < end_time
+anim = @animate for i=1:500
     walltime = @elapsed time_step!(model; Nt=Ni, Δt=wizard.Δt)
 
     # Calculate simulation progress in %.
@@ -130,11 +130,12 @@ while model.clock.time < end_time
     # Calculate a new adaptive time step.
     update_Δt!(wizard, model)
 
-    plot_buoyancy(model)
-
     # Print progress statement.
     i, t = model.clock.iteration, model.clock.time
     @printf("[%05.2f%%] i: %d, t: %.2e, umax: (%.3e, %.3e, %.3e), CFL: %.4e, next Δt: %.2e, ⟨wall time⟩: %s\n",
             progress, i, t, umax, vmax, wmax, cfl(model), wizard.Δt, prettytime(walltime / Ni))
+    
+    plot_buoyancy(model)
 end
 
+mp4(anim, "rayleigh_taylor_instability_3d.mp4", fps=15)
