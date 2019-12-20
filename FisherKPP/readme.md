@@ -1,10 +1,5 @@
-##############
 
-Readme file
-
-##############
-
-The following scripts generate data by solving the Fisher-KPP equation
+The following scripts generate data by solving the Fisher-KPP equation and fitting the universal differential equation as follows:
 
 1. Fisher-KPP-ANN.jl: fits the reaction term with a feed-forward neural network while assuming the diffusion term 
 
