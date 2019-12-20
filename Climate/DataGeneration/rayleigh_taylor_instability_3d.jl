@@ -14,7 +14,7 @@ L = 1   # Physical length of each dimension.
 κ = 1e-4  # Diffusivity
 ν = κ     # Assuming Prandtl number Pr = 1
 
-end_time = 2
+end_time = 10
 
 # Set up model
 model = Model(
@@ -50,7 +50,7 @@ fields = Dict(
 )
 
 model.output_writers[:fields] =
-    JLD2OutputWriter(model, fields, dir=".", prefix="rayleigh_taylor_3d_fields",
+    JLD2OutputWriter(model, fields, dir=".", prefix="rayleigh_taylor_instability_3d_fields",
                      interval=1, force=true, verbose=true)
 
 # Add JLD2 output writer for horizontal averages.
@@ -60,18 +60,18 @@ model.output_writers[:fields] =
  b̅ = HorizontalAverage(model.tracers.b; return_type=Array)
 
  profiles = Dict(
-    :u => model -> u̅(model),
-    :v => model -> v̅(model),
-    :w => model -> w̅(model),
-    :b => model -> b̅(model)
+    :u => model -> u̅(model)[2:end-1],
+    :v => model -> v̅(model)[2:end-1],
+    :w => model -> w̅(model)[2:end-1],
+    :b => model -> b̅(model)[2:end-1]
 )
 
 model.output_writers[:horizontal_averages] =
-    JLD2OutputWriter(model, profiles, dir=".", prefix="rayleigh_taylor_3d_horizontal_averages",
+    JLD2OutputWriter(model, profiles, dir=".", prefix="rayleigh_taylor_instability_3d_horizontal_averages",
                      interval=0.1, force=true, verbose=true)
 
 # Set up adaptive time stepping.
-wizard = TimeStepWizard(cfl=0.1, Δt=1e-6, max_change=1.2, max_Δt=1e-3)
+wizard = TimeStepWizard(cfl=0.2, Δt=1e-6, max_change=1.2, max_Δt=5e-3)
 
 # Set up CFL diagnostics.
 cfl = AdvectiveCFL(wizard)
@@ -115,8 +115,7 @@ function plot_buoyancy(model)
     display(plot(b_profile, b_slice, layout=(1, 2), show=true))
 end
 
-# while model.clock.time < end_time
-anim = @animate for i=1:500
+while model.clock.time < end_time
     walltime = @elapsed time_step!(model; Nt=Ni, Δt=wizard.Δt)
 
     # Calculate simulation progress in %.
@@ -135,7 +134,7 @@ anim = @animate for i=1:500
     @printf("[%05.2f%%] i: %d, t: %.2e, umax: (%.3e, %.3e, %.3e), CFL: %.4e, next Δt: %.2e, ⟨wall time⟩: %s\n",
             progress, i, t, umax, vmax, wmax, cfl(model), wizard.Δt, prettytime(walltime / Ni))
     
-    plot_buoyancy(model)
+    # plot_buoyancy(model)
 end
 
-mp4(anim, "rayleigh_taylor_instability_3d.mp4", fps=15)
+# mp4(anim, "rayleigh_taylor_instability_3d.mp4", fps=15)
