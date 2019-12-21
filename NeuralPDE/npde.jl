@@ -3,7 +3,7 @@ using OrdinaryDiffEq, Flux, DiffEqFlux, LinearAlgebra, CuArrays, Plots
 using DiffEqSensitivity
 const EIGEN_EST = Ref(0.0f0)
 const USE_GPU = Ref(true)
-USE_GPU[] = false
+USE_GPU[] = false # the network is small enough such that CPU works just great
 
 _gpu(arg) = USE_GPU[] ? gpu(arg) : cpu(arg)
 _cu(arg) = USE_GPU[] ? cu(arg) : identity(arg)
@@ -12,24 +12,24 @@ function getops(grid, T=Float32)
     N, dz = length(grid), step(grid)
     d = ones(N-2)
     dl = ones(N-3) # super/lower diagonal
-    zv = zeros(N-2) # zero diagonal used to extend D* for boundary condtions
+    zv = zeros(N-2) # zero diagonal used to extend D* for boundary conditions
 
-    #D1 first order discritization of ∂_z
+    # D1 first order discretization of ∂_z
     D1= diagm(-1 => -dl, 0 => d)
     D1_B = hcat(zv, D1, zv)
     D1_B[1,1] = -1
     D1_B = _cu((1/dz)*D1_B)
 
-    #D2 discritization of ∂_zz
+    # D2 discretization of ∂_zz
     D2 = diagm(-1 => dl, 0 => -2*d, 1 => dl)
     κ = 0.05
     D2_B = hcat(zv, D2, zv) #add space for the boundary conditions space for "ghost nodes"
     #we only solve for the interior space steps
     D2_B[1,1] = D2_B[end, end] = 1
 
-    D2_B = _cu((κ/(dz^2)).*D2_B) #add the constant κ as the equation requires and finish the discritization
+    D2_B = _cu((κ/(dz^2)).*D2_B) #add the constant κ as the equation requires and finish the discretization
 
-    #Boundary Conditons matrix QQ
+    # Boundary conditions matrix QQ
     Q = Matrix{Int}(I, N-2, N-2)
     QQ = _cu(vcat(zeros(1,N-2), Q, zeros(1,N-2)))
 
@@ -55,7 +55,7 @@ function ground_truth(grid, tspan)
     sol = solve(prob, ROCK4(eigen_est = (integ)->integ.eigen_est = EIGEN_EST[]), abstol = 1e-9, reltol = 1e-9)
     return sol
 end
-#
+
 N = 32
 grid = range(0, 1, length = N)
 tspan = (0.0f0, 1.5f0)
@@ -78,6 +78,7 @@ function dudt(u::AbstractArray,p,t)
     return ops.D1*Tracker.data(Φ(u)) + ops.D2*u
 end
 
+# TODO: checkpointing isn't necessary here
 predict_adjoint() = diffeq_adjoint(pp,
                               prob,
                               ROCK4(eigen_est = (integ)->integ.eigen_est = EIGEN_EST[]),
@@ -88,7 +89,7 @@ predict_adjoint() = diffeq_adjoint(pp,
 
 function loss_adjoint()
     pre = predict_adjoint()
-    sum(abs2, training_data - pre) #super slow dev the package, watch chris's video, inside the layer do something
+    sum(abs2, training_data - pre)
 end
 
 cb = function ()
@@ -104,11 +105,11 @@ cb = function ()
 end
 
 prob = ODEProblem{false}(dudt,u0,tspan,pp)
-epochs = Iterators.repeated((), 30) #worksish 500
+epochs = Iterators.repeated((), 30)
 lyrs = Flux.params(pp)
 new_tf = 0.00f0
 tolerance = 1.0
-#solve PDE in smaller time segments to reduce likelihood of divergence
+# TODO: clean up this
 #nn = 20
 nn = 1
 for i in 1:nn
@@ -132,6 +133,6 @@ for i in 1:nn
     println("finished loop")
 end
 
-epochs = Iterators.repeated((), 300) #worksish 500
+epochs = Iterators.repeated((), 300)
 learning_rate = ADAM(0.001)
 Flux.train!(loss_adjoint, lyrs, epochs, learning_rate, cb=cb)
