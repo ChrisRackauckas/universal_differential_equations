@@ -1,9 +1,11 @@
 using Revise
-using OrdinaryDiffEq, Flux, DiffEqFlux, LinearAlgebra, CuArrays, Plots
+using OrdinaryDiffEq, Flux, DiffEqFlux, LinearAlgebra, Plots
 using DiffEqSensitivity
 const EIGEN_EST = Ref(0.0f0)
 const USE_GPU = Ref(true)
 USE_GPU[] = false # the network is small enough such that CPU works just great
+
+USE_GPU[] && (using CuArrays)
 
 _gpu(arg) = USE_GPU[] ? gpu(arg) : cpu(arg)
 _cu(arg) = USE_GPU[] ? cu(arg) : identity(arg)
@@ -63,11 +65,9 @@ u0 = getu0(grid)
 ops = getops(grid)
 soldata = ground_truth(grid, tspan)
 
-ddd() = Dense(1<<4,1<<4,tanh)
-ann = Chain(Dense(30,1<<4,tanh),
-            ddd(),# ddd(), ddd(),
-            Dense(1<<4,30,tanh)) |> _gpu
+ann = Chain(Dense(30,16,tanh), Dense(16,16,tanh), Dense(16,30,tanh)) |> _gpu
 pp = param(Flux.data(DiffEqFlux.destructure(ann)))
+lyrs = Flux.params(pp)
 
 function dudt(u::TrackedArray,p,t)
     Φ = DiffEqFlux.restructure(ann, p)
@@ -78,14 +78,12 @@ function dudt(u::AbstractArray,p,t)
     return ops.D1*Tracker.data(Φ(u)) + ops.D2*u
 end
 
-# TODO: checkpointing isn't necessary here
 predict_adjoint() = diffeq_adjoint(pp,
                               prob,
                               ROCK4(eigen_est = (integ)->integ.eigen_est = EIGEN_EST[]),
                               u0=u0, saveat = saveat,
-                              sensealg = SensitivityAlg(quad=false, backsolve=false, checkpointing=true),
-                              checkpoints = saveat
-                              )
+                              # no back solve
+                              sensealg=SensitivityAlg(quad=false, backsolve=false))
 
 function loss_adjoint()
     pre = predict_adjoint()
@@ -93,7 +91,6 @@ function loss_adjoint()
 end
 
 cb = function ()
-    display(extrema(prob.p))
     cur_pred = collect(Flux.data(predict_adjoint()))
     n = size(training_data, 1)
     pl = scatter(1:n,training_data[:,10],label="data", legend =:bottomright)
@@ -106,33 +103,12 @@ end
 
 prob = ODEProblem{false}(dudt,u0,tspan,pp)
 epochs = Iterators.repeated((), 30)
-lyrs = Flux.params(pp)
-new_tf = 0.00f0
-tolerance = 1.0
-# TODO: clean up this
-#nn = 20
 nn = 1
-for i in 1:nn
-    #get updated time
-    learning_rate = Descent(0.0005)
-    global new_tf += 1.5f0/nn
-    tspan = (0.0f0, new_tf) #start and end time with better precision
-    global saveat = range(tspan..., length = 30) #time range
-
-    #get data of forward pass
-    global training_data = _cu(soldata(saveat))
-
-    #solve the backpass
-    global prob = ODEProblem{false}(dudt,u0,tspan,pp)
-    Flux.train!(loss_adjoint, lyrs, epochs, learning_rate, cb=cb)
-
-    while (loss_adjoint() > tolerance)
-        learning_rate = ADAM(0.001)
-        Flux.train!(loss_adjoint, lyrs, epochs, learning_rate, cb=cb)
-    end
-    println("finished loop")
-end
-
-epochs = Iterators.repeated((), 300)
+saveat = range(tspan..., length = 30) #time range
+training_data = _cu(soldata(saveat))
+epochs = Iterators.repeated((), 200)
+learning_rate = ADAM(0.01)
+Flux.train!(loss_adjoint, lyrs, epochs, learning_rate, cb=cb)
 learning_rate = ADAM(0.001)
+epochs = Iterators.repeated((), 300)
 Flux.train!(loss_adjoint, lyrs, epochs, learning_rate, cb=cb)
