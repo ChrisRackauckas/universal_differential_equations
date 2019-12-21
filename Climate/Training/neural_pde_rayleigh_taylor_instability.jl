@@ -101,7 +101,7 @@ for i in 1:Nt-1
      bₙ₊₁[:, i] .=  b_cs[:, i+1]
 end
 
-N = 32  # Number of training data pairs.
+N = 100  # Number of training data pairs.
 
 training_data = [(bₙ[:, i], bₙ₊₁[:, i]) for i in 1:N]
 
@@ -110,9 +110,10 @@ training_data = [(bₙ[:, i], bₙ₊₁[:, i]) for i in 1:N]
 #####
 
 # Complete black box right-hand-side.
-dbdt_NN = Chain(Dense( cr, 2cr, relu),
-                Dense(2cr, 4cr, relu),
-                Dense(4cr, 2cr, relu),
+dbdt_NN = Chain(Dense( cr, 2cr, tanh),
+                Dense(2cr, 4cr, tanh),
+                Dense(4cr, 4cr, tanh),
+                Dense(4cr, 2cr, tanh),
                 Dense(2cr,  cr))
 
 NN_params = Flux.params(dbdt_NN)
@@ -130,7 +131,7 @@ loss_function(bₙ, bₙ₊₁) = sum(abs2, bₙ₊₁ .- neural_pde_prediction(
 ##### Choose optimization algorithm
 #####
 
-opt = ADAM(0.1)
+opt = ADAM(1e-3)
 
 #####
 ##### Callback function to observe training.
@@ -152,7 +153,7 @@ cb()
 ##### Train!
 #####
 
-epochs = 10
+epochs = 50
 best_loss = Inf
 last_improvement = 0
 
@@ -172,8 +173,8 @@ for epoch_idx in 1:epochs
     end
    
     # If we haven't seen improvement in 2 epochs, drop our learning rate:
-    if epoch_idx - last_improvement >= 2 && opt.eta > 1e-6
-        opt.eta /= 2.0
+    if epoch_idx - last_improvement >= 2 && opt.eta > 1e-8
+        opt.eta /= 10.0
         @warn("Haven't improved in a while, dropping learning rate to $(opt.eta)")
 
         # After dropping learning rate, give it a few epochs to improve
@@ -199,5 +200,5 @@ anim = @animate for n=1:Nt
     plot!(nn_pred[:, n], z_cs, linewidth=2, label="Neural DE", show=false)
 end
 
-gif(anim, "rayleigh_taylor_instability_neural_PDE.gif", fps=15)
+mp4(anim, "rayleigh_taylor_instability_neural_PDE.mp4", fps=15)
 
