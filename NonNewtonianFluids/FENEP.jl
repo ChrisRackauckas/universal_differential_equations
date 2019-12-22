@@ -102,7 +102,6 @@ plot(Er(1,err_n),xscale=:log10,yscale=:log10,ylabel="Error",xlabel="Training ste
 plot!(Er(2,err_n),label="Testing error, Neural net")
 plot!(Er(1,err_l), label="Training error, linear model")
 plot!(Er(2,err_l),label="Testing error, linear model")
-#savefig("/Users/Dominic/Dropbox (MIT)/18.337 Final Project/FENEPComp.pdf")
 
 # --- Plot approximations vs true sol ----
 tsave, σ_approx_n, σ_exact = test_NN(γd_test,f0_n,f1_n)
@@ -110,5 +109,13 @@ tsave, σ_approx_l, σ_exact = test_NN(γd_test,f0_l,f1_l)
 plot(tsave,σ_approx_n,m=:circle,label="NN solution",ylabel="stress",xlabel="time")
 plot!(tsave,σ_approx_l,m=:hexagon,label="Linear model")
 plot!(tsave,σ_exact,label="True solution",leg=:bottomright,size=(700,400))
-#savefig("/Users/Dominic/Dropbox (MIT)/18.337 Final Project/FENEPTest.pdf")
-#plot!(tsave,γd_test.(tsave),label="Strain rate")
+
+
+# program takes time to run, so save data for tweaking figures
+open("/Users/Dominic/MLVE/er_data.txt", "w") do io # or other path
+           writedlm(io, [Er(1,err_n) Er(2,err_n) Er(1,err_l) Er(2,err_l)], ',')
+end;
+
+open("/Users/Dominic/MLVE/plt_data.txt", "w") do io # or other path
+           writedlm(io, [[t for t in tsave]  σ_approx_n σ_approx_l σ_exact], ',')
+end;
