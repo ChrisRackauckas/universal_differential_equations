@@ -29,7 +29,7 @@ prob = ODEProblem(lotka, u0,tspan, p)
 solution = solve(prob, Tsit5(), saveat = 0.1)
 plot(solution)
 
-# Initial condition and parameter for the Neural DDE
+# Initial condition and parameter for the Neural ODE
 u0_ = Tracker.param(u0)
 p_ = param(p)
 
@@ -42,8 +42,6 @@ ann(u0_)
 
 function dudt_(u::TrackedArray,p,t)
     x, y = u
-
-
     Tracker.collect([p[1]*x + ann(u)[1],
         -p[4]*y + ann(u)[2]])
 end
@@ -53,7 +51,6 @@ dudt_(u0_, p_, 0.0f0)
 
 function dudt_(u::AbstractArray, p,t)
     x, y = u
-
     [p[1]*x + Flux.data.(ann(z)[1]),
         -p[4]*y + Flux.data.(ann(z)[2])]
 end

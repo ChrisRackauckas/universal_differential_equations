@@ -8,7 +8,6 @@ using DifferentialEquations
 using DiffEqFlux
 
 using JLD2
-using BSON
 using Plots
 
 using Flux: @epochs
@@ -56,13 +55,13 @@ mp4(anim, "rayleigh_taylor_instability_buoyancy.mp4", fps=15)
 function coarse_grain(data, resolution)
     @assert length(data) % resolution == 0
     s = length(data) / resolution
-    
+
     data_cs = zeros(resolution)
     for i in 1:resolution
         t = data[Int((i-1)*s+1):Int(i*s)]
         data_cs[i] = mean(t)
     end
-    
+
     return data_cs
 end
 
@@ -142,7 +141,7 @@ function cb()
 
     # nn_pred = neural_ode(dTdt_NN, bₙ[:, 1], (t[1], t[N]), Tsit5(), saveat=t[1:N], reltol=1e-4) |> Flux.data
     # test_loss = sum(abs2, b_cs[:, 1:N] .- nn_pred)
-    
+
     println("train_loss = $train_loss")
     return train_loss
 end
@@ -162,7 +161,7 @@ for epoch_idx in 1:epochs
 
     @info "Epoch $epoch_idx"
     Flux.train!(loss_function, NN_params, training_data, opt, cb=cb) # cb=Flux.throttle(cb, 10))
-    
+
     loss = cb()
 
     if loss <= best_loss
@@ -171,7 +170,7 @@ for epoch_idx in 1:epochs
         best_loss = loss
         last_improvement = epoch_idx
     end
-   
+
     # If we haven't seen improvement in 2 epochs, drop our learning rate:
     if epoch_idx - last_improvement >= 2 && opt.eta > 1e-8
         opt.eta /= 10.0
@@ -179,7 +178,7 @@ for epoch_idx in 1:epochs
 
         # After dropping learning rate, give it a few epochs to improve
         last_improvement = epoch_idx
-    end 
+    end
 end
 
 #####
@@ -201,4 +200,3 @@ anim = @animate for n=1:Nt
 end
 
 mp4(anim, "rayleigh_taylor_instability_neural_PDE.mp4", fps=15)
-
