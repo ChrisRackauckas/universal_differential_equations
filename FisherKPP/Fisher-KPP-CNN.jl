@@ -1,3 +1,6 @@
+cd(@__DIR__)
+using Pkg; Pkg.activate("."); Pkg.instantiate()
+
 #This script simulates the Fisher-KPP equation and fits
 #a neural PDE to the data with the reaction term replaced
 #by a feed-forward neural network and the diffusion term with a CNN

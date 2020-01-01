@@ -1,11 +1,14 @@
+cd(@__DIR__)
+using Pkg; Pkg.activate("."); Pkg.instantiate()
+
 using DelimitedFiles, Plots
 # Training takes a while, so save results of simulations and
 # have this separate plot script so can tweak plots without
 #  rerunning simulations
 
 # or whatever path to data
-er_outfile = "/Users/Dominic/Documents/MLVE/er_data.txt"
-plt_outfile = "/Users/Dominic/Documents/MLVE/plt_data.txt"
+er_outfile = "er_data.txt"
+plt_outfile = "plt_data.txt"
 
 er_dat = readdlm(er_outfile, '\t', Float32, '\n')
 plt_dat = readdlm(plt_outfile, '\t', Float32, '\n')
@@ -26,4 +29,4 @@ plot!(p2,plt_dat[:,1],plt_dat[:,4],label="True solution",lw=3,lc=:black,
 pt = plot(p1,p2,layout=(2,1),size=(600,500))
 
 # or path to wherever
-savefig(pt, "/Users/Dominic/Documents/MLVE/CombFig.pdf")
+savefig(pt, "CombFig.pdf")

@@ -1,3 +1,6 @@
+cd(@__DIR__)
+using Pkg; Pkg.activate("."); Pkg.instantiate()
+
 #This script simulates the Fisher-KPP equation and fits
 #a neural PDE to the data
 
@@ -86,7 +89,7 @@ rx_nn = Chain(Dense(1,n_weights,swish),
              x -> x[1])
 rx_nn_dat = Chain(rx_nn, x -> x.data)
 
-#initialize diffusion coefficient 
+#initialize diffusion coefficient
 D0 = param([0.1])
 
 function nn_ode(u::TrackedArray,p,t)

@@ -1,6 +1,9 @@
+cd(@__DIR__)
+using Pkg; Pkg.activate("."); Pkg.instantiate()
+
 using DiffEqFlux, Flux
 using DifferentialEquations
-using Plots
+using Plots, DelimitedFiles
 using Sundials
 
 function FENEP!(out,du,u,p,t,γd)
@@ -112,10 +115,10 @@ plot!(tsave,σ_exact,label="True solution",leg=:bottomright,size=(700,400))
 
 
 # program takes time to run, so save data for tweaking figures
-open("/Users/Dominic/MLVE/er_data.txt", "w") do io # or other path
+open("er_data.txt", "w") do io # or other path
            writedlm(io, [Er(1,err_n) Er(2,err_n) Er(1,err_l) Er(2,err_l)], ',')
 end;
 
-open("/Users/Dominic/MLVE/plt_data.txt", "w") do io # or other path
+open("plt_data.txt", "w") do io # or other path
            writedlm(io, [[t for t in tsave]  σ_approx_n σ_approx_l σ_exact], ',')
 end;

@@ -1,3 +1,6 @@
+cd(@__DIR__)
+using Pkg; Pkg.activate("."); Pkg.instantiate()
+
 using Revise
 using OrdinaryDiffEq, Flux, DiffEqFlux, LinearAlgebra, Plots
 using DiffEqSensitivity

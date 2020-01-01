@@ -1,4 +1,9 @@
+cd(@__DIR__)
+using Pkg; Pkg.activate("."); Pkg.instantiate()
+
 using Flux, StochasticDiffEq, LinearAlgebra, Statistics, Test, NeuralNetDiffEq
+using Random
+Random.seed!(0)
 
 d = 100 # number of dimensions
 x0 = fill(0.0f0,d)
