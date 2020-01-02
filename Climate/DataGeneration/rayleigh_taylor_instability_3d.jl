@@ -1,3 +1,6 @@
+cd(@__DIR__)
+using Pkg; Pkg.activate("."); Pkg.instantiate()
+
 using Statistics, Printf
 using Plots
 
@@ -83,20 +86,20 @@ Ni = 20
 function coarse_grain(data, resolution)
     @assert length(data) % resolution == 0
     s = length(data) / resolution
-    
+
     data_cs = zeros(resolution)
     for i in 1:resolution
         t = data[Int((i-1)*s+1):Int(i*s)]
         data_cs[i] = mean(t)
     end
-    
+
     return data_cs
 end
 
 function plot_buoyancy(model)
     t_str = @sprintf("t = %.2f", model.clock.time)
     xC, zC = model.grid.xC, model.grid.zC
-    
+
     b_horizontal_average = b̅(model)[2:end-1]
     b_profile = plot(b_horizontal_average, zC, title=t_str, label="simulation", xlabel="buoyancy", ylabel="z",
                      xlims=(-1, 1), ylims=(-L/2, L/2))
@@ -111,11 +114,11 @@ function plot_buoyancy(model)
     b_xz_data = interior(model.tracers.b)[:, j½, :]'
     b_slice = heatmap(xC, zC, b_xz_data, title="buoyancy slice", color=:balance,
                       xlims=(-L/2, L/2), ylims=(-L/2, L/2), clims=(-1, 1), aspect_ratio=:equal)
-    
+
     display(plot(b_profile, b_slice, layout=(1, 2), show=true))
 end
 
-while model.clock.time < end_time
+@time while model.clock.time < end_time
     walltime = @elapsed time_step!(model; Nt=Ni, Δt=wizard.Δt)
 
     # Calculate simulation progress in %.
@@ -133,7 +136,7 @@ while model.clock.time < end_time
     i, t = model.clock.iteration, model.clock.time
     @printf("[%05.2f%%] i: %d, t: %.2e, umax: (%.3e, %.3e, %.3e), CFL: %.4e, next Δt: %.2e, ⟨wall time⟩: %s\n",
             progress, i, t, umax, vmax, wmax, cfl(model), wizard.Δt, prettytime(walltime / Ni))
-    
+
     # plot_buoyancy(model)
 end
 
