@@ -53,7 +53,7 @@ Lz = file["grid/Lz"]
 Nt = length(Is)
 
 t = Float32.(zeros(Nt))
-soldata = Float32.(zeros(Nt, Nz))
+soldata = Float32.(zeros(Nt, N))
 
 for (i, I) in enumerate(Is)
     t[i] = file["timeseries/t/$I"]
@@ -112,3 +112,4 @@ Flux.train!(loss_adjoint, lyrs, epochs, learning_rate, cb=cb)
 learning_rate = ADAM(0.001)
 epochs = Iterators.repeated((), 300)
 Flux.train!(loss_adjoint, lyrs, epochs, learning_rate, cb=cb)
+@time loss_adjoint()
