@@ -5,7 +5,7 @@ using Pkg; Pkg.activate("."); Pkg.instantiate()
 # Some good parameter values are stored as comments right now
 # because this is really good practice
 
-using DifferentialEquations
+using DelayDiffEq
 using Flux, Tracker
 using LinearAlgebra
 using DiffEqFlux
