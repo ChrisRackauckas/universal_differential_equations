@@ -64,11 +64,13 @@ s = diffeq_rd(p_, prob_, Tsit5())
 plot(Flux.data.(s)')
 
 function predict_rd()
-    diffeq_rd(p_, prob_, Tsit5(), saveat = solution.t)
+    diffeq_rd(p_, prob_, Tsit5(), saveat = solution.t, abstol=1e-8, reltol=1e-8)
 end
 
 function predict_rd(sol)
-    diffeq_rd(p_, prob_, u0 = param(sol[:,1]), Tsit5(), saveat = sol.t)
+    diffeq_rd(p_, prob_, u0 = param(sol[:,1]), Tsit5(),
+              abstol=1e-8, reltol=1e-8,
+              saveat = sol.t)
 end
 
 # No regularisation right now
