@@ -37,6 +37,9 @@ function getops(grid, T=Float32)
     # Boundary conditions matrix QQ
     Q = Matrix{Int}(I, N-2, N-2)
     QQ = _cu(vcat(zeros(1,N-2), Q, zeros(1,N-2)))
+    #display(QQ)
+    #display(D1)
+    #display(D1_B)
 
     D1 = D1_B * QQ
     D2 = D2_B * QQ
@@ -100,8 +103,8 @@ cb = function ()
     scatter!(pl,1:n,cur_pred[:,10],label="prediction")
     pl2 = scatter(saveat,training_data[end,:],label="data", legend =:bottomright)
     scatter!(pl2,saveat,cur_pred[end,:],label="prediction")
-    display(plot(pl, pl2, size=(600, 300)))
-    display(loss_adjoint())
+    #display(plot(pl, pl2, size=(600, 300)))
+    #display(loss_adjoint())
 end
 
 prob = ODEProblem{false}(dudt,u0,tspan,pp)
