@@ -15,31 +15,24 @@ _cu(arg) = USE_GPU[] ? cu(arg) : identity(arg)
 
 function getops(grid, T=Float32)
     N, dz = length(grid), step(grid)
-    d = ones(N)
-    dl = ones(N-1) # super/lower diagonal
-    zv = zeros(N) # zero diagonal used to extend D* for boundary conditions
+    d = ones(N-2)
+    dl = ones(N-3) # super/lower diagonal
+    zv = zeros(N-2) # zero diagonal used to extend D* for boundary conditions
 
     # D1 first order discretization of ∂_z
-    D1= diagm(-1 => -dl, 0 => d)
-    D1_B = hcat(zv, D1, zv)
-    D1_B[1,1] = -1
-    D1_B = _cu((1/dz)*D1_B)
+    D1 = diagm(-1 => -dl, 0 => d)
+    D1[1, :] .= 0
+    D1[end, :] .= 0
 
     # D2 discretization of ∂_zz
     D2 = diagm(-1 => dl, 0 => -2*d, 1 => dl)
     κ = 0.05
-    D2_B = hcat(zv, D2, zv) #add space for the boundary conditions space for "ghost nodes"
-    #we only solve for the interior space steps
-    D2_B[1,1] = D2_B[end, end] = 1
+    D2[1, 1] = D2[end, end] = -1
+    D2 = (κ/(dz^2)).*D2 #add the constant κ as the equation requires and finish the discretization
+    display(D2), display(D1)
+    D1 = _cu(D1)
+    D2 = _cu(D2)
 
-    D2_B = _cu((κ/(dz^2)).*D2_B) #add the constant κ as the equation requires and finish the discretization
-
-    # Boundary conditions matrix QQ
-    Q = Matrix{Int}(I, N, N)
-    QQ = _cu(vcat(zeros(1,N), Q, zeros(1,N)))
-
-    D1 = D1_B * QQ
-    D2 = D2_B * QQ
     EIGEN_EST[] = maximum(abs, eigvals(Matrix(D2)))
     return (D1=T.(D1), D2=T.(D2))
 end
@@ -62,10 +55,10 @@ end
 
 grid = range(0, 1, length = N)
 tspan = (t[1], t[end])
-u0 = soldata[1,:]
+u0 = _cu(soldata[1,2:end-1])
 ops = getops(grid)
 
-ann = Chain(Dense(N,16,tanh), Dense(16,16,tanh), Dense(16,N,tanh)) |> _gpu
+ann = Chain(Dense(N-2,64,tanh), Dense(64,64,tanh), Dense(64,N-2,tanh)) |> _gpu
 pp = param(Flux.data(DiffEqFlux.destructure(ann)))
 lyrs = Flux.params(pp)
 
@@ -106,10 +99,13 @@ epochs = Iterators.repeated((), 30)
 nn = 1
 saveat = t
 training_data = _cu(soldata')
-epochs = Iterators.repeated((), 200)
+training_data = training_data[2:end-1, :]
+epochs = Iterators.repeated((), 20)
 learning_rate = ADAM(0.01)
 Flux.train!(loss_adjoint, lyrs, epochs, learning_rate, cb=cb)
+#=
 learning_rate = ADAM(0.001)
 epochs = Iterators.repeated((), 300)
 Flux.train!(loss_adjoint, lyrs, epochs, learning_rate, cb=cb)
 @time loss_adjoint()
+=#

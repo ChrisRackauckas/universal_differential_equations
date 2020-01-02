@@ -37,6 +37,9 @@ function getops(grid, T=Float32)
     # Boundary conditions matrix QQ
     Q = Matrix{Int}(I, N-2, N-2)
     QQ = _cu(vcat(zeros(1,N-2), Q, zeros(1,N-2)))
+    #display(QQ)
+    #display(D1)
+    #display(D1_B)
 
     D1 = D1_B * QQ
     D2 = D2_B * QQ
