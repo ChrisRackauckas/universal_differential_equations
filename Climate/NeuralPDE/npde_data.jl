@@ -6,7 +6,8 @@ using OrdinaryDiffEq, Flux, DiffEqFlux, LinearAlgebra, Plots
 using DiffEqSensitivity, JLD2
 const EIGEN_EST = Ref(0.0f0)
 const USE_GPU = Ref(false)
-USE_GPU[] = false # the network is small enough such that CPU works just great
+#USE_GPU[] = false # the network is small enough such that CPU works just great
+USE_GPU[] = true
 
 USE_GPU[] && (using CuArrays)
 
@@ -30,10 +31,10 @@ function getops(grid, T=Float32)
     D2[1, 1] = D2[end, end] = -1
     D2 = (κ/(dz^2)).*D2 #add the constant κ as the equation requires and finish the discretization
     display(D2), display(D1)
+
+    EIGEN_EST[] = maximum(abs, eigvals(D2))
     D1 = _cu(D1)
     D2 = _cu(D2)
-
-    EIGEN_EST[] = maximum(abs, eigvals(Matrix(D2)))
     return (D1=T.(D1), D2=T.(D2))
 end
 
@@ -58,7 +59,8 @@ tspan = (t[1], t[end])
 u0 = _cu(soldata[1,2:end-1])
 ops = getops(grid)
 
-ann = Chain(Dense(N-2,64,tanh), Dense(64,64,tanh), Dense(64,N-2,tanh)) |> _gpu
+ann = Chain(Dense(N-2,N-2,tanh), Dense(N-2,N-2,tanh), Dense(N-2,N-2,tanh),
+            Dense(N-2,N-2,tanh), Dense(N-2,N-2,tanh)) |> _gpu
 pp = param(Flux.data(DiffEqFlux.destructure(ann)))
 lyrs = Flux.params(pp)
 
@@ -75,6 +77,7 @@ predict_adjoint() = diffeq_adjoint(pp,
                               prob,
                               ROCK4(eigen_est = (integ)->integ.eigen_est = EIGEN_EST[]),
                               u0=u0, saveat = saveat,
+                              reltol=1e-5, abstol=1e-6,
                               # no back solve
                               sensealg=SensitivityAlg(quad=false, backsolve=false))
 
@@ -84,22 +87,23 @@ function loss_adjoint()
 end
 
 cb = function ()
+    arr = Array(training_data)
     cur_pred = collect(Flux.data(predict_adjoint()))
-    n = size(training_data, 1)
-    pl = scatter(1:n,training_data[:,10],label="data", legend =:bottomright)
+    n = size(arr, 1)
+    pl = scatter(1:n,arr[:,10],label="data", legend =:bottomright, title = "10th time over space")
     scatter!(pl,1:n,cur_pred[:,10],label="prediction")
-    pl2 = scatter(saveat,training_data[end,:],label="data", legend =:bottomright)
-    scatter!(pl2,saveat,cur_pred[end,:],label="prediction")
-    display(plot(pl, pl2, size=(600, 300)))
+    pl2 = scatter(saveat,arr[end÷2,:],label="data", legend =:bottomright, title = "middle point over time")
+    scatter!(pl2,saveat,cur_pred[end÷2,:],label="prediction")
+    #display(plot(pl, pl2, size=(600, 300)))
     display(loss_adjoint())
 end
 
 prob = ODEProblem{false}(dudt,u0,tspan,pp)
-epochs = Iterators.repeated((), 30)
 nn = 1
 saveat = t
-training_data = _cu(soldata')
-training_data = training_data[2:end-1, :]
+soldata = soldata'
+soldata = soldata[2:end-1, :]
+training_data = _cu(soldata)
 epochs = Iterators.repeated((), 20)
 learning_rate = ADAM(0.01)
 Flux.train!(loss_adjoint, lyrs, epochs, learning_rate, cb=cb)
