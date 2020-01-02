@@ -171,9 +171,9 @@ version = "1.1.0"
 
 [[DataDrivenDiffEq]]
 deps = ["Compat", "Convex", "GLPKMathProgInterface", "LinearAlgebra", "ModelingToolkit", "Test"]
-path = "/home/chrisrackauckas/.julia/dev/DataDrivenDiffEq"
+git-tree-sha1 = "5b35d412a630a12476e2920abe13c9d4a1299703"
 uuid = "2445eb08-9709-466a-b3fc-47e12bd697a2"
-version = "0.1.0"
+version = "0.1.1"
 
 [[DataFrames]]
 deps = ["CategoricalArrays", "Compat", "DataAPI", "Future", "InvertedIndices", "IteratorInterfaceExtensions", "Missings", "PooledArrays", "Printf", "REPL", "Reexport", "SortingAlgorithms", "Statistics", "TableTraits", "Tables", "Unicode"]
