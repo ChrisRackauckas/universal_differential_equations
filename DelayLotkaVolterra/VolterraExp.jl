@@ -64,11 +64,11 @@ s = diffeq_rd(p_, prob_, Tsit5())
 plot(Flux.data.(s)')
 
 function predict_rd()
-    diffeq_adjoint(p_, prob_, Vern7(), saveat = solution.t, abstol=1e-8, reltol=1e-8)
+    diffeq_rd(p_, prob_, Vern7(), saveat = solution.t, abstol=1e-8, reltol=1e-8)
 end
 
 function predict_rd(sol)
-    diffeq_adjoint(p_, prob_, u0 = param(sol[:,1]), Vern7(),
+    diffeq_rd(p_, prob_, u0 = param(sol[:,1]), Vern7(),
               abstol=1e-8, reltol=1e-8,
               saveat = sol.t)
 end
@@ -152,4 +152,4 @@ plot(solution, color = :blue)
 plot!(a_solution, linestyle = :dash , color = :red, label = ["Estimation", ""])
 
 using JLD2
-@save "knowledge_enhanced_NN.jld2" solution
+@save "knowledge_enhanced_NN.jld2" solution Ψ a_solution
