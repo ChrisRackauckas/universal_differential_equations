@@ -234,6 +234,65 @@ using Flux: @epochs
 cp("KPP-CNN-with-BC.jl", @sprintf("%s/runscript.jl", save_folder), force=true)
 @epochs 1000 Flux.train!(loss_rd, params(rx_nn, diff_cnn_, D0), [()], opt, cb = cb)
 
+## Save trained model
+using BSON: @save, @load
+@save @sprintf("%s/model.bson", save_folder) rx_nn diff_cnn_ w1_arr w2_arr w3_arr train_arr diff_arr
+
+#plot for PNAS paper
+@load @sprintf("%s/model.bson", save_folder) rx_nn diff_cnn_ w1_arr w2_arr w3_arr train_arr diff_arr
+#re-defintions for newly loaded data
+diff_cnn(x) = diff_cnn_(x) .- diff_cnn_.bias
+rx_nn_dat = Chain(rx_nn, x -> x.data)
+D0 = diff_arr[end]
+
+fig = figure(figsize=(4,4))
+
+    rcParams = PyPlot.PyDict(PyPlot.matplotlib."rcParams")
+    rcParams["font.size"] = 10
+    rcParams["text.usetex"] = true
+    rcParams["font.family"] = "serif"
+    rcParams["font.sans-serif"] = "Helvetica"
+    rcParams["axes.titlesize"] = 10
+
+    subplot(221)
+    pcolormesh(x,t,ode_data', rasterized=true)
+    xlabel(L"$x$"); ylabel(L"$t$"); title("Data")
+    yticks([0, 1, 2, 3, 4, 5])
+
+    ax = subplot(222)
+    cur_pred = Flux.data(predict_rd())
+    img = pcolormesh(x,t,cur_pred', rasterized=true)
+    global img
+    xlabel(L"$x$"); ylabel(L"$t$"); title("Prediction")
+    yticks([0, 1, 2, 3, 4, 5])
+    cax = fig.add_axes([.48,.62,.02,.29])
+    colb = fig.colorbar(img, cax=cax)
+    colb.ax.set_title(L"$\rho$")
+    clim([0, 1]);
+    colb.set_ticks([0, 1])
+
+    subplot(223)
+    plot(Flux.data(w1_arr ./ w3_arr) .- 1, label=L"$w_1/w_3 - 1$")
+    plot(Flux.data(w1_arr .+ w2_arr .+ w3_arr), label=L"$w_1 + w_2 + w_3$")
+    axhline(0.0, linestyle="--", color="k")
+    xlabel("Epochs"); title("CNN Weights")
+    xticks([0, 1500, 3000]); yticks([-0.4, -0.3,-0.2, -0.1, 0.0, 0.1])
+    legend(loc="lower right", frameon=false, fontsize=6)
+
+    subplot(224)
+    u = collect(0:0.01:1)
+    plot(u, rx_nn_dat.([[elem] for elem in u]), label="UPDE")[1];
+    plot(u, reaction.(u), linestyle="--", label="True")
+    xlabel(L"$\rho$")
+    title("Reaction Term")
+    legend(loc="lower center", frameon=false, fontsize=6);
+    ylim([0, 0.3])
+
+    tight_layout(h_pad=1)
+    gcf()
+
+
+savefig(@sprintf("%s/fisher_kpp.pdf", save_folder))
 
 #save loss vs epochs plot
 figure(figsize=(6,3))
@@ -242,10 +301,6 @@ xlabel("Epochs"); ylabel("Log(loss)")
 tight_layout()
 savefig(@sprintf("%s/loss_vs_epoch.pdf", save_folder))
 gcf()
-
-## Save trained model
-using BSON: @save
-@save @sprintf("%s/model.bson", save_folder) rx_nn diff_cnn_ w1_arr w2_arr w3_arr train_arr diff_arr
 
 #save D0 vs epochs plot
 figure(figsize=(6,3))
