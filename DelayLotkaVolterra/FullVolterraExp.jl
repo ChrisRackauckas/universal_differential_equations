@@ -55,12 +55,12 @@ s = diffeq_rd(p_, prob_, Tsit5())
 plot(Flux.data.(s)')
 
 function predict_rd()
-    diffeq_rd(p_, prob_, Vern7(), saveat = solution.t, abstol=1e-8, reltol=1e-8)
+    diffeq_rd(p_, prob_, Vern7(), saveat = solution.t, abstol=1e-6, reltol=1e-6)
 end
 
 function predict_rd(sol)
     diffeq_rd(p_, prob_, u0 = param(sol[:,1]), Vern7(),
-              abstol=1e-8, reltol=1e-8,
+              abstol=1e-6, reltol=1e-6,
               saveat = sol.t)
 end
 
@@ -68,20 +68,20 @@ end
 loss_rd() = sum(abs2, solution[:,:] .- predict_rd()[:,:]) # + 1e-5*sum(sum.(abs, params(ann)))
 loss_rd()
 
-# AdamW forgets, which might be nice since the nn changes topology over time
-opt = ADAM(1e-2)
-
 callback() = begin
     display(loss_rd())
 end
 
+opt = ADAM(3e-2)
 # Train the neural DDE
 Juno.@progress for i in 1:1000
     Flux.train!(loss_rd, params(ann), [()], opt, cb = callback)
 end
 
-using JLD2
-@save "knowledge_enhanced_NN.jld2" solution
+opt = Descent(1e-4)
+Juno.@progress for i in 1:10000
+    Flux.train!(loss_rd, params(ann), [()], opt, cb = callback)
+end
 
 # Plot the data and the approximation
 plot(solution.t, Flux.data.(predict_rd(solution)'))
@@ -91,15 +91,16 @@ loss_rd()
 plot(abs.(solution[:,:] .- Flux.data.(predict_rd()[:,:]))' .+ eps(Float32), yaxis = :log)
 
 _sol = diffeq_rd(p_, prob_, Vern7(), saveat = 0.01, abstol=1e-8, reltol=1e-8)
-Z = Tracker.data.(_sol[:,:])
-L = Flux.data(ann(Z))
+fnnZ = Tracker.data.(_sol[:,:])
+fnnL = Flux.data(ann(fnnZ))
 
-# Plot L₁
-plot3d(Z[1,:], Z[2,:], L[1,:], xlabel = "x", ylabel = "y", zlabel = "L₁")
-plot3d!(Z[1,:], Z[2,:], l1)
+# Get the analytical solution
+fnnl1 = p[1]*fnnZ[1,:]-p[2]*fnnZ[1,:].*fnnZ[2,:]
+fnnl2 = p[3]*fnnZ[1,:].*fnnZ[2,:] - p[4]*fnnZ[2,:]
+
 # Plot L₂
-plot3d(Z[1,:], Z[2,:],  L[2,:])
-plot3d!(Z[1,:], Z[2,:], l2)
+plot3d(fnnZ[1,:], fnnZ[2,:],  fnnL[2,:])
+plot3d!(fnnZ[1,:], fnnZ[2,:], fnnl2)
 
 # Create a Basis
 @variables u[1:2]
@@ -118,9 +119,9 @@ end
 
 # And some other stuff
 h = [cos(u[1]); sin(u[1]); polys...]
-L̃ = [l1'; l2']
+fnnL̃ = [fnnl1'; fnnl2']
 basis = Basis(h, u)
-Ψ = SInDy(Z[:, :], L̃[:, :], basis, ϵ = 1e-1)
+Ψ = SInDy(fnnZ[:, :], L̃[:, :], basis, ϵ = 1e-1)
 Ψ.basis
 
 

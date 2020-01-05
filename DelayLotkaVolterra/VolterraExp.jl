@@ -28,8 +28,8 @@ tspan = (0.0f0,3.0f0)
 u0 = rand(Float32, 2)*5.0f0
 #p = Float32[0.5, 0.5, 0.7, 0.3]
 p = Float32[1.3, 0.9, 0.5, 1.8]
-prob = ODEProblem(lotka, u0,tspan, p)
-solution = solve(prob, Vern7(), abstol=1e-12, reltol=1e-12, saveat = 0.1)
+prob_true = ODEProblem(lotka, u0,tspan, p)
+solution = solve(prob_true, Vern7(), abstol=1e-12, reltol=1e-12, saveat = 0.1)
 plot(solution)
 
 # Initial condition and parameter for the Neural ODE
@@ -40,7 +40,7 @@ p_ = param(p)
 # Define the neueral network which learns L(x, y, y(t-τ))
 # Actually, we do not care about overfitting right now, since we want to
 # extract the derivative information without numerical differentiation.
-ann = Chain(Dense(2, 32,swish),Dense(32, 32, swish), Dense(32, 32, swish),Dense(32, 2)) |> f32
+ann = Chain(Dense(2, 32,swish),Dense(32, 32, swish), Dense(32, 2)) |> f32
 ann(u0_)
 
 function dudt_(u::TrackedArray,p,t)
@@ -64,12 +64,12 @@ s = diffeq_rd(p_, prob_, Tsit5())
 plot(Flux.data.(s)')
 
 function predict_rd()
-    diffeq_rd(p_, prob_, Vern7(), saveat = solution.t, abstol=1e-8, reltol=1e-8)
+    diffeq_rd(p_, prob_, Vern7(), saveat = solution.t, abstol=1e-6, reltol=1e-6)
 end
 
 function predict_rd(sol)
     diffeq_rd(p_, prob_, u0 = param(sol[:,1]), Vern7(),
-              abstol=1e-8, reltol=1e-8,
+              abstol=1e-6, reltol=1e-6,
               saveat = sol.t)
 end
 
@@ -78,7 +78,7 @@ loss_rd() = sum(abs2, solution[:,:] .- predict_rd()[:,:]) # + 1e-5*sum(sum.(abs,
 loss_rd()
 
 # AdamW forgets, which might be nice since the nn changes topology over time
-opt = ADAM(1e-2)
+opt = ADAM(3e-2)
 
 callback() = begin
     display(loss_rd())
@@ -89,25 +89,22 @@ Juno.@progress for i in 1:1000
     Flux.train!(loss_rd, params(ann), [()], opt, cb = callback)
 end
 
+opt = Descent(1e-4)
+Juno.@progress for i in 1:10000
+    Flux.train!(loss_rd, params(ann), [()], opt, cb = callback)
+end
+
 # Plot the data and the approximation
 plot(solution.t, Flux.data.(predict_rd(solution)'))
 plot!(solution.t, solution[:,:]')
 loss_rd()
-# Plot the error
-plot(abs.(solution[:,:] .- Flux.data.(predict_rd()[:,:]))' .+ eps(Float32), yaxis = :log)
 
-_sol = diffeq_rd(p_, prob_, Vern7(), saveat = 0.01, abstol=1e-8, reltol=1e-8)
+_sol = diffeq_rd(p_, prob_, Vern7(), saveat = 0.1, abstol=1e-8, reltol=1e-8)
 Z = Tracker.data.(_sol[:,:])
 L = Flux.data(ann(Z))
 # Get the analytical solution
 l1 = -p[2]*Z[1,:].*Z[2,:]
 l2 = p[3]*Z[1,:].*Z[2,:]
-# Plot L₁
-plot3d(Z[1,:], Z[2,:], L[1,:], xlabel = "x", ylabel = "y", zlabel = "L₁")
-plot3d!(Z[1,:], Z[2,:], l1)
-# Plot L₂
-plot3d(Z[1,:], Z[2,:],  L[2,:])
-plot3d!(Z[1,:], Z[2,:], l2)
 
 # Create a Basis
 @variables u[1:2]
@@ -131,9 +128,6 @@ basis = Basis(h, u)
 Ψ = SInDy(Z[:, :], L̃[:, :], basis, ϵ = 1e-1)
 Ψ.basis
 
-plot(hcat(Ψ.(eachcol(Z))...)')
-plot!(L')
-
 function approx(du, u, p, t)
     #z = [u..., h(p, t-2.0f0)[2]]
     α, β, γ, δ = p
@@ -144,12 +138,37 @@ function approx(du, u, p, t)
     du .+= Ψ(u)
 end
 
+NNsolution = Flux.data.(predict_rd()[:,:])
+
 tspan = (0.0f0, 20.0f0)
 a_prob = ODEProblem(approx, u0, tspan, p)
-a_solution = solve(a_prob, Tsit5(), saveat = 0.1f0)
+a_solution = solve(a_prob, Vern7(), saveat = 0.1f0, abstol=1e-6, reltol=1e-6)
 
-plot(solution, color = :blue)
-plot!(a_solution, linestyle = :dash , color = :red, label = ["Estimation", ""])
+prob_true2 = ODEProblem(lotka, u0,tspan, p)
+solution_long = solve(prob_true, Vern7(), abstol=1e-8, reltol=1e-8, saveat = 0.1)
 
 using JLD2
-@save "knowledge_enhanced_NN.jld2" solution Ψ a_solution
+@save "knowledge_enhanced_NN.jld2" solution Ψ a_solution NNsolution ann solution_long Z L l1 l2
+
+p1 = plot(abs.(solution .- NNsolution)' .+ eps(Float32),
+          lw = 3, yaxis = :log, title = "Timeseries of UODE Error",
+          color = [:blue :green],
+          label = ["x(t)" "y(t)"],
+          legend = :bottomright)
+
+# Plot L₂
+p2 = plot(Z[1,:], Z[2,:], L[2,:], lw = 3,
+     title = "Neural Network Fit of U2(t)", color = :blue,
+     label = "Neural Network", xaxis = "x", yaxis="y",
+     legend = :bottomright)
+plot!(Z[1,:], Z[2,:], l2, lw = 3, label = "True Missing Term", color=:green)
+
+p3 = scatter(solution, color = [:red :orange], label = ["x data" "y data"], title = "Extrapolated Fit From Short Training Data")
+plot!(p3,solution_long, color = [:red :orange], label = ["True x(t)" "True y(t)"])
+plot!(p3,a_solution, linestyle = :dash , color = [:blue :green], label = ["Estimated x(t)" "Estimated x(t)"])
+
+l = @layout [grid(1,2)
+             grid(1,1)]
+plot(p1,p2,p3,layout = l)
+
+savefig("sindy_extrapolation.pdf")
