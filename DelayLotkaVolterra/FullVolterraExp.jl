@@ -25,7 +25,7 @@ end
 # Define the experimental parameter
 # Empirical upper bound is 7
 tspan = (0.0f0,3.0f0)
-u0 = rand(Float32, 2)*5.0f0
+u0 = [0.44249296,4.6280594]
 #p = Float32[0.5, 0.5, 0.7, 0.3]
 p = Float32[1.3, 0.9, 0.5, 1.8]
 prob = ODEProblem(lotka, u0,tspan, p)
