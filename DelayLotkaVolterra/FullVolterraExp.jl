@@ -121,7 +121,7 @@ end
 h = [cos(u[1]); sin(u[1]); polys...]
 fnnL̃ = [fnnl1'; fnnl2']
 basis = Basis(h, u)
-Ψ = SInDy(fnnZ[:, :], L̃[:, :], basis, ϵ = 1e-1)
+Ψ = SInDy(fnnZ[:, :], fnnL̃[:, :], basis, ϵ = 1e-1)
 Ψ.basis
 
 
