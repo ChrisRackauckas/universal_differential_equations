@@ -1,11 +1,15 @@
 cd(@__DIR__)
 using Pkg; Pkg.activate("."); Pkg.instantiate()
 
-#This script simulates the Fisher-KPP equation and fits
-#a neural PDE to the data
+#This script simulates the Fisher-KPP equation and
+#learns the reaction term along with the diffusion coefficient
 
 using PyPlot, Printf
-
+using LinearAlgebra
+using Flux, DiffEqFlux
+using BSON: @save, @load
+using Flux: @epochs
+using DifferentialEquations
 #parameters
 D = 0.01; #diffusion
 r = 1.0; #reaction rate
@@ -26,9 +30,7 @@ rho0 = Amp*(tanh.((x .- (0.5 - Delta/2))/(Delta/10)) - tanh.((x .- (0.5 + Delta/
 #IC-2
 #rho0 = Amp*(1 .- tanh.((x .- 0.2)/(Delta/6)))/2.
 
-#save_folder = "plots/12-12-rx-wave"
 save_folder = "data"
-
 if isdir(save_folder)
     rm(save_folder, recursive=true)
 end
@@ -36,12 +38,13 @@ mkdir(save_folder)
 
 figure()
 plot(x, rho0)
+title("Initial Condition")
 gcf()
 
+########################
+# Generate training data
+########################
 reaction(u) = r * u .* (1 .- u)
-
-using LinearAlgebra
-
 lap = diagm(0 => -2.0 * ones(Nx), 1=> ones(Nx-1), -1 => ones(Nx-1)) ./ dx^2
 
 #Periodic BC
@@ -56,7 +59,6 @@ function rc_ode(drho, rho, p, t)
     drho .= D * lap * rho + reaction.(rho)
 end
 
-using DifferentialEquations
 prob = ODEProblem(rc_ode, rho0, (0.0, T), saveat=dt)
 sol = solve(prob, Tsit5());
 ode_data = Array(sol);
@@ -75,11 +77,11 @@ end
 legend()
 gcf()
 tight_layout()
-savefig(@sprintf("%s/true_solution.pdf", save_folder))
+savefig(@sprintf("%s/data.pdf", save_folder))
 
-#### Define neural net for reverse mode AD
-using Flux, DiffEqFlux
-
+########################
+# Define the neural PDE
+########################
 n_weights = 20
 rx_nn = Chain(Dense(1,n_weights,swish),
              Dense(n_weights,2*n_weights,σ),
@@ -102,7 +104,10 @@ function nn_ode(u::AbstractArray,p,t)
     return du
 end
 
-#set up the neural ODE problem
+########################
+# Soving the neural PDE and setting up loss function
+########################
+
 prob_nn = ODEProblem(nn_ode,param(rho0), (0.0, T), D0)
 sol_nn = diffeq_rd(D0,prob_nn,Tsit5())
 
@@ -112,10 +117,12 @@ end
 
 loss_rd() = sum(abs2, ode_data .- predict_rd())
 
+########################
+# Training
+########################
+
 #Optimization
 opt = ADAM(0.01)
-
-using Printf
 
 global count = 0
 global save_count = 0
@@ -184,12 +191,11 @@ cb = function ()
 
 end
 
-cb()
-
-using Flux: @epochs
-#copy script
-cp("KPP-mixed-rev-mode.jl", @sprintf("%s/runscript.jl", save_folder))
+#train
 @epochs 500 Flux.train!(loss_rd, params(rx_nn, D0), [()], opt, cb = cb)
+
+## Save trained model
+@save @sprintf("%s/model.bson", save_folder) rx_nn
 
 #save loss vs epochs plot
 figure(figsize=(6,3))
@@ -198,10 +204,6 @@ xlabel("Epochs"); ylabel("Log(loss)")
 tight_layout()
 savefig(@sprintf("%s/loss_vs_epoch.pdf", save_folder))
 gcf()
-
-## Save trained model
-using BSON: @save
-@save @sprintf("%s/model.bson", save_folder) rx_nn
 
 #save D0 vs epochs plot
 figure(figsize=(6,3))
