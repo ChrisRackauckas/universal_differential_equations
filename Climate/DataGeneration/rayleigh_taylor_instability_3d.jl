@@ -141,3 +141,45 @@ end
 end
 
 # mp4(anim, "rayleigh_taylor_instability_3d.mp4", fps=15)
+
+@time begin
+    # Set up model
+    model = Model(
+               architecture = CPU(),
+                 float_type = Float64,
+                       grid = RegularCartesianGrid(size=(Nx, Ny, Nz), x=(-L/2, L/2), y=(-L/2, L/2), z=(-L/2, L/2)),
+                    tracers = (:b,),
+                   coriolis = nothing,
+                   buoyancy = BuoyancyTracer(),
+                    closure = ConstantIsotropicDiffusivity(ν=ν, κ=κ),
+        boundary_conditions = HorizontallyPeriodicSolutionBCs()
+    )
+    set!(model, b=b₀)
+    # Set up adaptive time stepping.
+    wizard = TimeStepWizard(cfl=0.2, Δt=1e-6, max_change=1.2, max_Δt=5e-3)
+
+    # Set up CFL diagnostics.
+    cfl = AdvectiveCFL(wizard)
+
+    while model.clock.time < end_time
+        walltime = @elapsed time_step!(model; Nt=Ni, Δt=wizard.Δt)
+
+        # Calculate simulation progress in %.
+        progress = 100 * (model.clock.time / end_time)
+
+        # Calculate maximum velocities.
+        umax = maximum(abs, model.velocities.u.data.parent)
+        vmax = maximum(abs, model.velocities.v.data.parent)
+        wmax = maximum(abs, model.velocities.w.data.parent)
+
+        # Calculate a new adaptive time step.
+        update_Δt!(wizard, model)
+
+        # Print progress statement.
+        i, t = model.clock.iteration, model.clock.time
+        @printf("[%05.2f%%] i: %d, t: %.2e, umax: (%.3e, %.3e, %.3e), CFL: %.4e, next Δt: %.2e, ⟨wall time⟩: %s\n",
+                progress, i, t, umax, vmax, wmax, cfl(model), wizard.Δt, prettytime(walltime / Ni))
+
+        # plot_buoyancy(model)
+    end
+end

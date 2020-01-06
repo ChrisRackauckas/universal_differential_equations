@@ -1,845 +1,859 @@
 Activating environment at `C:\Users\accou\.julia\external\universal_differential_equations\Climate\DataGeneration\Project.toml`
+
+[ Info: Precompiling Oceananigans [9e8cae18-63c1-5223-a75c-80ca9d6e9a09]
+CUDA-enabled GPU(s) detected:
+CuDevice(0): GeForce MX150
+WARNING: using Dates.second in module Oceananigans conflicts with an existing identifier.
+WARNING: using Dates.hour in module Oceananigans conflicts with an existing identifier.
+WARNING: using Dates.day in module Oceananigans conflicts with an existing identifier.
+WARNING: using Dates.minute in module Oceananigans conflicts with an existing identifier.
+WARNING: import of Grids.short_show into Oceananigans conflicts with an existing identifier; ignored.
+WARNING: using CUDAdrv.device in module TimeSteppers conflicts with an existing identifier.
+WARNING: using Oceananigans.Flux in module Main conflicts with an existing identifier.
+
+
+
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 51.814 ms
+[ Info: Calculation time: 510.242 ms
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_fields.jld2...
-[ Info: Writing done: time=5.504 ms, size=1.0 MiB, Δsize=1.0 MiB
+[ Info: Writing done: time=266.605 ms, size=1.0 MiB, Δsize=1.0 MiB
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 28.927 ms
+[ Info: Calculation time: 855.842 ms
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=2.317 ms, size=11.6 KiB, Δsize=4.9 KiB
-[00.00%] i: 20, t: 2.00e-05, umax: (1.376e-05, 0.000e+00, 1.896e-05), CFL: 2.9125e-09, next Δt: 1.20e-06, ⟨wall time⟩: 13.284 ms
-[00.00%] i: 40, t: 4.40e-05, umax: (3.027e-05, 0.000e+00, 4.171e-05), CFL: 7.6887e-09, next Δt: 1.44e-06, ⟨wall time⟩: 4.966 ms
-[00.00%] i: 60, t: 7.28e-05, umax: (5.007e-05, 0.000e+00, 6.901e-05), CFL: 1.5265e-08, next Δt: 1.73e-06, ⟨wall time⟩: 5.201 ms
-[00.00%] i: 80, t: 1.07e-04, umax: (7.384e-05, 0.000e+00, 1.018e-04), CFL: 2.7012e-08, next Δt: 2.07e-06, ⟨wall time⟩: 5.428 ms
-[00.00%] i: 100, t: 1.49e-04, umax: (1.024e-04, 0.000e+00, 1.411e-04), CFL: 4.4933e-08, next Δt: 2.49e-06, ⟨wall time⟩: 5.242 ms
-[00.00%] i: 120, t: 1.99e-04, umax: (1.366e-04, 0.000e+00, 1.882e-04), CFL: 7.1943e-08, next Δt: 2.99e-06, ⟨wall time⟩: 5.565 ms
-[00.00%] i: 140, t: 2.58e-04, umax: (1.776e-04, 0.000e+00, 2.448e-04), CFL: 1.1228e-07, next Δt: 3.58e-06, ⟨wall time⟩: 5.220 ms
-[00.00%] i: 160, t: 3.30e-04, umax: (2.268e-04, 0.000e+00, 3.127e-04), CFL: 1.7209e-07, next Δt: 4.30e-06, ⟨wall time⟩: 5.171 ms
-[00.00%] i: 180, t: 4.16e-04, umax: (2.859e-04, 0.000e+00, 3.941e-04), CFL: 2.6029e-07, next Δt: 5.16e-06, ⟨wall time⟩: 5.094 ms
-[00.01%] i: 200, t: 5.19e-04, umax: (3.567e-04, 0.000e+00, 4.918e-04), CFL: 3.8977e-07, next Δt: 6.19e-06, ⟨wall time⟩: 5.318 ms
-[00.01%] i: 220, t: 6.43e-04, umax: (4.417e-04, 0.000e+00, 6.090e-04), CFL: 5.7916e-07, next Δt: 7.43e-06, ⟨wall time⟩: 5.619 ms
-[00.01%] i: 240, t: 7.92e-04, umax: (5.436e-04, 0.000e+00, 7.495e-04), CFL: 8.5539e-07, next Δt: 8.92e-06, ⟨wall time⟩: 5.134 ms
-[00.01%] i: 260, t: 9.70e-04, umax: (6.657e-04, 0.000e+00, 9.181e-04), CFL: 1.2573e-06, next Δt: 1.07e-05, ⟨wall time⟩: 5.208 ms
-[00.01%] i: 280, t: 1.18e-03, umax: (8.122e-04, 0.000e+00, 1.120e-03), CFL: 1.8410e-06, next Δt: 1.28e-05, ⟨wall time⟩: 5.180 ms
-[00.01%] i: 300, t: 1.44e-03, umax: (9.877e-04, 0.000e+00, 1.363e-03), CFL: 2.6871e-06, next Δt: 1.54e-05, ⟨wall time⟩: 5.406 ms
-[00.02%] i: 320, t: 1.75e-03, umax: (1.198e-03, 0.000e+00, 1.653e-03), CFL: 3.9122e-06, next Δt: 1.85e-05, ⟨wall time⟩: 5.169 ms
-[00.02%] i: 340, t: 2.12e-03, umax: (1.450e-03, 0.000e+00, 2.001e-03), CFL: 5.6836e-06, next Δt: 2.22e-05, ⟨wall time⟩: 5.446 ms
-[00.03%] i: 360, t: 2.56e-03, umax: (1.752e-03, 0.000e+00, 2.419e-03), CFL: 8.2426e-06, next Δt: 2.66e-05, ⟨wall time⟩: 5.023 ms
-[00.03%] i: 380, t: 3.09e-03, umax: (2.113e-03, 0.000e+00, 2.919e-03), CFL: 1.1936e-05, next Δt: 3.19e-05, ⟨wall time⟩: 5.584 ms
-[00.04%] i: 400, t: 3.73e-03, umax: (2.546e-03, 0.000e+00, 3.518e-03), CFL: 1.7262e-05, next Δt: 3.83e-05, ⟨wall time⟩: 5.293 ms
-[00.05%] i: 420, t: 4.50e-03, umax: (3.063e-03, 0.000e+00, 4.234e-03), CFL: 2.4936e-05, next Δt: 4.60e-05, ⟨wall time⟩: 5.388 ms
-[00.05%] i: 440, t: 5.42e-03, umax: (3.681e-03, 0.000e+00, 5.092e-03), CFL: 3.5985e-05, next Δt: 5.52e-05, ⟨wall time⟩: 5.391 ms
-[00.07%] i: 460, t: 6.52e-03, umax: (4.420e-03, 0.000e+00, 6.118e-03), CFL: 5.1883e-05, next Δt: 6.62e-05, ⟨wall time⟩: 5.117 ms
-[00.08%] i: 480, t: 7.85e-03, umax: (5.301e-03, 0.000e+00, 7.345e-03), CFL: 7.4739e-05, next Δt: 7.95e-05, ⟨wall time⟩: 5.605 ms
-[00.09%] i: 500, t: 9.44e-03, umax: (6.351e-03, 0.000e+00, 8.810e-03), CFL: 1.0758e-04, next Δt: 9.54e-05, ⟨wall time⟩: 5.495 ms
-[00.11%] i: 520, t: 1.13e-02, umax: (7.600e-03, 0.000e+00, 1.056e-02), CFL: 1.5471e-04, next Δt: 1.14e-04, ⟨wall time⟩: 8.032 ms
-[00.14%] i: 540, t: 1.36e-02, umax: (9.084e-03, 0.000e+00, 1.264e-02), CFL: 2.2231e-04, next Δt: 1.37e-04, ⟨wall time⟩: 5.410 ms
-[00.16%] i: 560, t: 1.64e-02, umax: (1.084e-02, 0.000e+00, 1.513e-02), CFL: 3.1916e-04, next Δt: 1.65e-04, ⟨wall time⟩: 5.186 ms
-[00.20%] i: 580, t: 1.97e-02, umax: (1.293e-02, 0.000e+00, 1.808e-02), CFL: 4.5779e-04, next Δt: 1.98e-04, ⟨wall time⟩: 5.815 ms
-[00.24%] i: 600, t: 2.36e-02, umax: (1.538e-02, 0.000e+00, 2.159e-02), CFL: 6.5599e-04, next Δt: 2.37e-04, ⟨wall time⟩: 5.880 ms
-[00.28%] i: 620, t: 2.84e-02, umax: (1.826e-02, 0.000e+00, 2.575e-02), CFL: 9.3903e-04, next Δt: 2.85e-04, ⟨wall time⟩: 5.245 ms
-[00.34%] i: 640, t: 3.41e-02, umax: (2.163e-02, 0.000e+00, 3.069e-02), CFL: 1.3427e-03, next Δt: 3.42e-04, ⟨wall time⟩: 5.171 ms
-[00.41%] i: 660, t: 4.09e-02, umax: (2.555e-02, 0.000e+00, 3.653e-02), CFL: 1.9179e-03, next Δt: 4.10e-04, ⟨wall time⟩: 5.001 ms
-[00.49%] i: 680, t: 4.91e-02, umax: (3.006e-02, 0.000e+00, 4.343e-02), CFL: 2.7363e-03, next Δt: 4.92e-04, ⟨wall time⟩: 5.342 ms
-[00.59%] i: 700, t: 5.90e-02, umax: (3.519e-02, 0.000e+00, 5.158e-02), CFL: 3.8998e-03, next Δt: 5.91e-04, ⟨wall time⟩: 5.271 ms
-[00.71%] i: 720, t: 7.08e-02, umax: (4.136e-02, 0.000e+00, 6.119e-02), CFL: 5.5516e-03, next Δt: 7.09e-04, ⟨wall time⟩: 5.275 ms
-[00.85%] i: 740, t: 8.50e-02, umax: (4.952e-02, 0.000e+00, 7.250e-02), CFL: 7.8931e-03, next Δt: 8.51e-04, ⟨wall time⟩: 5.620 ms
+[ Info: Writing done: time=36.086 ms, size=11.6 KiB, Δsize=4.9 KiB
+[00.00%] i: 20, t: 2.00e-05, umax: (1.376e-05, 0.000e+00, 1.896e-05), CFL: 2.9125e-09, next Δt: 1.20e-06, ⟨wall time⟩: 539.548 ms
+[00.00%] i: 40, t: 4.40e-05, umax: (3.027e-05, 0.000e+00, 4.171e-05), CFL: 7.6887e-09, next Δt: 1.44e-06, ⟨wall time⟩: 7.676 ms
+[00.00%] i: 60, t: 7.28e-05, umax: (5.007e-05, 0.000e+00, 6.901e-05), CFL: 1.5265e-08, next Δt: 1.73e-06, ⟨wall time⟩: 7.461 ms
+[00.00%] i: 80, t: 1.07e-04, umax: (7.384e-05, 0.000e+00, 1.018e-04), CFL: 2.7012e-08, next Δt: 2.07e-06, ⟨wall time⟩: 7.725 ms
+[00.00%] i: 100, t: 1.49e-04, umax: (1.024e-04, 0.000e+00, 1.411e-04), CFL: 4.4933e-08, next Δt: 2.49e-06, ⟨wall time⟩: 8.846 ms
+[00.00%] i: 120, t: 1.99e-04, umax: (1.366e-04, 0.000e+00, 1.882e-04), CFL: 7.1943e-08, next Δt: 2.99e-06, ⟨wall time⟩: 7.275 ms
+[00.00%] i: 140, t: 2.58e-04, umax: (1.776e-04, 0.000e+00, 2.448e-04), CFL: 1.1228e-07, next Δt: 3.58e-06, ⟨wall time⟩: 8.096 ms
+[00.00%] i: 160, t: 3.30e-04, umax: (2.268e-04, 0.000e+00, 3.127e-04), CFL: 1.7209e-07, next Δt: 4.30e-06, ⟨wall time⟩: 8.479 ms
+[00.00%] i: 180, t: 4.16e-04, umax: (2.859e-04, 0.000e+00, 3.941e-04), CFL: 2.6029e-07, next Δt: 5.16e-06, ⟨wall time⟩: 7.972 ms
+[00.01%] i: 200, t: 5.19e-04, umax: (3.567e-04, 0.000e+00, 4.918e-04), CFL: 3.8977e-07, next Δt: 6.19e-06, ⟨wall time⟩: 8.101 ms
+[00.01%] i: 220, t: 6.43e-04, umax: (4.417e-04, 0.000e+00, 6.090e-04), CFL: 5.7916e-07, next Δt: 7.43e-06, ⟨wall time⟩: 7.578 ms
+[00.01%] i: 240, t: 7.92e-04, umax: (5.436e-04, 0.000e+00, 7.495e-04), CFL: 8.5539e-07, next Δt: 8.92e-06, ⟨wall time⟩: 7.871 ms
+[00.01%] i: 260, t: 9.70e-04, umax: (6.657e-04, 0.000e+00, 9.181e-04), CFL: 1.2573e-06, next Δt: 1.07e-05, ⟨wall time⟩: 8.869 ms
+[00.01%] i: 280, t: 1.18e-03, umax: (8.122e-04, 0.000e+00, 1.120e-03), CFL: 1.8410e-06, next Δt: 1.28e-05, ⟨wall time⟩: 8.064 ms
+[00.01%] i: 300, t: 1.44e-03, umax: (9.877e-04, 0.000e+00, 1.363e-03), CFL: 2.6871e-06, next Δt: 1.54e-05, ⟨wall time⟩: 7.877 ms
+[00.02%] i: 320, t: 1.75e-03, umax: (1.198e-03, 0.000e+00, 1.653e-03), CFL: 3.9122e-06, next Δt: 1.85e-05, ⟨wall time⟩: 7.929 ms
+[00.02%] i: 340, t: 2.12e-03, umax: (1.450e-03, 0.000e+00, 2.001e-03), CFL: 5.6836e-06, next Δt: 2.22e-05, ⟨wall time⟩: 7.871 ms
+[00.03%] i: 360, t: 2.56e-03, umax: (1.752e-03, 0.000e+00, 2.419e-03), CFL: 8.2426e-06, next Δt: 2.66e-05, ⟨wall time⟩: 7.593 ms
+[00.03%] i: 380, t: 3.09e-03, umax: (2.113e-03, 0.000e+00, 2.919e-03), CFL: 1.1936e-05, next Δt: 3.19e-05, ⟨wall time⟩: 7.745 ms
+[00.04%] i: 400, t: 3.73e-03, umax: (2.546e-03, 0.000e+00, 3.518e-03), CFL: 1.7262e-05, next Δt: 3.83e-05, ⟨wall time⟩: 7.234 ms
+[00.05%] i: 420, t: 4.50e-03, umax: (3.063e-03, 0.000e+00, 4.234e-03), CFL: 2.4936e-05, next Δt: 4.60e-05, ⟨wall time⟩: 7.724 ms
+[00.05%] i: 440, t: 5.42e-03, umax: (3.681e-03, 0.000e+00, 5.092e-03), CFL: 3.5985e-05, next Δt: 5.52e-05, ⟨wall time⟩: 7.223 ms
+[00.07%] i: 460, t: 6.52e-03, umax: (4.420e-03, 0.000e+00, 6.118e-03), CFL: 5.1883e-05, next Δt: 6.62e-05, ⟨wall time⟩: 7.768 ms
+[00.08%] i: 480, t: 7.85e-03, umax: (5.301e-03, 0.000e+00, 7.345e-03), CFL: 7.4739e-05, next Δt: 7.95e-05, ⟨wall time⟩: 8.090 ms
+[00.09%] i: 500, t: 9.44e-03, umax: (6.351e-03, 0.000e+00, 8.810e-03), CFL: 1.0758e-04, next Δt: 9.54e-05, ⟨wall time⟩: 8.927 ms
+[00.11%] i: 520, t: 1.13e-02, umax: (7.600e-03, 0.000e+00, 1.056e-02), CFL: 1.5471e-04, next Δt: 1.14e-04, ⟨wall time⟩: 10.192 ms
+[00.14%] i: 540, t: 1.36e-02, umax: (9.084e-03, 0.000e+00, 1.264e-02), CFL: 2.2231e-04, next Δt: 1.37e-04, ⟨wall time⟩: 9.640 ms
+[00.16%] i: 560, t: 1.64e-02, umax: (1.084e-02, 0.000e+00, 1.513e-02), CFL: 3.1916e-04, next Δt: 1.65e-04, ⟨wall time⟩: 9.938 ms
+[00.20%] i: 580, t: 1.97e-02, umax: (1.293e-02, 0.000e+00, 1.808e-02), CFL: 4.5779e-04, next Δt: 1.98e-04, ⟨wall time⟩: 9.967 ms
+[00.24%] i: 600, t: 2.36e-02, umax: (1.538e-02, 0.000e+00, 2.159e-02), CFL: 6.5599e-04, next Δt: 2.37e-04, ⟨wall time⟩: 10.377 ms
+[00.28%] i: 620, t: 2.84e-02, umax: (1.826e-02, 0.000e+00, 2.575e-02), CFL: 9.3903e-04, next Δt: 2.85e-04, ⟨wall time⟩: 10.680 ms
+[00.34%] i: 640, t: 3.41e-02, umax: (2.163e-02, 0.000e+00, 3.069e-02), CFL: 1.3427e-03, next Δt: 3.42e-04, ⟨wall time⟩: 9.001 ms
+[00.41%] i: 660, t: 4.09e-02, umax: (2.555e-02, 0.000e+00, 3.653e-02), CFL: 1.9179e-03, next Δt: 4.10e-04, ⟨wall time⟩: 7.483 ms
+[00.49%] i: 680, t: 4.91e-02, umax: (3.006e-02, 0.000e+00, 4.343e-02), CFL: 2.7363e-03, next Δt: 4.92e-04, ⟨wall time⟩: 8.143 ms
+[00.59%] i: 700, t: 5.90e-02, umax: (3.519e-02, 0.000e+00, 5.158e-02), CFL: 3.8998e-03, next Δt: 5.91e-04, ⟨wall time⟩: 7.971 ms
+[00.71%] i: 720, t: 7.08e-02, umax: (4.136e-02, 0.000e+00, 6.119e-02), CFL: 5.5516e-03, next Δt: 7.09e-04, ⟨wall time⟩: 7.589 ms
+[00.85%] i: 740, t: 8.50e-02, umax: (4.952e-02, 0.000e+00, 7.250e-02), CFL: 7.8931e-03, next Δt: 8.51e-04, ⟨wall time⟩: 8.865 ms
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 336.100 μs
+[ Info: Calculation time: 457.200 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=7.034 ms, size=16.1 KiB, Δsize=4.6 KiB
-[01.02%] i: 760, t: 1.02e-01, umax: (5.905e-02, 0.000e+00, 8.575e-02), CFL: 1.1203e-02, next Δt: 1.02e-03, ⟨wall time⟩: 6.380 ms
-[01.22%] i: 780, t: 1.22e-01, umax: (6.982e-02, 0.000e+00, 1.011e-01), CFL: 1.5854e-02, next Δt: 1.22e-03, ⟨wall time⟩: 6.721 ms
-[01.47%] i: 800, t: 1.47e-01, umax: (8.114e-02, 0.000e+00, 1.201e-01), CFL: 2.2587e-02, next Δt: 1.47e-03, ⟨wall time⟩: 5.314 ms
-[01.76%] i: 820, t: 1.76e-01, umax: (9.586e-02, 0.000e+00, 1.454e-01), CFL: 3.2819e-02, next Δt: 1.76e-03, ⟨wall time⟩: 5.237 ms
+[ Info: Writing done: time=7.491 ms, size=16.1 KiB, Δsize=4.6 KiB
+[01.02%] i: 760, t: 1.02e-01, umax: (5.905e-02, 0.000e+00, 8.575e-02), CFL: 1.1203e-02, next Δt: 1.02e-03, ⟨wall time⟩: 58.334 ms
+[01.22%] i: 780, t: 1.22e-01, umax: (6.982e-02, 0.000e+00, 1.011e-01), CFL: 1.5854e-02, next Δt: 1.22e-03, ⟨wall time⟩: 7.054 ms
+[01.47%] i: 800, t: 1.47e-01, umax: (8.114e-02, 0.000e+00, 1.201e-01), CFL: 2.2587e-02, next Δt: 1.47e-03, ⟨wall time⟩: 7.214 ms
+[01.76%] i: 820, t: 1.76e-01, umax: (9.586e-02, 0.000e+00, 1.454e-01), CFL: 3.2819e-02, next Δt: 1.76e-03, ⟨wall time⟩: 7.784 ms
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 234.900 μs
+[ Info: Calculation time: 448.400 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=6.556 ms, size=20.7 KiB, Δsize=4.6 KiB
-[02.12%] i: 840, t: 2.12e-01, umax: (1.141e-01, 0.000e+00, 1.722e-01), CFL: 4.6649e-02, next Δt: 2.12e-03, ⟨wall time⟩: 6.661 ms
-[02.54%] i: 860, t: 2.54e-01, umax: (1.348e-01, 0.000e+00, 2.021e-01), CFL: 6.5685e-02, next Δt: 2.54e-03, ⟨wall time⟩: 5.624 ms
+[ Info: Writing done: time=7.554 ms, size=20.7 KiB, Δsize=4.6 KiB
+[02.12%] i: 840, t: 2.12e-01, umax: (1.141e-01, 0.000e+00, 1.722e-01), CFL: 4.6649e-02, next Δt: 2.12e-03, ⟨wall time⟩: 55.480 ms
+[02.54%] i: 860, t: 2.54e-01, umax: (1.348e-01, 0.000e+00, 2.021e-01), CFL: 6.5685e-02, next Δt: 2.54e-03, ⟨wall time⟩: 8.345 ms
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 304.100 μs
+[ Info: Calculation time: 429.300 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=7.715 ms, size=25.2 KiB, Δsize=4.6 KiB
-[03.05%] i: 880, t: 3.05e-01, umax: (1.609e-01, 0.000e+00, 2.301e-01), CFL: 8.9744e-02, next Δt: 3.05e-03, ⟨wall time⟩: 7.214 ms
-[03.66%] i: 900, t: 3.66e-01, umax: (1.888e-01, 0.000e+00, 2.693e-01), CFL: 1.2608e-01, next Δt: 3.66e-03, ⟨wall time⟩: 6.601 ms
+[ Info: Writing done: time=7.849 ms, size=25.2 KiB, Δsize=4.6 KiB
+[03.05%] i: 880, t: 3.05e-01, umax: (1.609e-01, 0.000e+00, 2.301e-01), CFL: 8.9744e-02, next Δt: 3.05e-03, ⟨wall time⟩: 50.004 ms
+[03.66%] i: 900, t: 3.66e-01, umax: (1.888e-01, 0.000e+00, 2.693e-01), CFL: 1.2608e-01, next Δt: 3.66e-03, ⟨wall time⟩: 7.689 ms
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 228.100 μs
+[ Info: Calculation time: 438.599 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=7.529 ms, size=29.8 KiB, Δsize=4.6 KiB
-[04.39%] i: 920, t: 4.39e-01, umax: (2.220e-01, 0.000e+00, 3.306e-01), CFL: 1.8571e-01, next Δt: 4.39e-03, ⟨wall time⟩: 7.658 ms
+[ Info: Writing done: time=5.970 ms, size=29.8 KiB, Δsize=4.6 KiB
+[04.39%] i: 920, t: 4.39e-01, umax: (2.220e-01, 0.000e+00, 3.306e-01), CFL: 1.8571e-01, next Δt: 4.39e-03, ⟨wall time⟩: 55.381 ms
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 358.099 μs
+[ Info: Calculation time: 439.700 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=5.993 ms, size=34.3 KiB, Δsize=4.6 KiB
-[05.27%] i: 940, t: 5.27e-01, umax: (2.548e-01, 0.000e+00, 4.016e-01), CFL: 2.0000e-01, next Δt: 3.89e-03, ⟨wall time⟩: 7.085 ms
+[ Info: Writing done: time=6.475 ms, size=34.3 KiB, Δsize=4.6 KiB
+[05.27%] i: 940, t: 5.27e-01, umax: (2.548e-01, 0.000e+00, 4.016e-01), CFL: 2.0000e-01, next Δt: 3.89e-03, ⟨wall time⟩: 54.400 ms
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 315.000 μs
+[ Info: Calculation time: 436.800 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=5.391 ms, size=38.9 KiB, Δsize=4.6 KiB
-[06.04%] i: 960, t: 6.04e-01, umax: (2.802e-01, 0.000e+00, 4.674e-01), CFL: 2.0000e-01, next Δt: 3.34e-03, ⟨wall time⟩: 6.822 ms
-[06.71%] i: 980, t: 6.71e-01, umax: (3.171e-01, 0.000e+00, 5.464e-01), CFL: 2.0000e-01, next Δt: 2.86e-03, ⟨wall time⟩: 6.212 ms
+[ Info: Writing done: time=7.389 ms, size=38.9 KiB, Δsize=4.6 KiB
+[06.04%] i: 960, t: 6.04e-01, umax: (2.802e-01, 0.000e+00, 4.674e-01), CFL: 2.0000e-01, next Δt: 3.34e-03, ⟨wall time⟩: 63.110 ms
+[06.71%] i: 980, t: 6.71e-01, umax: (3.171e-01, 0.000e+00, 5.464e-01), CFL: 2.0000e-01, next Δt: 2.86e-03, ⟨wall time⟩: 6.899 ms
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 248.701 μs
+[ Info: Calculation time: 348.600 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=5.048 ms, size=43.4 KiB, Δsize=4.6 KiB
-[07.28%] i: 1000, t: 7.28e-01, umax: (3.478e-01, 0.000e+00, 6.125e-01), CFL: 2.0000e-01, next Δt: 2.55e-03, ⟨wall time⟩: 6.560 ms
-[07.79%] i: 1020, t: 7.79e-01, umax: (3.835e-01, 0.000e+00, 6.743e-01), CFL: 2.0000e-01, next Δt: 2.32e-03, ⟨wall time⟩: 5.307 ms
+[ Info: Writing done: time=7.391 ms, size=43.4 KiB, Δsize=4.6 KiB
+[07.28%] i: 1000, t: 7.28e-01, umax: (3.478e-01, 0.000e+00, 6.125e-01), CFL: 2.0000e-01, next Δt: 2.55e-03, ⟨wall time⟩: 51.275 ms
+[07.79%] i: 1020, t: 7.79e-01, umax: (3.835e-01, 0.000e+00, 6.743e-01), CFL: 2.0000e-01, next Δt: 2.32e-03, ⟨wall time⟩: 7.102 ms
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 322.200 μs
+[ Info: Calculation time: 339.600 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=7.111 ms, size=48.0 KiB, Δsize=4.6 KiB
-[08.26%] i: 1040, t: 8.26e-01, umax: (4.548e-01, 0.000e+00, 7.338e-01), CFL: 2.0000e-01, next Δt: 2.13e-03, ⟨wall time⟩: 9.211 ms
-[08.68%] i: 1060, t: 8.68e-01, umax: (4.994e-01, 0.000e+00, 8.167e-01), CFL: 2.0000e-01, next Δt: 1.91e-03, ⟨wall time⟩: 5.633 ms
+[ Info: Writing done: time=10.481 ms, size=48.0 KiB, Δsize=4.6 KiB
+[08.26%] i: 1040, t: 8.26e-01, umax: (4.548e-01, 0.000e+00, 7.338e-01), CFL: 2.0000e-01, next Δt: 2.13e-03, ⟨wall time⟩: 61.057 ms
+[08.68%] i: 1060, t: 8.68e-01, umax: (4.994e-01, 0.000e+00, 8.167e-01), CFL: 2.0000e-01, next Δt: 1.91e-03, ⟨wall time⟩: 9.470 ms
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 227.401 μs
+[ Info: Calculation time: 350.000 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=7.509 ms, size=52.5 KiB, Δsize=4.6 KiB
-[09.07%] i: 1080, t: 9.07e-01, umax: (5.357e-01, 0.000e+00, 8.975e-01), CFL: 2.0000e-01, next Δt: 1.74e-03, ⟨wall time⟩: 6.275 ms
-[09.41%] i: 1100, t: 9.41e-01, umax: (5.620e-01, 0.000e+00, 9.726e-01), CFL: 2.0000e-01, next Δt: 1.61e-03, ⟨wall time⟩: 5.882 ms
-[09.74%] i: 1120, t: 9.74e-01, umax: (5.736e-01, 0.000e+00, 1.038e+00), CFL: 2.0000e-01, next Δt: 1.50e-03, ⟨wall time⟩: 5.176 ms
+[ Info: Writing done: time=7.739 ms, size=52.5 KiB, Δsize=4.6 KiB
+[09.07%] i: 1080, t: 9.07e-01, umax: (5.357e-01, 0.000e+00, 8.975e-01), CFL: 2.0000e-01, next Δt: 1.74e-03, ⟨wall time⟩: 68.368 ms
+[09.41%] i: 1100, t: 9.41e-01, umax: (5.620e-01, 0.000e+00, 9.726e-01), CFL: 2.0000e-01, next Δt: 1.61e-03, ⟨wall time⟩: 8.110 ms
+[09.74%] i: 1120, t: 9.74e-01, umax: (5.736e-01, 0.000e+00, 1.038e+00), CFL: 2.0000e-01, next Δt: 1.50e-03, ⟨wall time⟩: 7.855 ms
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 360.899 μs
+[ Info: Calculation time: 527.299 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_fields.jld2...
-[ Info: Writing done: time=8.691 ms, size=2.0 MiB, Δsize=1.0 MiB
+[ Info: Writing done: time=10.917 ms, size=2.0 MiB, Δsize=1.0 MiB
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 311.199 μs
+[ Info: Calculation time: 433.599 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=5.535 ms, size=57.1 KiB, Δsize=4.6 KiB
-[10.04%] i: 1140, t: 1.00e+00, umax: (5.729e-01, 0.000e+00, 1.090e+00), CFL: 2.0000e-01, next Δt: 1.43e-03, ⟨wall time⟩: 8.333 ms
-[10.32%] i: 1160, t: 1.03e+00, umax: (5.800e-01, 0.000e+00, 1.127e+00), CFL: 2.0000e-01, next Δt: 1.39e-03, ⟨wall time⟩: 5.825 ms
-[10.60%] i: 1180, t: 1.06e+00, umax: (5.840e-01, 0.000e+00, 1.148e+00), CFL: 2.0000e-01, next Δt: 1.36e-03, ⟨wall time⟩: 5.187 ms
-[10.87%] i: 1200, t: 1.09e+00, umax: (5.813e-01, 0.000e+00, 1.190e+00), CFL: 2.0000e-01, next Δt: 1.31e-03, ⟨wall time⟩: 12.074 ms
+[ Info: Writing done: time=9.015 ms, size=57.1 KiB, Δsize=4.6 KiB
+[10.04%] i: 1140, t: 1.00e+00, umax: (5.729e-01, 0.000e+00, 1.090e+00), CFL: 2.0000e-01, next Δt: 1.43e-03, ⟨wall time⟩: 95.283 ms
+[10.32%] i: 1160, t: 1.03e+00, umax: (5.800e-01, 0.000e+00, 1.127e+00), CFL: 2.0000e-01, next Δt: 1.39e-03, ⟨wall time⟩: 9.491 ms
+[10.60%] i: 1180, t: 1.06e+00, umax: (5.840e-01, 0.000e+00, 1.148e+00), CFL: 2.0000e-01, next Δt: 1.36e-03, ⟨wall time⟩: 7.833 ms
+[10.87%] i: 1200, t: 1.09e+00, umax: (5.813e-01, 0.000e+00, 1.190e+00), CFL: 2.0000e-01, next Δt: 1.31e-03, ⟨wall time⟩: 8.930 ms
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 284.700 μs
+[ Info: Calculation time: 366.900 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=6.548 ms, size=61.7 KiB, Δsize=4.6 KiB
-[11.14%] i: 1220, t: 1.11e+00, umax: (5.748e-01, 0.000e+00, 1.245e+00), CFL: 2.0000e-01, next Δt: 1.25e-03, ⟨wall time⟩: 6.659 ms
-[11.39%] i: 1240, t: 1.14e+00, umax: (5.624e-01, 0.000e+00, 1.273e+00), CFL: 2.0000e-01, next Δt: 1.23e-03, ⟨wall time⟩: 5.635 ms
-[11.63%] i: 1260, t: 1.16e+00, umax: (5.348e-01, 0.000e+00, 1.272e+00), CFL: 2.0000e-01, next Δt: 1.23e-03, ⟨wall time⟩: 5.114 ms
-[11.88%] i: 1280, t: 1.19e+00, umax: (5.066e-01, 0.000e+00, 1.252e+00), CFL: 2.0000e-01, next Δt: 1.25e-03, ⟨wall time⟩: 5.030 ms
+[ Info: Writing done: time=7.382 ms, size=61.7 KiB, Δsize=4.6 KiB
+[11.14%] i: 1220, t: 1.11e+00, umax: (5.748e-01, 0.000e+00, 1.245e+00), CFL: 2.0000e-01, next Δt: 1.25e-03, ⟨wall time⟩: 65.119 ms
+[11.39%] i: 1240, t: 1.14e+00, umax: (5.624e-01, 0.000e+00, 1.273e+00), CFL: 2.0000e-01, next Δt: 1.23e-03, ⟨wall time⟩: 8.280 ms
+[11.63%] i: 1260, t: 1.16e+00, umax: (5.348e-01, 0.000e+00, 1.272e+00), CFL: 2.0000e-01, next Δt: 1.23e-03, ⟨wall time⟩: 8.777 ms
+[11.88%] i: 1280, t: 1.19e+00, umax: (5.066e-01, 0.000e+00, 1.252e+00), CFL: 2.0000e-01, next Δt: 1.25e-03, ⟨wall time⟩: 8.902 ms
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 219.401 μs
+[ Info: Calculation time: 419.200 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=8.191 ms, size=66.2 KiB, Δsize=4.6 KiB
-[12.13%] i: 1300, t: 1.21e+00, umax: (4.795e-01, 0.000e+00, 1.215e+00), CFL: 2.0000e-01, next Δt: 1.29e-03, ⟨wall time⟩: 7.074 ms
-[12.38%] i: 1320, t: 1.24e+00, umax: (4.548e-01, 0.000e+00, 1.166e+00), CFL: 2.0000e-01, next Δt: 1.34e-03, ⟨wall time⟩: 5.584 ms
-[12.65%] i: 1340, t: 1.27e+00, umax: (4.740e-01, 0.000e+00, 1.114e+00), CFL: 2.0000e-01, next Δt: 1.40e-03, ⟨wall time⟩: 5.402 ms
-[12.93%] i: 1360, t: 1.29e+00, umax: (4.859e-01, 0.000e+00, 1.061e+00), CFL: 2.0000e-01, next Δt: 1.47e-03, ⟨wall time⟩: 4.988 ms
+[ Info: Writing done: time=14.572 ms, size=66.2 KiB, Δsize=4.6 KiB
+[12.13%] i: 1300, t: 1.21e+00, umax: (4.795e-01, 0.000e+00, 1.215e+00), CFL: 2.0000e-01, next Δt: 1.29e-03, ⟨wall time⟩: 78.259 ms
+[12.38%] i: 1320, t: 1.24e+00, umax: (4.548e-01, 0.000e+00, 1.166e+00), CFL: 2.0000e-01, next Δt: 1.34e-03, ⟨wall time⟩: 18.585 ms
+[12.65%] i: 1340, t: 1.27e+00, umax: (4.740e-01, 0.000e+00, 1.114e+00), CFL: 2.0000e-01, next Δt: 1.40e-03, ⟨wall time⟩: 11.151 ms
+[12.93%] i: 1360, t: 1.29e+00, umax: (4.859e-01, 0.000e+00, 1.061e+00), CFL: 2.0000e-01, next Δt: 1.47e-03, ⟨wall time⟩: 17.525 ms
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 325.000 μs
+[ Info: Calculation time: 363.601 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=7.645 ms, size=70.8 KiB, Δsize=4.6 KiB
-[13.23%] i: 1380, t: 1.32e+00, umax: (4.724e-01, 0.000e+00, 1.016e+00), CFL: 2.0000e-01, next Δt: 1.54e-03, ⟨wall time⟩: 7.871 ms
-[13.54%] i: 1400, t: 1.35e+00, umax: (4.567e-01, 0.000e+00, 9.744e-01), CFL: 2.0000e-01, next Δt: 1.60e-03, ⟨wall time⟩: 4.884 ms
-[13.86%] i: 1420, t: 1.39e+00, umax: (4.938e-01, 0.000e+00, 9.495e-01), CFL: 2.0000e-01, next Δt: 1.65e-03, ⟨wall time⟩: 4.846 ms
+[ Info: Writing done: time=12.691 ms, size=70.8 KiB, Δsize=4.6 KiB
+[13.23%] i: 1380, t: 1.32e+00, umax: (4.724e-01, 0.000e+00, 1.016e+00), CFL: 2.0000e-01, next Δt: 1.54e-03, ⟨wall time⟩: 83.366 ms
+[13.54%] i: 1400, t: 1.35e+00, umax: (4.567e-01, 0.000e+00, 9.744e-01), CFL: 2.0000e-01, next Δt: 1.60e-03, ⟨wall time⟩: 9.051 ms
+[13.86%] i: 1420, t: 1.39e+00, umax: (4.938e-01, 0.000e+00, 9.495e-01), CFL: 2.0000e-01, next Δt: 1.65e-03, ⟨wall time⟩: 9.448 ms
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 390.200 μs
+[ Info: Calculation time: 811.699 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=10.674 ms, size=75.3 KiB, Δsize=4.6 KiB
-[14.19%] i: 1440, t: 1.42e+00, umax: (5.318e-01, 0.000e+00, 9.446e-01), CFL: 2.0000e-01, next Δt: 1.65e-03, ⟨wall time⟩: 9.130 ms
-[14.52%] i: 1460, t: 1.45e+00, umax: (5.527e-01, 0.000e+00, 9.379e-01), CFL: 2.0000e-01, next Δt: 1.67e-03, ⟨wall time⟩: 5.175 ms
-[14.85%] i: 1480, t: 1.48e+00, umax: (5.529e-01, 0.000e+00, 9.260e-01), CFL: 2.0000e-01, next Δt: 1.69e-03, ⟨wall time⟩: 5.182 ms
+[ Info: Writing done: time=9.017 ms, size=75.3 KiB, Δsize=4.6 KiB
+[14.19%] i: 1440, t: 1.42e+00, umax: (5.318e-01, 0.000e+00, 9.446e-01), CFL: 2.0000e-01, next Δt: 1.65e-03, ⟨wall time⟩: 61.099 ms
+[14.52%] i: 1460, t: 1.45e+00, umax: (5.527e-01, 0.000e+00, 9.379e-01), CFL: 2.0000e-01, next Δt: 1.67e-03, ⟨wall time⟩: 9.713 ms
+[14.85%] i: 1480, t: 1.48e+00, umax: (5.529e-01, 0.000e+00, 9.260e-01), CFL: 2.0000e-01, next Δt: 1.69e-03, ⟨wall time⟩: 8.207 ms
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 225.500 μs
+[ Info: Calculation time: 1.377 ms
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=7.568 ms, size=79.9 KiB, Δsize=4.6 KiB
-[15.19%] i: 1500, t: 1.52e+00, umax: (5.201e-01, 0.000e+00, 9.279e-01), CFL: 2.0000e-01, next Δt: 1.68e-03, ⟨wall time⟩: 7.548 ms
-[15.52%] i: 1520, t: 1.55e+00, umax: (4.759e-01, 0.000e+00, 9.331e-01), CFL: 2.0000e-01, next Δt: 1.67e-03, ⟨wall time⟩: 5.725 ms
-[15.86%] i: 1540, t: 1.59e+00, umax: (4.258e-01, 0.000e+00, 9.388e-01), CFL: 2.0000e-01, next Δt: 1.66e-03, ⟨wall time⟩: 5.394 ms
+[ Info: Writing done: time=6.428 ms, size=79.9 KiB, Δsize=4.6 KiB
+[15.19%] i: 1500, t: 1.52e+00, umax: (5.201e-01, 0.000e+00, 9.279e-01), CFL: 2.0000e-01, next Δt: 1.68e-03, ⟨wall time⟩: 67.979 ms
+[15.52%] i: 1520, t: 1.55e+00, umax: (4.759e-01, 0.000e+00, 9.331e-01), CFL: 2.0000e-01, next Δt: 1.67e-03, ⟨wall time⟩: 8.605 ms
+[15.86%] i: 1540, t: 1.59e+00, umax: (4.258e-01, 0.000e+00, 9.388e-01), CFL: 2.0000e-01, next Δt: 1.66e-03, ⟨wall time⟩: 9.454 ms
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 228.199 μs
+[ Info: Calculation time: 385.800 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=5.199 ms, size=84.4 KiB, Δsize=4.6 KiB
-[16.19%] i: 1560, t: 1.62e+00, umax: (4.378e-01, 0.000e+00, 9.415e-01), CFL: 2.0000e-01, next Δt: 1.66e-03, ⟨wall time⟩: 7.513 ms
-[16.52%] i: 1580, t: 1.65e+00, umax: (4.342e-01, 0.000e+00, 9.488e-01), CFL: 2.0000e-01, next Δt: 1.65e-03, ⟨wall time⟩: 5.244 ms
-[16.85%] i: 1600, t: 1.69e+00, umax: (4.324e-01, 0.000e+00, 9.684e-01), CFL: 2.0000e-01, next Δt: 1.61e-03, ⟨wall time⟩: 5.082 ms
+[ Info: Writing done: time=7.054 ms, size=84.4 KiB, Δsize=4.6 KiB
+[16.19%] i: 1560, t: 1.62e+00, umax: (4.378e-01, 0.000e+00, 9.415e-01), CFL: 2.0000e-01, next Δt: 1.66e-03, ⟨wall time⟩: 96.913 ms
+[16.52%] i: 1580, t: 1.65e+00, umax: (4.342e-01, 0.000e+00, 9.488e-01), CFL: 2.0000e-01, next Δt: 1.65e-03, ⟨wall time⟩: 7.350 ms
+[16.85%] i: 1600, t: 1.69e+00, umax: (4.324e-01, 0.000e+00, 9.684e-01), CFL: 2.0000e-01, next Δt: 1.61e-03, ⟨wall time⟩: 7.797 ms
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 284.501 μs
+[ Info: Calculation time: 452.999 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=6.876 ms, size=89.0 KiB, Δsize=4.6 KiB
-[17.18%] i: 1620, t: 1.72e+00, umax: (4.516e-01, 0.000e+00, 9.898e-01), CFL: 2.0000e-01, next Δt: 1.58e-03, ⟨wall time⟩: 6.440 ms
-[17.49%] i: 1640, t: 1.75e+00, umax: (4.638e-01, 0.000e+00, 1.004e+00), CFL: 2.0000e-01, next Δt: 1.56e-03, ⟨wall time⟩: 5.871 ms
-[17.80%] i: 1660, t: 1.78e+00, umax: (4.661e-01, 0.000e+00, 1.024e+00), CFL: 2.0000e-01, next Δt: 1.53e-03, ⟨wall time⟩: 5.196 ms
+[ Info: Writing done: time=8.651 ms, size=89.0 KiB, Δsize=4.6 KiB
+[17.18%] i: 1620, t: 1.72e+00, umax: (4.516e-01, 0.000e+00, 9.898e-01), CFL: 2.0000e-01, next Δt: 1.58e-03, ⟨wall time⟩: 52.036 ms
+[17.49%] i: 1640, t: 1.75e+00, umax: (4.638e-01, 0.000e+00, 1.004e+00), CFL: 2.0000e-01, next Δt: 1.56e-03, ⟨wall time⟩: 8.353 ms
+[17.80%] i: 1660, t: 1.78e+00, umax: (4.661e-01, 0.000e+00, 1.024e+00), CFL: 2.0000e-01, next Δt: 1.53e-03, ⟨wall time⟩: 8.079 ms
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 239.100 μs
+[ Info: Calculation time: 434.600 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=6.660 ms, size=93.5 KiB, Δsize=4.6 KiB
-[18.11%] i: 1680, t: 1.81e+00, umax: (4.568e-01, 0.000e+00, 1.025e+00), CFL: 2.0000e-01, next Δt: 1.52e-03, ⟨wall time⟩: 6.995 ms
-[18.41%] i: 1700, t: 1.84e+00, umax: (4.470e-01, 0.000e+00, 1.013e+00), CFL: 2.0000e-01, next Δt: 1.54e-03, ⟨wall time⟩: 8.147 ms
-[18.72%] i: 1720, t: 1.87e+00, umax: (4.712e-01, 0.000e+00, 1.002e+00), CFL: 2.0000e-01, next Δt: 1.56e-03, ⟨wall time⟩: 6.725 ms
+[ Info: Writing done: time=8.365 ms, size=93.5 KiB, Δsize=4.6 KiB
+[18.11%] i: 1680, t: 1.81e+00, umax: (4.568e-01, 0.000e+00, 1.025e+00), CFL: 2.0000e-01, next Δt: 1.52e-03, ⟨wall time⟩: 59.618 ms
+[18.41%] i: 1700, t: 1.84e+00, umax: (4.470e-01, 0.000e+00, 1.013e+00), CFL: 2.0000e-01, next Δt: 1.54e-03, ⟨wall time⟩: 7.730 ms
+[18.72%] i: 1720, t: 1.87e+00, umax: (4.712e-01, 0.000e+00, 1.002e+00), CFL: 2.0000e-01, next Δt: 1.56e-03, ⟨wall time⟩: 8.204 ms
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 216.601 μs
+[ Info: Calculation time: 470.499 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=5.011 ms, size=98.1 KiB, Δsize=4.6 KiB
-[19.03%] i: 1740, t: 1.90e+00, umax: (5.156e-01, 0.000e+00, 9.996e-01), CFL: 2.0000e-01, next Δt: 1.56e-03, ⟨wall time⟩: 6.185 ms
-[19.35%] i: 1760, t: 1.93e+00, umax: (5.300e-01, 0.000e+00, 9.841e-01), CFL: 2.0000e-01, next Δt: 1.59e-03, ⟨wall time⟩: 6.553 ms
-[19.66%] i: 1780, t: 1.97e+00, umax: (5.445e-01, 0.000e+00, 9.690e-01), CFL: 2.0000e-01, next Δt: 1.61e-03, ⟨wall time⟩: 5.085 ms
-[19.99%] i: 1800, t: 2.00e+00, umax: (5.537e-01, 0.000e+00, 9.458e-01), CFL: 2.0000e-01, next Δt: 1.65e-03, ⟨wall time⟩: 5.937 ms
+[ Info: Writing done: time=8.415 ms, size=98.1 KiB, Δsize=4.6 KiB
+[19.03%] i: 1740, t: 1.90e+00, umax: (5.156e-01, 0.000e+00, 9.996e-01), CFL: 2.0000e-01, next Δt: 1.56e-03, ⟨wall time⟩: 75.448 ms
+[19.35%] i: 1760, t: 1.93e+00, umax: (5.300e-01, 0.000e+00, 9.841e-01), CFL: 2.0000e-01, next Δt: 1.59e-03, ⟨wall time⟩: 10.280 ms
+[19.66%] i: 1780, t: 1.97e+00, umax: (5.445e-01, 0.000e+00, 9.690e-01), CFL: 2.0000e-01, next Δt: 1.61e-03, ⟨wall time⟩: 8.789 ms
+[19.99%] i: 1800, t: 2.00e+00, umax: (5.537e-01, 0.000e+00, 9.458e-01), CFL: 2.0000e-01, next Δt: 1.65e-03, ⟨wall time⟩: 9.457 ms
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 797.001 μs
+[ Info: Calculation time: 545.599 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_fields.jld2...
-[ Info: Writing done: time=8.762 ms, size=3.0 MiB, Δsize=1.0 MiB
+[ Info: Writing done: time=9.297 ms, size=3.0 MiB, Δsize=1.0 MiB
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 310.799 μs
+[ Info: Calculation time: 453.901 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=5.660 ms, size=102.7 KiB, Δsize=4.6 KiB
-[20.32%] i: 1820, t: 2.03e+00, umax: (5.728e-01, 0.000e+00, 9.609e-01), CFL: 2.0000e-01, next Δt: 1.63e-03, ⟨wall time⟩: 8.497 ms
-[20.64%] i: 1840, t: 2.06e+00, umax: (6.142e-01, 0.000e+00, 1.005e+00), CFL: 2.0000e-01, next Δt: 1.55e-03, ⟨wall time⟩: 4.948 ms
-[20.95%] i: 1860, t: 2.10e+00, umax: (6.193e-01, 0.000e+00, 9.958e-01), CFL: 2.0000e-01, next Δt: 1.57e-03, ⟨wall time⟩: 5.462 ms
+[ Info: Writing done: time=9.842 ms, size=102.7 KiB, Δsize=4.6 KiB
+[20.32%] i: 1820, t: 2.03e+00, umax: (5.728e-01, 0.000e+00, 9.609e-01), CFL: 2.0000e-01, next Δt: 1.63e-03, ⟨wall time⟩: 119.812 ms
+[20.64%] i: 1840, t: 2.06e+00, umax: (6.142e-01, 0.000e+00, 1.005e+00), CFL: 2.0000e-01, next Δt: 1.55e-03, ⟨wall time⟩: 8.330 ms
+[20.95%] i: 1860, t: 2.10e+00, umax: (6.193e-01, 0.000e+00, 9.958e-01), CFL: 2.0000e-01, next Δt: 1.57e-03, ⟨wall time⟩: 7.429 ms
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 343.001 μs
+[ Info: Calculation time: 339.600 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=7.184 ms, size=107.2 KiB, Δsize=4.6 KiB
-[21.27%] i: 1880, t: 2.13e+00, umax: (6.346e-01, 0.000e+00, 9.978e-01), CFL: 2.0000e-01, next Δt: 1.57e-03, ⟨wall time⟩: 7.113 ms
-[21.58%] i: 1900, t: 2.16e+00, umax: (6.098e-01, 0.000e+00, 9.325e-01), CFL: 2.0000e-01, next Δt: 1.68e-03, ⟨wall time⟩: 5.084 ms
-[21.91%] i: 1920, t: 2.19e+00, umax: (5.885e-01, 0.000e+00, 9.269e-01), CFL: 2.0000e-01, next Δt: 1.69e-03, ⟨wall time⟩: 5.190 ms
+[ Info: Writing done: time=9.245 ms, size=107.2 KiB, Δsize=4.6 KiB
+[21.27%] i: 1880, t: 2.13e+00, umax: (6.346e-01, 0.000e+00, 9.978e-01), CFL: 2.0000e-01, next Δt: 1.57e-03, ⟨wall time⟩: 64.115 ms
+[21.58%] i: 1900, t: 2.16e+00, umax: (6.098e-01, 0.000e+00, 9.325e-01), CFL: 2.0000e-01, next Δt: 1.68e-03, ⟨wall time⟩: 7.809 ms
+[21.91%] i: 1920, t: 2.19e+00, umax: (5.885e-01, 0.000e+00, 9.269e-01), CFL: 2.0000e-01, next Δt: 1.69e-03, ⟨wall time⟩: 7.230 ms
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 219.900 μs
+[ Info: Calculation time: 360.200 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=9.819 ms, size=111.8 KiB, Δsize=4.6 KiB
-[22.25%] i: 1940, t: 2.23e+00, umax: (6.220e-01, 0.000e+00, 9.322e-01), CFL: 2.0000e-01, next Δt: 1.68e-03, ⟨wall time⟩: 8.524 ms
-[22.59%] i: 1960, t: 2.26e+00, umax: (6.846e-01, 0.000e+00, 9.288e-01), CFL: 2.0000e-01, next Δt: 1.68e-03, ⟨wall time⟩: 5.270 ms
-[22.92%] i: 1980, t: 2.29e+00, umax: (7.289e-01, 0.000e+00, 9.402e-01), CFL: 2.0000e-01, next Δt: 1.66e-03, ⟨wall time⟩: 5.243 ms
+[ Info: Writing done: time=11.398 ms, size=111.8 KiB, Δsize=4.6 KiB
+[22.25%] i: 1940, t: 2.23e+00, umax: (6.220e-01, 0.000e+00, 9.322e-01), CFL: 2.0000e-01, next Δt: 1.68e-03, ⟨wall time⟩: 57.721 ms
+[22.59%] i: 1960, t: 2.26e+00, umax: (6.846e-01, 0.000e+00, 9.288e-01), CFL: 2.0000e-01, next Δt: 1.68e-03, ⟨wall time⟩: 7.819 ms
+[22.92%] i: 1980, t: 2.29e+00, umax: (7.289e-01, 0.000e+00, 9.402e-01), CFL: 2.0000e-01, next Δt: 1.66e-03, ⟨wall time⟩: 9.364 ms
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 303.801 μs
+[ Info: Calculation time: 426.600 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=10.080 ms, size=116.3 KiB, Δsize=4.6 KiB
-[23.26%] i: 2000, t: 2.33e+00, umax: (7.492e-01, 0.000e+00, 9.711e-01), CFL: 2.0000e-01, next Δt: 1.61e-03, ⟨wall time⟩: 8.383 ms
-[23.58%] i: 2020, t: 2.36e+00, umax: (7.560e-01, 0.000e+00, 9.930e-01), CFL: 2.0000e-01, next Δt: 1.57e-03, ⟨wall time⟩: 5.989 ms
-[23.89%] i: 2040, t: 2.39e+00, umax: (7.250e-01, 0.000e+00, 1.000e+00), CFL: 2.0000e-01, next Δt: 1.56e-03, ⟨wall time⟩: 6.427 ms
+[ Info: Writing done: time=10.454 ms, size=116.3 KiB, Δsize=4.6 KiB
+[23.26%] i: 2000, t: 2.33e+00, umax: (7.492e-01, 0.000e+00, 9.711e-01), CFL: 2.0000e-01, next Δt: 1.61e-03, ⟨wall time⟩: 52.808 ms
+[23.58%] i: 2020, t: 2.36e+00, umax: (7.560e-01, 0.000e+00, 9.930e-01), CFL: 2.0000e-01, next Δt: 1.57e-03, ⟨wall time⟩: 7.903 ms
+[23.89%] i: 2040, t: 2.39e+00, umax: (7.250e-01, 0.000e+00, 1.000e+00), CFL: 2.0000e-01, next Δt: 1.56e-03, ⟨wall time⟩: 8.249 ms
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 328.500 μs
+[ Info: Calculation time: 421.799 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=11.748 ms, size=120.9 KiB, Δsize=4.6 KiB
-[24.20%] i: 2060, t: 2.42e+00, umax: (6.992e-01, 0.000e+00, 1.002e+00), CFL: 2.0000e-01, next Δt: 1.56e-03, ⟨wall time⟩: 9.238 ms
-[24.52%] i: 2080, t: 2.45e+00, umax: (7.610e-01, 0.000e+00, 9.902e-01), CFL: 2.0000e-01, next Δt: 1.58e-03, ⟨wall time⟩: 6.507 ms
-[24.83%] i: 2100, t: 2.48e+00, umax: (8.135e-01, 0.000e+00, 9.669e-01), CFL: 2.0000e-01, next Δt: 1.62e-03, ⟨wall time⟩: 6.506 ms
+[ Info: Writing done: time=8.532 ms, size=120.9 KiB, Δsize=4.6 KiB
+[24.20%] i: 2060, t: 2.42e+00, umax: (6.992e-01, 0.000e+00, 1.002e+00), CFL: 2.0000e-01, next Δt: 1.56e-03, ⟨wall time⟩: 51.036 ms
+[24.52%] i: 2080, t: 2.45e+00, umax: (7.610e-01, 0.000e+00, 9.902e-01), CFL: 2.0000e-01, next Δt: 1.58e-03, ⟨wall time⟩: 7.258 ms
+[24.83%] i: 2100, t: 2.48e+00, umax: (8.135e-01, 0.000e+00, 9.669e-01), CFL: 2.0000e-01, next Δt: 1.62e-03, ⟨wall time⟩: 7.743 ms
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 317.500 μs
+[ Info: Calculation time: 327.199 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=7.739 ms, size=125.4 KiB, Δsize=4.6 KiB
-[25.15%] i: 2120, t: 2.52e+00, umax: (8.882e-01, 0.000e+00, 9.314e-01), CFL: 2.0000e-01, next Δt: 1.68e-03, ⟨wall time⟩: 8.566 ms
-[25.49%] i: 2140, t: 2.55e+00, umax: (9.532e-01, 0.000e+00, 8.946e-01), CFL: 2.0000e-01, next Δt: 1.64e-03, ⟨wall time⟩: 6.842 ms
-[25.82%] i: 2160, t: 2.58e+00, umax: (9.563e-01, 0.000e+00, 8.619e-01), CFL: 2.0000e-01, next Δt: 1.63e-03, ⟨wall time⟩: 6.630 ms
+[ Info: Writing done: time=7.677 ms, size=125.4 KiB, Δsize=4.6 KiB
+[25.15%] i: 2120, t: 2.52e+00, umax: (8.882e-01, 0.000e+00, 9.314e-01), CFL: 2.0000e-01, next Δt: 1.68e-03, ⟨wall time⟩: 54.950 ms
+[25.49%] i: 2140, t: 2.55e+00, umax: (9.532e-01, 0.000e+00, 8.946e-01), CFL: 2.0000e-01, next Δt: 1.64e-03, ⟨wall time⟩: 6.892 ms
+[25.82%] i: 2160, t: 2.58e+00, umax: (9.563e-01, 0.000e+00, 8.619e-01), CFL: 2.0000e-01, next Δt: 1.63e-03, ⟨wall time⟩: 7.650 ms
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 298.000 μs
+[ Info: Calculation time: 350.399 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=10.693 ms, size=130.0 KiB, Δsize=4.6 KiB
-[26.15%] i: 2180, t: 2.61e+00, umax: (9.721e-01, 0.000e+00, 8.797e-01), CFL: 2.0000e-01, next Δt: 1.61e-03, ⟨wall time⟩: 9.249 ms
-[26.47%] i: 2200, t: 2.65e+00, umax: (9.786e-01, 0.000e+00, 8.883e-01), CFL: 2.0000e-01, next Δt: 1.60e-03, ⟨wall time⟩: 7.757 ms
-[26.79%] i: 2220, t: 2.68e+00, umax: (9.680e-01, 0.000e+00, 8.869e-01), CFL: 2.0000e-01, next Δt: 1.61e-03, ⟨wall time⟩: 6.476 ms
+[ Info: Writing done: time=9.795 ms, size=130.0 KiB, Δsize=4.6 KiB
+[26.15%] i: 2180, t: 2.61e+00, umax: (9.721e-01, 0.000e+00, 8.797e-01), CFL: 2.0000e-01, next Δt: 1.61e-03, ⟨wall time⟩: 52.897 ms
+[26.47%] i: 2200, t: 2.65e+00, umax: (9.786e-01, 0.000e+00, 8.883e-01), CFL: 2.0000e-01, next Δt: 1.60e-03, ⟨wall time⟩: 7.270 ms
+[26.79%] i: 2220, t: 2.68e+00, umax: (9.680e-01, 0.000e+00, 8.869e-01), CFL: 2.0000e-01, next Δt: 1.61e-03, ⟨wall time⟩: 7.705 ms
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 402.701 μs
+[ Info: Calculation time: 382.100 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=7.725 ms, size=134.5 KiB, Δsize=4.6 KiB
-[27.11%] i: 2240, t: 2.71e+00, umax: (9.622e-01, 0.000e+00, 8.954e-01), CFL: 2.0000e-01, next Δt: 1.62e-03, ⟨wall time⟩: 8.544 ms
-[27.43%] i: 2260, t: 2.74e+00, umax: (9.493e-01, 0.000e+00, 9.353e-01), CFL: 2.0000e-01, next Δt: 1.65e-03, ⟨wall time⟩: 7.122 ms
-[27.76%] i: 2280, t: 2.78e+00, umax: (9.355e-01, 0.000e+00, 9.429e-01), CFL: 2.0000e-01, next Δt: 1.66e-03, ⟨wall time⟩: 6.694 ms
+[ Info: Writing done: time=9.548 ms, size=134.5 KiB, Δsize=4.6 KiB
+[27.11%] i: 2240, t: 2.71e+00, umax: (9.622e-01, 0.000e+00, 8.954e-01), CFL: 2.0000e-01, next Δt: 1.62e-03, ⟨wall time⟩: 55.464 ms
+[27.43%] i: 2260, t: 2.74e+00, umax: (9.493e-01, 0.000e+00, 9.353e-01), CFL: 2.0000e-01, next Δt: 1.65e-03, ⟨wall time⟩: 7.171 ms
+[27.76%] i: 2280, t: 2.78e+00, umax: (9.355e-01, 0.000e+00, 9.429e-01), CFL: 2.0000e-01, next Δt: 1.66e-03, ⟨wall time⟩: 8.061 ms
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 408.301 μs
+[ Info: Calculation time: 439.400 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=8.062 ms, size=139.1 KiB, Δsize=4.6 KiB
-[28.09%] i: 2300, t: 2.81e+00, umax: (9.141e-01, 0.000e+00, 9.560e-01), CFL: 2.0000e-01, next Δt: 1.63e-03, ⟨wall time⟩: 8.753 ms
-[28.42%] i: 2320, t: 2.84e+00, umax: (9.180e-01, 0.000e+00, 9.721e-01), CFL: 2.0000e-01, next Δt: 1.61e-03, ⟨wall time⟩: 6.928 ms
-[28.74%] i: 2340, t: 2.87e+00, umax: (9.743e-01, 0.000e+00, 9.853e-01), CFL: 2.0000e-01, next Δt: 1.59e-03, ⟨wall time⟩: 6.666 ms
+[ Info: Writing done: time=8.462 ms, size=139.1 KiB, Δsize=4.6 KiB
+[28.09%] i: 2300, t: 2.81e+00, umax: (9.141e-01, 0.000e+00, 9.560e-01), CFL: 2.0000e-01, next Δt: 1.63e-03, ⟨wall time⟩: 51.462 ms
+[28.42%] i: 2320, t: 2.84e+00, umax: (9.180e-01, 0.000e+00, 9.721e-01), CFL: 2.0000e-01, next Δt: 1.61e-03, ⟨wall time⟩: 7.356 ms
+[28.74%] i: 2340, t: 2.87e+00, umax: (9.743e-01, 0.000e+00, 9.853e-01), CFL: 2.0000e-01, next Δt: 1.59e-03, ⟨wall time⟩: 7.416 ms
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 298.500 μs
+[ Info: Calculation time: 451.600 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=8.167 ms, size=143.7 KiB, Δsize=4.6 KiB
-[29.06%] i: 2360, t: 2.91e+00, umax: (1.014e+00, 0.000e+00, 9.966e-01), CFL: 2.0000e-01, next Δt: 1.54e-03, ⟨wall time⟩: 7.394 ms
-[29.37%] i: 2380, t: 2.94e+00, umax: (1.032e+00, 0.000e+00, 1.017e+00), CFL: 2.0000e-01, next Δt: 1.51e-03, ⟨wall time⟩: 7.714 ms
-[29.67%] i: 2400, t: 2.97e+00, umax: (1.035e+00, 0.000e+00, 1.043e+00), CFL: 2.0000e-01, next Δt: 1.50e-03, ⟨wall time⟩: 7.212 ms
-[29.97%] i: 2420, t: 3.00e+00, umax: (1.038e+00, 0.000e+00, 1.071e+00), CFL: 2.0000e-01, next Δt: 1.46e-03, ⟨wall time⟩: 6.408 ms
+[ Info: Writing done: time=8.604 ms, size=143.7 KiB, Δsize=4.6 KiB
+[29.06%] i: 2360, t: 2.91e+00, umax: (1.014e+00, 0.000e+00, 9.966e-01), CFL: 2.0000e-01, next Δt: 1.54e-03, ⟨wall time⟩: 65.931 ms
+[29.37%] i: 2380, t: 2.94e+00, umax: (1.032e+00, 0.000e+00, 1.017e+00), CFL: 2.0000e-01, next Δt: 1.51e-03, ⟨wall time⟩: 7.182 ms
+[29.67%] i: 2400, t: 2.97e+00, umax: (1.035e+00, 0.000e+00, 1.043e+00), CFL: 2.0000e-01, next Δt: 1.50e-03, ⟨wall time⟩: 7.060 ms
+[29.97%] i: 2420, t: 3.00e+00, umax: (1.038e+00, 0.000e+00, 1.071e+00), CFL: 2.0000e-01, next Δt: 1.46e-03, ⟨wall time⟩: 7.539 ms
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 497.700 μs
+[ Info: Calculation time: 514.799 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_fields.jld2...
-[ Info: Writing done: time=8.039 ms, size=4.0 MiB, Δsize=1.0 MiB
+[ Info: Writing done: time=9.590 ms, size=4.0 MiB, Δsize=1.0 MiB
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 451.700 μs
+[ Info: Calculation time: 365.100 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=11.300 ms, size=148.2 KiB, Δsize=4.6 KiB
-[30.26%] i: 2440, t: 3.03e+00, umax: (1.042e+00, 0.000e+00, 1.095e+00), CFL: 2.0000e-01, next Δt: 1.43e-03, ⟨wall time⟩: 20.639 ms
-[30.55%] i: 2460, t: 3.05e+00, umax: (1.039e+00, 0.000e+00, 1.111e+00), CFL: 2.0000e-01, next Δt: 1.41e-03, ⟨wall time⟩: 6.245 ms
-[30.83%] i: 2480, t: 3.08e+00, umax: (1.041e+00, 0.000e+00, 1.119e+00), CFL: 2.0000e-01, next Δt: 1.40e-03, ⟨wall time⟩: 6.503 ms
+[ Info: Writing done: time=9.671 ms, size=148.2 KiB, Δsize=4.6 KiB
+[30.26%] i: 2440, t: 3.03e+00, umax: (1.042e+00, 0.000e+00, 1.095e+00), CFL: 2.0000e-01, next Δt: 1.43e-03, ⟨wall time⟩: 101.597 ms
+[30.55%] i: 2460, t: 3.05e+00, umax: (1.039e+00, 0.000e+00, 1.111e+00), CFL: 2.0000e-01, next Δt: 1.41e-03, ⟨wall time⟩: 7.765 ms
+[30.83%] i: 2480, t: 3.08e+00, umax: (1.041e+00, 0.000e+00, 1.119e+00), CFL: 2.0000e-01, next Δt: 1.40e-03, ⟨wall time⟩: 7.893 ms
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 297.700 μs
+[ Info: Calculation time: 435.299 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=8.768 ms, size=152.8 KiB, Δsize=4.6 KiB
-[31.11%] i: 2500, t: 3.11e+00, umax: (1.057e+00, 0.000e+00, 1.126e+00), CFL: 2.0000e-01, next Δt: 1.39e-03, ⟨wall time⟩: 9.379 ms
-[31.39%] i: 2520, t: 3.14e+00, umax: (1.076e+00, 0.000e+00, 1.152e+00), CFL: 2.0000e-01, next Δt: 1.36e-03, ⟨wall time⟩: 6.580 ms
-[31.66%] i: 2540, t: 3.17e+00, umax: (1.088e+00, 0.000e+00, 1.179e+00), CFL: 2.0000e-01, next Δt: 1.33e-03, ⟨wall time⟩: 6.795 ms
-[31.92%] i: 2560, t: 3.19e+00, umax: (1.091e+00, 0.000e+00, 1.204e+00), CFL: 2.0000e-01, next Δt: 1.30e-03, ⟨wall time⟩: 6.785 ms
+[ Info: Writing done: time=8.166 ms, size=152.8 KiB, Δsize=4.6 KiB
+[31.11%] i: 2500, t: 3.11e+00, umax: (1.057e+00, 0.000e+00, 1.126e+00), CFL: 2.0000e-01, next Δt: 1.39e-03, ⟨wall time⟩: 60.885 ms
+[31.39%] i: 2520, t: 3.14e+00, umax: (1.076e+00, 0.000e+00, 1.152e+00), CFL: 2.0000e-01, next Δt: 1.36e-03, ⟨wall time⟩: 7.026 ms
+[31.66%] i: 2540, t: 3.17e+00, umax: (1.088e+00, 0.000e+00, 1.179e+00), CFL: 2.0000e-01, next Δt: 1.33e-03, ⟨wall time⟩: 8.552 ms
+[31.92%] i: 2560, t: 3.19e+00, umax: (1.091e+00, 0.000e+00, 1.204e+00), CFL: 2.0000e-01, next Δt: 1.30e-03, ⟨wall time⟩: 7.720 ms
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 393.901 μs
+[ Info: Calculation time: 352.000 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=8.696 ms, size=157.3 KiB, Δsize=4.6 KiB
-[32.18%] i: 2580, t: 3.22e+00, umax: (1.090e+00, 0.000e+00, 1.224e+00), CFL: 2.0000e-01, next Δt: 1.28e-03, ⟨wall time⟩: 13.186 ms
-[32.44%] i: 2600, t: 3.24e+00, umax: (1.093e+00, 0.000e+00, 1.235e+00), CFL: 2.0000e-01, next Δt: 1.27e-03, ⟨wall time⟩: 7.822 ms
-[32.69%] i: 2620, t: 3.27e+00, umax: (1.097e+00, 0.000e+00, 1.235e+00), CFL: 2.0000e-01, next Δt: 1.27e-03, ⟨wall time⟩: 6.895 ms
-[32.94%] i: 2640, t: 3.29e+00, umax: (1.104e+00, 0.000e+00, 1.217e+00), CFL: 2.0000e-01, next Δt: 1.28e-03, ⟨wall time⟩: 6.845 ms
+[ Info: Writing done: time=7.900 ms, size=157.3 KiB, Δsize=4.6 KiB
+[32.18%] i: 2580, t: 3.22e+00, umax: (1.090e+00, 0.000e+00, 1.224e+00), CFL: 2.0000e-01, next Δt: 1.28e-03, ⟨wall time⟩: 57.289 ms
+[32.44%] i: 2600, t: 3.24e+00, umax: (1.093e+00, 0.000e+00, 1.235e+00), CFL: 2.0000e-01, next Δt: 1.27e-03, ⟨wall time⟩: 7.326 ms
+[32.69%] i: 2620, t: 3.27e+00, umax: (1.097e+00, 0.000e+00, 1.235e+00), CFL: 2.0000e-01, next Δt: 1.27e-03, ⟨wall time⟩: 8.257 ms
+[32.94%] i: 2640, t: 3.29e+00, umax: (1.104e+00, 0.000e+00, 1.217e+00), CFL: 2.0000e-01, next Δt: 1.28e-03, ⟨wall time⟩: 7.234 ms
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 333.801 μs
+[ Info: Calculation time: 429.100 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=12.713 ms, size=161.9 KiB, Δsize=4.6 KiB
-[33.20%] i: 2660, t: 3.32e+00, umax: (1.112e+00, 0.000e+00, 1.229e+00), CFL: 2.0000e-01, next Δt: 1.27e-03, ⟨wall time⟩: 9.007 ms
-[33.45%] i: 2680, t: 3.35e+00, umax: (1.119e+00, 0.000e+00, 1.240e+00), CFL: 2.0000e-01, next Δt: 1.26e-03, ⟨wall time⟩: 6.464 ms
-[33.71%] i: 2700, t: 3.37e+00, umax: (1.128e+00, 0.000e+00, 1.254e+00), CFL: 2.0000e-01, next Δt: 1.25e-03, ⟨wall time⟩: 6.585 ms
-[33.95%] i: 2720, t: 3.40e+00, umax: (1.138e+00, 0.000e+00, 1.247e+00), CFL: 2.0000e-01, next Δt: 1.25e-03, ⟨wall time⟩: 6.957 ms
+[ Info: Writing done: time=12.505 ms, size=161.9 KiB, Δsize=4.6 KiB
+[33.20%] i: 2660, t: 3.32e+00, umax: (1.112e+00, 0.000e+00, 1.229e+00), CFL: 2.0000e-01, next Δt: 1.27e-03, ⟨wall time⟩: 57.240 ms
+[33.45%] i: 2680, t: 3.35e+00, umax: (1.119e+00, 0.000e+00, 1.240e+00), CFL: 2.0000e-01, next Δt: 1.26e-03, ⟨wall time⟩: 10.639 ms
+[33.71%] i: 2700, t: 3.37e+00, umax: (1.128e+00, 0.000e+00, 1.254e+00), CFL: 2.0000e-01, next Δt: 1.25e-03, ⟨wall time⟩: 9.143 ms
+[33.95%] i: 2720, t: 3.40e+00, umax: (1.138e+00, 0.000e+00, 1.247e+00), CFL: 2.0000e-01, next Δt: 1.25e-03, ⟨wall time⟩: 7.858 ms
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 341.101 μs
+[ Info: Calculation time: 566.500 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=9.359 ms, size=166.4 KiB, Δsize=4.6 KiB
-[34.21%] i: 2740, t: 3.42e+00, umax: (1.150e+00, 0.000e+00, 1.226e+00), CFL: 2.0000e-01, next Δt: 1.27e-03, ⟨wall time⟩: 9.700 ms
-[34.46%] i: 2760, t: 3.45e+00, umax: (1.161e+00, 0.000e+00, 1.234e+00), CFL: 2.0000e-01, next Δt: 1.27e-03, ⟨wall time⟩: 6.516 ms
-[34.71%] i: 2780, t: 3.47e+00, umax: (1.167e+00, 0.000e+00, 1.244e+00), CFL: 2.0000e-01, next Δt: 1.26e-03, ⟨wall time⟩: 6.776 ms
-[34.97%] i: 2800, t: 3.50e+00, umax: (1.165e+00, 0.000e+00, 1.246e+00), CFL: 2.0000e-01, next Δt: 1.25e-03, ⟨wall time⟩: 6.601 ms
+[ Info: Writing done: time=10.567 ms, size=166.4 KiB, Δsize=4.6 KiB
+[34.21%] i: 2740, t: 3.42e+00, umax: (1.150e+00, 0.000e+00, 1.226e+00), CFL: 2.0000e-01, next Δt: 1.27e-03, ⟨wall time⟩: 65.251 ms
+[34.46%] i: 2760, t: 3.45e+00, umax: (1.161e+00, 0.000e+00, 1.234e+00), CFL: 2.0000e-01, next Δt: 1.27e-03, ⟨wall time⟩: 7.773 ms
+[34.71%] i: 2780, t: 3.47e+00, umax: (1.167e+00, 0.000e+00, 1.244e+00), CFL: 2.0000e-01, next Δt: 1.26e-03, ⟨wall time⟩: 7.998 ms
+[34.97%] i: 2800, t: 3.50e+00, umax: (1.165e+00, 0.000e+00, 1.246e+00), CFL: 2.0000e-01, next Δt: 1.25e-03, ⟨wall time⟩: 7.972 ms
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 334.701 μs
+[ Info: Calculation time: 429.100 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=11.413 ms, size=171.0 KiB, Δsize=4.6 KiB
-[35.22%] i: 2820, t: 3.52e+00, umax: (1.154e+00, 0.000e+00, 1.254e+00), CFL: 2.0000e-01, next Δt: 1.25e-03, ⟨wall time⟩: 9.077 ms
-[35.46%] i: 2840, t: 3.55e+00, umax: (1.135e+00, 0.000e+00, 1.254e+00), CFL: 2.0000e-01, next Δt: 1.25e-03, ⟨wall time⟩: 7.183 ms
-[35.71%] i: 2860, t: 3.57e+00, umax: (1.113e+00, 0.000e+00, 1.248e+00), CFL: 2.0000e-01, next Δt: 1.25e-03, ⟨wall time⟩: 6.941 ms
-[35.96%] i: 2880, t: 3.60e+00, umax: (1.090e+00, 0.000e+00, 1.202e+00), CFL: 2.0000e-01, next Δt: 1.30e-03, ⟨wall time⟩: 6.600 ms
+[ Info: Writing done: time=12.608 ms, size=171.0 KiB, Δsize=4.6 KiB
+[35.22%] i: 2820, t: 3.52e+00, umax: (1.154e+00, 0.000e+00, 1.254e+00), CFL: 2.0000e-01, next Δt: 1.25e-03, ⟨wall time⟩: 61.012 ms
+[35.46%] i: 2840, t: 3.55e+00, umax: (1.135e+00, 0.000e+00, 1.254e+00), CFL: 2.0000e-01, next Δt: 1.25e-03, ⟨wall time⟩: 8.404 ms
+[35.71%] i: 2860, t: 3.57e+00, umax: (1.113e+00, 0.000e+00, 1.248e+00), CFL: 2.0000e-01, next Δt: 1.25e-03, ⟨wall time⟩: 7.930 ms
+[35.96%] i: 2880, t: 3.60e+00, umax: (1.090e+00, 0.000e+00, 1.202e+00), CFL: 2.0000e-01, next Δt: 1.30e-03, ⟨wall time⟩: 7.613 ms
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 378.901 μs
+[ Info: Calculation time: 475.100 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=13.600 ms, size=175.5 KiB, Δsize=4.6 KiB
-[36.22%] i: 2900, t: 3.62e+00, umax: (1.070e+00, 0.000e+00, 1.178e+00), CFL: 2.0000e-01, next Δt: 1.33e-03, ⟨wall time⟩: 10.106 ms
-[36.49%] i: 2920, t: 3.65e+00, umax: (1.055e+00, 0.000e+00, 1.178e+00), CFL: 2.0000e-01, next Δt: 1.33e-03, ⟨wall time⟩: 6.631 ms
-[36.76%] i: 2940, t: 3.68e+00, umax: (1.046e+00, 0.000e+00, 1.187e+00), CFL: 2.0000e-01, next Δt: 1.32e-03, ⟨wall time⟩: 6.467 ms
+[ Info: Writing done: time=14.292 ms, size=175.5 KiB, Δsize=4.6 KiB
+[36.22%] i: 2900, t: 3.62e+00, umax: (1.070e+00, 0.000e+00, 1.178e+00), CFL: 2.0000e-01, next Δt: 1.33e-03, ⟨wall time⟩: 56.654 ms
+[36.49%] i: 2920, t: 3.65e+00, umax: (1.055e+00, 0.000e+00, 1.178e+00), CFL: 2.0000e-01, next Δt: 1.33e-03, ⟨wall time⟩: 7.615 ms
+[36.76%] i: 2940, t: 3.68e+00, umax: (1.046e+00, 0.000e+00, 1.187e+00), CFL: 2.0000e-01, next Δt: 1.32e-03, ⟨wall time⟩: 9.175 ms
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 383.400 μs
+[ Info: Calculation time: 418.300 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=12.642 ms, size=180.1 KiB, Δsize=4.6 KiB
-[37.02%] i: 2960, t: 3.70e+00, umax: (1.058e+00, 0.000e+00, 1.202e+00), CFL: 2.0000e-01, next Δt: 1.30e-03, ⟨wall time⟩: 8.732 ms
-[37.28%] i: 2980, t: 3.73e+00, umax: (1.070e+00, 0.000e+00, 1.229e+00), CFL: 2.0000e-01, next Δt: 1.27e-03, ⟨wall time⟩: 6.822 ms
-[37.53%] i: 3000, t: 3.75e+00, umax: (1.084e+00, 0.000e+00, 1.249e+00), CFL: 2.0000e-01, next Δt: 1.25e-03, ⟨wall time⟩: 6.842 ms
-[37.78%] i: 3020, t: 3.78e+00, umax: (1.097e+00, 0.000e+00, 1.269e+00), CFL: 2.0000e-01, next Δt: 1.23e-03, ⟨wall time⟩: 6.513 ms
+[ Info: Writing done: time=10.538 ms, size=180.1 KiB, Δsize=4.6 KiB
+[37.02%] i: 2960, t: 3.70e+00, umax: (1.058e+00, 0.000e+00, 1.202e+00), CFL: 2.0000e-01, next Δt: 1.30e-03, ⟨wall time⟩: 67.343 ms
+[37.28%] i: 2980, t: 3.73e+00, umax: (1.070e+00, 0.000e+00, 1.229e+00), CFL: 2.0000e-01, next Δt: 1.27e-03, ⟨wall time⟩: 8.909 ms
+[37.53%] i: 3000, t: 3.75e+00, umax: (1.084e+00, 0.000e+00, 1.249e+00), CFL: 2.0000e-01, next Δt: 1.25e-03, ⟨wall time⟩: 14.439 ms
+[37.78%] i: 3020, t: 3.78e+00, umax: (1.097e+00, 0.000e+00, 1.269e+00), CFL: 2.0000e-01, next Δt: 1.23e-03, ⟨wall time⟩: 8.872 ms
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 403.200 μs
+[ Info: Calculation time: 468.501 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=11.086 ms, size=184.7 KiB, Δsize=4.6 KiB
-[38.03%] i: 3040, t: 3.80e+00, umax: (1.111e+00, 0.000e+00, 1.271e+00), CFL: 2.0000e-01, next Δt: 1.23e-03, ⟨wall time⟩: 8.435 ms
-[38.28%] i: 3060, t: 3.83e+00, umax: (1.123e+00, 0.000e+00, 1.248e+00), CFL: 2.0000e-01, next Δt: 1.25e-03, ⟨wall time⟩: 7.574 ms
-[38.53%] i: 3080, t: 3.85e+00, umax: (1.126e+00, 0.000e+00, 1.240e+00), CFL: 2.0000e-01, next Δt: 1.26e-03, ⟨wall time⟩: 6.524 ms
-[38.78%] i: 3100, t: 3.88e+00, umax: (1.117e+00, 0.000e+00, 1.221e+00), CFL: 2.0000e-01, next Δt: 1.28e-03, ⟨wall time⟩: 6.392 ms
+[ Info: Writing done: time=13.714 ms, size=184.7 KiB, Δsize=4.6 KiB
+[38.03%] i: 3040, t: 3.80e+00, umax: (1.111e+00, 0.000e+00, 1.271e+00), CFL: 2.0000e-01, next Δt: 1.23e-03, ⟨wall time⟩: 32.285 ms
+[38.28%] i: 3060, t: 3.83e+00, umax: (1.123e+00, 0.000e+00, 1.248e+00), CFL: 2.0000e-01, next Δt: 1.25e-03, ⟨wall time⟩: 9.351 ms
+[38.53%] i: 3080, t: 3.85e+00, umax: (1.126e+00, 0.000e+00, 1.240e+00), CFL: 2.0000e-01, next Δt: 1.26e-03, ⟨wall time⟩: 11.516 ms
+[38.78%] i: 3100, t: 3.88e+00, umax: (1.117e+00, 0.000e+00, 1.221e+00), CFL: 2.0000e-01, next Δt: 1.28e-03, ⟨wall time⟩: 22.117 ms
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 327.201 μs
+[ Info: Calculation time: 397.200 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=8.100 ms, size=189.2 KiB, Δsize=4.6 KiB
-[39.03%] i: 3120, t: 3.90e+00, umax: (1.104e+00, 0.000e+00, 1.198e+00), CFL: 2.0000e-01, next Δt: 1.30e-03, ⟨wall time⟩: 8.688 ms
-[39.29%] i: 3140, t: 3.93e+00, umax: (1.088e+00, 0.000e+00, 1.174e+00), CFL: 2.0000e-01, next Δt: 1.33e-03, ⟨wall time⟩: 7.103 ms
-[39.56%] i: 3160, t: 3.96e+00, umax: (1.076e+00, 0.000e+00, 1.173e+00), CFL: 2.0000e-01, next Δt: 1.33e-03, ⟨wall time⟩: 6.302 ms
-[39.83%] i: 3180, t: 3.98e+00, umax: (1.067e+00, 0.000e+00, 1.173e+00), CFL: 2.0000e-01, next Δt: 1.33e-03, ⟨wall time⟩: 6.790 ms
+[ Info: Writing done: time=9.609 ms, size=189.2 KiB, Δsize=4.6 KiB
+[39.03%] i: 3120, t: 3.90e+00, umax: (1.104e+00, 0.000e+00, 1.198e+00), CFL: 2.0000e-01, next Δt: 1.30e-03, ⟨wall time⟩: 59.897 ms
+[39.29%] i: 3140, t: 3.93e+00, umax: (1.088e+00, 0.000e+00, 1.174e+00), CFL: 2.0000e-01, next Δt: 1.33e-03, ⟨wall time⟩: 9.312 ms
+[39.56%] i: 3160, t: 3.96e+00, umax: (1.076e+00, 0.000e+00, 1.173e+00), CFL: 2.0000e-01, next Δt: 1.33e-03, ⟨wall time⟩: 10.281 ms
+[39.83%] i: 3180, t: 3.98e+00, umax: (1.067e+00, 0.000e+00, 1.173e+00), CFL: 2.0000e-01, next Δt: 1.33e-03, ⟨wall time⟩: 9.895 ms
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 505.700 μs
+[ Info: Calculation time: 506.301 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_fields.jld2...
-[ Info: Writing done: time=10.682 ms, size=5.0 MiB, Δsize=1.0 MiB
+[ Info: Writing done: time=9.475 ms, size=5.0 MiB, Δsize=1.0 MiB
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 463.499 μs
+[ Info: Calculation time: 340.000 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=7.994 ms, size=193.8 KiB, Δsize=4.6 KiB
-[40.09%] i: 3200, t: 4.01e+00, umax: (1.063e+00, 0.000e+00, 1.163e+00), CFL: 2.0000e-01, next Δt: 1.34e-03, ⟨wall time⟩: 15.422 ms
-[40.36%] i: 3220, t: 4.04e+00, umax: (1.058e+00, 0.000e+00, 1.205e+00), CFL: 2.0000e-01, next Δt: 1.30e-03, ⟨wall time⟩: 7.704 ms
-[40.62%] i: 3240, t: 4.06e+00, umax: (1.052e+00, 0.000e+00, 1.249e+00), CFL: 2.0000e-01, next Δt: 1.25e-03, ⟨wall time⟩: 6.409 ms
-[40.87%] i: 3260, t: 4.09e+00, umax: (1.040e+00, 0.000e+00, 1.291e+00), CFL: 2.0000e-01, next Δt: 1.21e-03, ⟨wall time⟩: 6.487 ms
+[ Info: Writing done: time=8.011 ms, size=193.8 KiB, Δsize=4.6 KiB
+[40.09%] i: 3200, t: 4.01e+00, umax: (1.063e+00, 0.000e+00, 1.163e+00), CFL: 2.0000e-01, next Δt: 1.34e-03, ⟨wall time⟩: 113.493 ms
+[40.36%] i: 3220, t: 4.04e+00, umax: (1.058e+00, 0.000e+00, 1.205e+00), CFL: 2.0000e-01, next Δt: 1.30e-03, ⟨wall time⟩: 8.221 ms
+[40.62%] i: 3240, t: 4.06e+00, umax: (1.052e+00, 0.000e+00, 1.249e+00), CFL: 2.0000e-01, next Δt: 1.25e-03, ⟨wall time⟩: 7.925 ms
+[40.87%] i: 3260, t: 4.09e+00, umax: (1.040e+00, 0.000e+00, 1.291e+00), CFL: 2.0000e-01, next Δt: 1.21e-03, ⟨wall time⟩: 8.135 ms
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 289.400 μs
+[ Info: Calculation time: 370.901 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=8.817 ms, size=198.3 KiB, Δsize=4.6 KiB
-[41.11%] i: 3280, t: 4.11e+00, umax: (1.020e+00, 0.000e+00, 1.325e+00), CFL: 2.0000e-01, next Δt: 1.18e-03, ⟨wall time⟩: 8.990 ms
-[41.35%] i: 3300, t: 4.13e+00, umax: (1.002e+00, 0.000e+00, 1.368e+00), CFL: 2.0000e-01, next Δt: 1.14e-03, ⟨wall time⟩: 6.706 ms
-[41.58%] i: 3320, t: 4.16e+00, umax: (9.791e-01, 0.000e+00, 1.405e+00), CFL: 2.0000e-01, next Δt: 1.11e-03, ⟨wall time⟩: 6.534 ms
-[41.80%] i: 3340, t: 4.18e+00, umax: (9.478e-01, 0.000e+00, 1.433e+00), CFL: 2.0000e-01, next Δt: 1.09e-03, ⟨wall time⟩: 6.598 ms
+[ Info: Writing done: time=7.935 ms, size=198.3 KiB, Δsize=4.6 KiB
+[41.11%] i: 3280, t: 4.11e+00, umax: (1.020e+00, 0.000e+00, 1.325e+00), CFL: 2.0000e-01, next Δt: 1.18e-03, ⟨wall time⟩: 50.927 ms
+[41.35%] i: 3300, t: 4.13e+00, umax: (1.002e+00, 0.000e+00, 1.368e+00), CFL: 2.0000e-01, next Δt: 1.14e-03, ⟨wall time⟩: 7.206 ms
+[41.58%] i: 3320, t: 4.16e+00, umax: (9.791e-01, 0.000e+00, 1.405e+00), CFL: 2.0000e-01, next Δt: 1.11e-03, ⟨wall time⟩: 7.545 ms
+[41.80%] i: 3340, t: 4.18e+00, umax: (9.478e-01, 0.000e+00, 1.433e+00), CFL: 2.0000e-01, next Δt: 1.09e-03, ⟨wall time⟩: 7.535 ms
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 395.601 μs
+[ Info: Calculation time: 353.400 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=6.637 ms, size=202.9 KiB, Δsize=4.6 KiB
-[42.02%] i: 3360, t: 4.20e+00, umax: (9.091e-01, 0.000e+00, 1.447e+00), CFL: 2.0000e-01, next Δt: 1.08e-03, ⟨wall time⟩: 8.143 ms
-[42.23%] i: 3380, t: 4.22e+00, umax: (8.735e-01, 0.000e+00, 1.465e+00), CFL: 2.0000e-01, next Δt: 1.07e-03, ⟨wall time⟩: 7.787 ms
-[42.45%] i: 3400, t: 4.24e+00, umax: (8.412e-01, 0.000e+00, 1.467e+00), CFL: 2.0000e-01, next Δt: 1.07e-03, ⟨wall time⟩: 7.124 ms
-[42.66%] i: 3420, t: 4.27e+00, umax: (8.031e-01, 0.000e+00, 1.452e+00), CFL: 2.0000e-01, next Δt: 1.08e-03, ⟨wall time⟩: 6.843 ms
-[42.88%] i: 3440, t: 4.29e+00, umax: (7.665e-01, 0.000e+00, 1.433e+00), CFL: 2.0000e-01, next Δt: 1.09e-03, ⟨wall time⟩: 6.799 ms
+[ Info: Writing done: time=7.856 ms, size=202.9 KiB, Δsize=4.6 KiB
+[42.02%] i: 3360, t: 4.20e+00, umax: (9.091e-01, 0.000e+00, 1.447e+00), CFL: 2.0000e-01, next Δt: 1.08e-03, ⟨wall time⟩: 50.945 ms
+[42.23%] i: 3380, t: 4.22e+00, umax: (8.735e-01, 0.000e+00, 1.465e+00), CFL: 2.0000e-01, next Δt: 1.07e-03, ⟨wall time⟩: 8.996 ms
+[42.45%] i: 3400, t: 4.24e+00, umax: (8.412e-01, 0.000e+00, 1.467e+00), CFL: 2.0000e-01, next Δt: 1.07e-03, ⟨wall time⟩: 7.262 ms
+[42.66%] i: 3420, t: 4.27e+00, umax: (8.031e-01, 0.000e+00, 1.452e+00), CFL: 2.0000e-01, next Δt: 1.08e-03, ⟨wall time⟩: 8.299 ms
+[42.88%] i: 3440, t: 4.29e+00, umax: (7.665e-01, 0.000e+00, 1.433e+00), CFL: 2.0000e-01, next Δt: 1.09e-03, ⟨wall time⟩: 8.372 ms
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 291.601 μs
+[ Info: Calculation time: 482.999 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=7.926 ms, size=207.4 KiB, Δsize=4.6 KiB
-[43.09%] i: 3460, t: 4.31e+00, umax: (7.429e-01, 0.000e+00, 1.411e+00), CFL: 2.0000e-01, next Δt: 1.11e-03, ⟨wall time⟩: 8.587 ms
-[43.32%] i: 3480, t: 4.33e+00, umax: (7.267e-01, 0.000e+00, 1.384e+00), CFL: 2.0000e-01, next Δt: 1.13e-03, ⟨wall time⟩: 6.947 ms
-[43.54%] i: 3500, t: 4.35e+00, umax: (7.089e-01, 0.000e+00, 1.357e+00), CFL: 2.0000e-01, next Δt: 1.15e-03, ⟨wall time⟩: 6.620 ms
-[43.77%] i: 3520, t: 4.38e+00, umax: (6.881e-01, 0.000e+00, 1.328e+00), CFL: 2.0000e-01, next Δt: 1.18e-03, ⟨wall time⟩: 6.546 ms
+[ Info: Writing done: time=8.390 ms, size=207.4 KiB, Δsize=4.6 KiB
+[43.09%] i: 3460, t: 4.31e+00, umax: (7.429e-01, 0.000e+00, 1.411e+00), CFL: 2.0000e-01, next Δt: 1.11e-03, ⟨wall time⟩: 52.337 ms
+[43.32%] i: 3480, t: 4.33e+00, umax: (7.267e-01, 0.000e+00, 1.384e+00), CFL: 2.0000e-01, next Δt: 1.13e-03, ⟨wall time⟩: 7.708 ms
+[43.54%] i: 3500, t: 4.35e+00, umax: (7.089e-01, 0.000e+00, 1.357e+00), CFL: 2.0000e-01, next Δt: 1.15e-03, ⟨wall time⟩: 7.707 ms
+[43.77%] i: 3520, t: 4.38e+00, umax: (6.881e-01, 0.000e+00, 1.328e+00), CFL: 2.0000e-01, next Δt: 1.18e-03, ⟨wall time⟩: 7.699 ms
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 394.801 μs
+[ Info: Calculation time: 367.899 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=8.099 ms, size=212.0 KiB, Δsize=4.6 KiB
-[44.01%] i: 3540, t: 4.40e+00, umax: (6.682e-01, 0.000e+00, 1.297e+00), CFL: 2.0000e-01, next Δt: 1.20e-03, ⟨wall time⟩: 9.042 ms
-[44.25%] i: 3560, t: 4.42e+00, umax: (6.463e-01, 0.000e+00, 1.271e+00), CFL: 2.0000e-01, next Δt: 1.23e-03, ⟨wall time⟩: 8.136 ms
-[44.49%] i: 3580, t: 4.45e+00, umax: (6.239e-01, 0.000e+00, 1.258e+00), CFL: 2.0000e-01, next Δt: 1.24e-03, ⟨wall time⟩: 6.954 ms
-[44.74%] i: 3600, t: 4.47e+00, umax: (5.980e-01, 0.000e+00, 1.252e+00), CFL: 2.0000e-01, next Δt: 1.25e-03, ⟨wall time⟩: 7.859 ms
-[44.99%] i: 3620, t: 4.50e+00, umax: (5.725e-01, 0.000e+00, 1.255e+00), CFL: 2.0000e-01, next Δt: 1.24e-03, ⟨wall time⟩: 7.488 ms
+[ Info: Writing done: time=6.670 ms, size=212.0 KiB, Δsize=4.6 KiB
+[44.01%] i: 3540, t: 4.40e+00, umax: (6.682e-01, 0.000e+00, 1.297e+00), CFL: 2.0000e-01, next Δt: 1.20e-03, ⟨wall time⟩: 51.774 ms
+[44.25%] i: 3560, t: 4.42e+00, umax: (6.463e-01, 0.000e+00, 1.271e+00), CFL: 2.0000e-01, next Δt: 1.23e-03, ⟨wall time⟩: 7.099 ms
+[44.49%] i: 3580, t: 4.45e+00, umax: (6.239e-01, 0.000e+00, 1.258e+00), CFL: 2.0000e-01, next Δt: 1.24e-03, ⟨wall time⟩: 7.291 ms
+[44.74%] i: 3600, t: 4.47e+00, umax: (5.980e-01, 0.000e+00, 1.252e+00), CFL: 2.0000e-01, next Δt: 1.25e-03, ⟨wall time⟩: 8.467 ms
+[44.99%] i: 3620, t: 4.50e+00, umax: (5.725e-01, 0.000e+00, 1.255e+00), CFL: 2.0000e-01, next Δt: 1.24e-03, ⟨wall time⟩: 8.021 ms
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 301.000 μs
+[ Info: Calculation time: 404.400 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=9.471 ms, size=216.5 KiB, Δsize=4.6 KiB
-[45.24%] i: 3640, t: 4.52e+00, umax: (5.733e-01, 0.000e+00, 1.274e+00), CFL: 2.0000e-01, next Δt: 1.23e-03, ⟨wall time⟩: 10.254 ms
-[45.49%] i: 3660, t: 4.55e+00, umax: (5.903e-01, 0.000e+00, 1.277e+00), CFL: 2.0000e-01, next Δt: 1.22e-03, ⟨wall time⟩: 6.850 ms
-[45.73%] i: 3680, t: 4.57e+00, umax: (6.419e-01, 0.000e+00, 1.280e+00), CFL: 2.0000e-01, next Δt: 1.22e-03, ⟨wall time⟩: 6.470 ms
-[45.98%] i: 3700, t: 4.60e+00, umax: (7.076e-01, 0.000e+00, 1.267e+00), CFL: 2.0000e-01, next Δt: 1.23e-03, ⟨wall time⟩: 6.922 ms
+[ Info: Writing done: time=6.088 ms, size=216.5 KiB, Δsize=4.6 KiB
+[45.24%] i: 3640, t: 4.52e+00, umax: (5.733e-01, 0.000e+00, 1.274e+00), CFL: 2.0000e-01, next Δt: 1.23e-03, ⟨wall time⟩: 54.167 ms
+[45.49%] i: 3660, t: 4.55e+00, umax: (5.903e-01, 0.000e+00, 1.277e+00), CFL: 2.0000e-01, next Δt: 1.22e-03, ⟨wall time⟩: 7.766 ms
+[45.73%] i: 3680, t: 4.57e+00, umax: (6.419e-01, 0.000e+00, 1.280e+00), CFL: 2.0000e-01, next Δt: 1.22e-03, ⟨wall time⟩: 7.590 ms
+[45.98%] i: 3700, t: 4.60e+00, umax: (7.076e-01, 0.000e+00, 1.267e+00), CFL: 2.0000e-01, next Δt: 1.23e-03, ⟨wall time⟩: 7.551 ms
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 332.601 μs
+[ Info: Calculation time: 336.300 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=9.132 ms, size=221.1 KiB, Δsize=4.6 KiB
-[46.22%] i: 3720, t: 4.62e+00, umax: (7.855e-01, 0.000e+00, 1.245e+00), CFL: 2.0000e-01, next Δt: 1.25e-03, ⟨wall time⟩: 9.759 ms
-[46.47%] i: 3740, t: 4.65e+00, umax: (8.710e-01, 0.000e+00, 1.254e+00), CFL: 2.0000e-01, next Δt: 1.25e-03, ⟨wall time⟩: 6.279 ms
-[46.72%] i: 3760, t: 4.67e+00, umax: (9.463e-01, 0.000e+00, 1.266e+00), CFL: 2.0000e-01, next Δt: 1.23e-03, ⟨wall time⟩: 6.699 ms
-[46.97%] i: 3780, t: 4.70e+00, umax: (1.010e+00, 0.000e+00, 1.279e+00), CFL: 2.0000e-01, next Δt: 1.22e-03, ⟨wall time⟩: 6.885 ms
+[ Info: Writing done: time=10.128 ms, size=221.1 KiB, Δsize=4.6 KiB
+[46.22%] i: 3720, t: 4.62e+00, umax: (7.855e-01, 0.000e+00, 1.245e+00), CFL: 2.0000e-01, next Δt: 1.25e-03, ⟨wall time⟩: 59.551 ms
+[46.47%] i: 3740, t: 4.65e+00, umax: (8.710e-01, 0.000e+00, 1.254e+00), CFL: 2.0000e-01, next Δt: 1.25e-03, ⟨wall time⟩: 8.043 ms
+[46.72%] i: 3760, t: 4.67e+00, umax: (9.463e-01, 0.000e+00, 1.266e+00), CFL: 2.0000e-01, next Δt: 1.23e-03, ⟨wall time⟩: 8.243 ms
+[46.97%] i: 3780, t: 4.70e+00, umax: (1.010e+00, 0.000e+00, 1.279e+00), CFL: 2.0000e-01, next Δt: 1.22e-03, ⟨wall time⟩: 7.719 ms
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 450.800 μs
+[ Info: Calculation time: 475.900 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=9.009 ms, size=225.7 KiB, Δsize=4.6 KiB
-[47.21%] i: 3800, t: 4.72e+00, umax: (1.051e+00, 0.000e+00, 1.290e+00), CFL: 2.0000e-01, next Δt: 1.21e-03, ⟨wall time⟩: 10.250 ms
-[47.46%] i: 3820, t: 4.75e+00, umax: (1.068e+00, 0.000e+00, 1.302e+00), CFL: 2.0000e-01, next Δt: 1.20e-03, ⟨wall time⟩: 6.714 ms
-[47.70%] i: 3840, t: 4.77e+00, umax: (1.070e+00, 0.000e+00, 1.313e+00), CFL: 2.0000e-01, next Δt: 1.19e-03, ⟨wall time⟩: 6.353 ms
-[47.93%] i: 3860, t: 4.79e+00, umax: (1.055e+00, 0.000e+00, 1.324e+00), CFL: 2.0000e-01, next Δt: 1.18e-03, ⟨wall time⟩: 7.141 ms
+[ Info: Writing done: time=7.434 ms, size=225.7 KiB, Δsize=4.6 KiB
+[47.21%] i: 3800, t: 4.72e+00, umax: (1.051e+00, 0.000e+00, 1.290e+00), CFL: 2.0000e-01, next Δt: 1.21e-03, ⟨wall time⟩: 71.439 ms
+[47.46%] i: 3820, t: 4.75e+00, umax: (1.068e+00, 0.000e+00, 1.302e+00), CFL: 2.0000e-01, next Δt: 1.20e-03, ⟨wall time⟩: 7.308 ms
+[47.70%] i: 3840, t: 4.77e+00, umax: (1.070e+00, 0.000e+00, 1.313e+00), CFL: 2.0000e-01, next Δt: 1.19e-03, ⟨wall time⟩: 7.283 ms
+[47.93%] i: 3860, t: 4.79e+00, umax: (1.055e+00, 0.000e+00, 1.324e+00), CFL: 2.0000e-01, next Δt: 1.18e-03, ⟨wall time⟩: 7.815 ms
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 303.900 μs
+[ Info: Calculation time: 343.801 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=8.720 ms, size=230.2 KiB, Δsize=4.6 KiB
-[48.17%] i: 3880, t: 4.82e+00, umax: (1.030e+00, 0.000e+00, 1.333e+00), CFL: 2.0000e-01, next Δt: 1.17e-03, ⟨wall time⟩: 9.230 ms
-[48.40%] i: 3900, t: 4.84e+00, umax: (9.959e-01, 0.000e+00, 1.337e+00), CFL: 2.0000e-01, next Δt: 1.17e-03, ⟨wall time⟩: 6.710 ms
-[48.64%] i: 3920, t: 4.86e+00, umax: (9.540e-01, 0.000e+00, 1.336e+00), CFL: 2.0000e-01, next Δt: 1.17e-03, ⟨wall time⟩: 6.924 ms
-[48.87%] i: 3940, t: 4.89e+00, umax: (9.089e-01, 0.000e+00, 1.330e+00), CFL: 2.0000e-01, next Δt: 1.18e-03, ⟨wall time⟩: 6.121 ms
+[ Info: Writing done: time=7.905 ms, size=230.2 KiB, Δsize=4.6 KiB
+[48.17%] i: 3880, t: 4.82e+00, umax: (1.030e+00, 0.000e+00, 1.333e+00), CFL: 2.0000e-01, next Δt: 1.17e-03, ⟨wall time⟩: 57.687 ms
+[48.40%] i: 3900, t: 4.84e+00, umax: (9.959e-01, 0.000e+00, 1.337e+00), CFL: 2.0000e-01, next Δt: 1.17e-03, ⟨wall time⟩: 7.668 ms
+[48.64%] i: 3920, t: 4.86e+00, umax: (9.540e-01, 0.000e+00, 1.336e+00), CFL: 2.0000e-01, next Δt: 1.17e-03, ⟨wall time⟩: 8.376 ms
+[48.87%] i: 3940, t: 4.89e+00, umax: (9.089e-01, 0.000e+00, 1.330e+00), CFL: 2.0000e-01, next Δt: 1.18e-03, ⟨wall time⟩: 8.519 ms
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 276.799 μs
+[ Info: Calculation time: 349.500 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=7.869 ms, size=234.8 KiB, Δsize=4.6 KiB
-[49.11%] i: 3960, t: 4.91e+00, umax: (9.773e-01, 0.000e+00, 1.319e+00), CFL: 2.0000e-01, next Δt: 1.18e-03, ⟨wall time⟩: 9.134 ms
-[49.34%] i: 3980, t: 4.93e+00, umax: (1.014e+00, 0.000e+00, 1.305e+00), CFL: 2.0000e-01, next Δt: 1.20e-03, ⟨wall time⟩: 7.392 ms
-[49.58%] i: 4000, t: 4.96e+00, umax: (1.031e+00, 0.000e+00, 1.288e+00), CFL: 2.0000e-01, next Δt: 1.21e-03, ⟨wall time⟩: 7.003 ms
-[49.83%] i: 4020, t: 4.98e+00, umax: (1.037e+00, 0.000e+00, 1.275e+00), CFL: 2.0000e-01, next Δt: 1.23e-03, ⟨wall time⟩: 6.706 ms
+[ Info: Writing done: time=11.424 ms, size=234.8 KiB, Δsize=4.6 KiB
+[49.11%] i: 3960, t: 4.91e+00, umax: (9.773e-01, 0.000e+00, 1.319e+00), CFL: 2.0000e-01, next Δt: 1.18e-03, ⟨wall time⟩: 73.594 ms
+[49.34%] i: 3980, t: 4.93e+00, umax: (1.014e+00, 0.000e+00, 1.305e+00), CFL: 2.0000e-01, next Δt: 1.20e-03, ⟨wall time⟩: 8.739 ms
+[49.58%] i: 4000, t: 4.96e+00, umax: (1.031e+00, 0.000e+00, 1.288e+00), CFL: 2.0000e-01, next Δt: 1.21e-03, ⟨wall time⟩: 11.604 ms
+[49.83%] i: 4020, t: 4.98e+00, umax: (1.037e+00, 0.000e+00, 1.275e+00), CFL: 2.0000e-01, next Δt: 1.23e-03, ⟨wall time⟩: 10.230 ms
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 443.300 μs
+[ Info: Calculation time: 547.901 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_fields.jld2...
-[ Info: Writing done: time=10.133 ms, size=6.0 MiB, Δsize=1.0 MiB
+[ Info: Writing done: time=12.185 ms, size=6.0 MiB, Δsize=1.0 MiB
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 599.901 μs
+[ Info: Calculation time: 461.201 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=9.675 ms, size=239.3 KiB, Δsize=4.6 KiB
-[50.07%] i: 4040, t: 5.01e+00, umax: (1.050e+00, 0.000e+00, 1.285e+00), CFL: 2.0000e-01, next Δt: 1.22e-03, ⟨wall time⟩: 11.270 ms
-[50.31%] i: 4060, t: 5.03e+00, umax: (1.091e+00, 0.000e+00, 1.322e+00), CFL: 2.0000e-01, next Δt: 1.18e-03, ⟨wall time⟩: 8.266 ms
-[50.55%] i: 4080, t: 5.06e+00, umax: (1.121e+00, 0.000e+00, 1.353e+00), CFL: 2.0000e-01, next Δt: 1.15e-03, ⟨wall time⟩: 5.768 ms
-[50.78%] i: 4100, t: 5.08e+00, umax: (1.127e+00, 0.000e+00, 1.374e+00), CFL: 2.0000e-01, next Δt: 1.14e-03, ⟨wall time⟩: 5.810 ms
+[ Info: Writing done: time=8.846 ms, size=239.3 KiB, Δsize=4.6 KiB
+[50.07%] i: 4040, t: 5.01e+00, umax: (1.050e+00, 0.000e+00, 1.285e+00), CFL: 2.0000e-01, next Δt: 1.22e-03, ⟨wall time⟩: 132.777 ms
+[50.31%] i: 4060, t: 5.03e+00, umax: (1.091e+00, 0.000e+00, 1.322e+00), CFL: 2.0000e-01, next Δt: 1.18e-03, ⟨wall time⟩: 9.270 ms
+[50.55%] i: 4080, t: 5.06e+00, umax: (1.121e+00, 0.000e+00, 1.353e+00), CFL: 2.0000e-01, next Δt: 1.15e-03, ⟨wall time⟩: 9.505 ms
+[50.78%] i: 4100, t: 5.08e+00, umax: (1.127e+00, 0.000e+00, 1.374e+00), CFL: 2.0000e-01, next Δt: 1.14e-03, ⟨wall time⟩: 8.614 ms
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 304.099 μs
+[ Info: Calculation time: 355.800 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=6.380 ms, size=243.9 KiB, Δsize=4.6 KiB
-[51.01%] i: 4120, t: 5.10e+00, umax: (1.158e+00, 0.000e+00, 1.381e+00), CFL: 2.0000e-01, next Δt: 1.13e-03, ⟨wall time⟩: 7.577 ms
-[51.23%] i: 4140, t: 5.12e+00, umax: (1.172e+00, 0.000e+00, 1.378e+00), CFL: 2.0000e-01, next Δt: 1.13e-03, ⟨wall time⟩: 7.143 ms
-[51.46%] i: 4160, t: 5.15e+00, umax: (1.173e+00, 0.000e+00, 1.366e+00), CFL: 2.0000e-01, next Δt: 1.14e-03, ⟨wall time⟩: 6.520 ms
-[51.69%] i: 4180, t: 5.17e+00, umax: (1.171e+00, 0.000e+00, 1.349e+00), CFL: 2.0000e-01, next Δt: 1.16e-03, ⟨wall time⟩: 6.492 ms
-[51.92%] i: 4200, t: 5.19e+00, umax: (1.192e+00, 0.000e+00, 1.331e+00), CFL: 2.0000e-01, next Δt: 1.17e-03, ⟨wall time⟩: 6.681 ms
+[ Info: Writing done: time=7.993 ms, size=243.9 KiB, Δsize=4.6 KiB
+[51.01%] i: 4120, t: 5.10e+00, umax: (1.158e+00, 0.000e+00, 1.381e+00), CFL: 2.0000e-01, next Δt: 1.13e-03, ⟨wall time⟩: 67.759 ms
+[51.23%] i: 4140, t: 5.12e+00, umax: (1.172e+00, 0.000e+00, 1.378e+00), CFL: 2.0000e-01, next Δt: 1.13e-03, ⟨wall time⟩: 9.504 ms
+[51.46%] i: 4160, t: 5.15e+00, umax: (1.173e+00, 0.000e+00, 1.366e+00), CFL: 2.0000e-01, next Δt: 1.14e-03, ⟨wall time⟩: 7.969 ms
+[51.69%] i: 4180, t: 5.17e+00, umax: (1.171e+00, 0.000e+00, 1.349e+00), CFL: 2.0000e-01, next Δt: 1.16e-03, ⟨wall time⟩: 8.164 ms
+[51.92%] i: 4200, t: 5.19e+00, umax: (1.192e+00, 0.000e+00, 1.331e+00), CFL: 2.0000e-01, next Δt: 1.17e-03, ⟨wall time⟩: 7.645 ms
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 358.701 μs
+[ Info: Calculation time: 421.701 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=10.595 ms, size=248.4 KiB, Δsize=4.6 KiB
-[52.16%] i: 4220, t: 5.22e+00, umax: (1.200e+00, 0.000e+00, 1.350e+00), CFL: 2.0000e-01, next Δt: 1.16e-03, ⟨wall time⟩: 10.594 ms
-[52.39%] i: 4240, t: 5.24e+00, umax: (1.205e+00, 0.000e+00, 1.381e+00), CFL: 2.0000e-01, next Δt: 1.13e-03, ⟨wall time⟩: 6.615 ms
-[52.61%] i: 4260, t: 5.26e+00, umax: (1.208e+00, 0.000e+00, 1.422e+00), CFL: 2.0000e-01, next Δt: 1.10e-03, ⟨wall time⟩: 7.010 ms
-[52.83%] i: 4280, t: 5.28e+00, umax: (1.204e+00, 0.000e+00, 1.467e+00), CFL: 2.0000e-01, next Δt: 1.07e-03, ⟨wall time⟩: 6.611 ms
+[ Info: Writing done: time=7.867 ms, size=248.4 KiB, Δsize=4.6 KiB
+[52.16%] i: 4220, t: 5.22e+00, umax: (1.200e+00, 0.000e+00, 1.350e+00), CFL: 2.0000e-01, next Δt: 1.16e-03, ⟨wall time⟩: 59.415 ms
+[52.39%] i: 4240, t: 5.24e+00, umax: (1.205e+00, 0.000e+00, 1.381e+00), CFL: 2.0000e-01, next Δt: 1.13e-03, ⟨wall time⟩: 7.262 ms
+[52.61%] i: 4260, t: 5.26e+00, umax: (1.208e+00, 0.000e+00, 1.422e+00), CFL: 2.0000e-01, next Δt: 1.10e-03, ⟨wall time⟩: 7.664 ms
+[52.83%] i: 4280, t: 5.28e+00, umax: (1.204e+00, 0.000e+00, 1.467e+00), CFL: 2.0000e-01, next Δt: 1.07e-03, ⟨wall time⟩: 8.166 ms
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 334.000 μs
+[ Info: Calculation time: 348.401 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=6.778 ms, size=253.0 KiB, Δsize=4.6 KiB
-[53.05%] i: 4300, t: 5.30e+00, umax: (1.193e+00, 0.000e+00, 1.508e+00), CFL: 2.0000e-01, next Δt: 1.04e-03, ⟨wall time⟩: 8.278 ms
-[53.25%] i: 4320, t: 5.33e+00, umax: (1.188e+00, 0.000e+00, 1.543e+00), CFL: 2.0000e-01, next Δt: 1.01e-03, ⟨wall time⟩: 6.950 ms
-[53.46%] i: 4340, t: 5.35e+00, umax: (1.179e+00, 0.000e+00, 1.568e+00), CFL: 2.0000e-01, next Δt: 9.97e-04, ⟨wall time⟩: 6.511 ms
-[53.66%] i: 4360, t: 5.37e+00, umax: (1.163e+00, 0.000e+00, 1.588e+00), CFL: 2.0000e-01, next Δt: 9.84e-04, ⟨wall time⟩: 6.614 ms
-[53.85%] i: 4380, t: 5.39e+00, umax: (1.168e+00, 0.000e+00, 1.601e+00), CFL: 2.0000e-01, next Δt: 9.76e-04, ⟨wall time⟩: 6.489 ms
+[ Info: Writing done: time=8.495 ms, size=253.0 KiB, Δsize=4.6 KiB
+[53.05%] i: 4300, t: 5.30e+00, umax: (1.193e+00, 0.000e+00, 1.508e+00), CFL: 2.0000e-01, next Δt: 1.04e-03, ⟨wall time⟩: 79.521 ms
+[53.25%] i: 4320, t: 5.33e+00, umax: (1.188e+00, 0.000e+00, 1.543e+00), CFL: 2.0000e-01, next Δt: 1.01e-03, ⟨wall time⟩: 7.486 ms
+[53.46%] i: 4340, t: 5.35e+00, umax: (1.179e+00, 0.000e+00, 1.568e+00), CFL: 2.0000e-01, next Δt: 9.97e-04, ⟨wall time⟩: 8.527 ms
+[53.66%] i: 4360, t: 5.37e+00, umax: (1.163e+00, 0.000e+00, 1.588e+00), CFL: 2.0000e-01, next Δt: 9.84e-04, ⟨wall time⟩: 9.116 ms
+[53.85%] i: 4380, t: 5.39e+00, umax: (1.168e+00, 0.000e+00, 1.601e+00), CFL: 2.0000e-01, next Δt: 9.76e-04, ⟨wall time⟩: 9.191 ms
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 295.499 μs
+[ Info: Calculation time: 345.100 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=8.620 ms, size=257.5 KiB, Δsize=4.6 KiB
-[54.05%] i: 4400, t: 5.40e+00, umax: (1.166e+00, 0.000e+00, 1.615e+00), CFL: 2.0000e-01, next Δt: 9.68e-04, ⟨wall time⟩: 8.182 ms
-[54.24%] i: 4420, t: 5.42e+00, umax: (1.154e+00, 0.000e+00, 1.623e+00), CFL: 2.0000e-01, next Δt: 9.63e-04, ⟨wall time⟩: 7.488 ms
-[54.43%] i: 4440, t: 5.44e+00, umax: (1.149e+00, 0.000e+00, 1.629e+00), CFL: 2.0000e-01, next Δt: 9.59e-04, ⟨wall time⟩: 6.573 ms
-[54.63%] i: 4460, t: 5.46e+00, umax: (1.143e+00, 0.000e+00, 1.628e+00), CFL: 2.0000e-01, next Δt: 9.60e-04, ⟨wall time⟩: 6.617 ms
-[54.82%] i: 4480, t: 5.48e+00, umax: (1.159e+00, 0.000e+00, 1.624e+00), CFL: 2.0000e-01, next Δt: 9.62e-04, ⟨wall time⟩: 6.521 ms
+[ Info: Writing done: time=9.265 ms, size=257.5 KiB, Δsize=4.6 KiB
+[54.05%] i: 4400, t: 5.40e+00, umax: (1.166e+00, 0.000e+00, 1.615e+00), CFL: 2.0000e-01, next Δt: 9.68e-04, ⟨wall time⟩: 57.495 ms
+[54.24%] i: 4420, t: 5.42e+00, umax: (1.154e+00, 0.000e+00, 1.623e+00), CFL: 2.0000e-01, next Δt: 9.63e-04, ⟨wall time⟩: 7.414 ms
+[54.43%] i: 4440, t: 5.44e+00, umax: (1.149e+00, 0.000e+00, 1.629e+00), CFL: 2.0000e-01, next Δt: 9.59e-04, ⟨wall time⟩: 7.425 ms
+[54.63%] i: 4460, t: 5.46e+00, umax: (1.143e+00, 0.000e+00, 1.628e+00), CFL: 2.0000e-01, next Δt: 9.60e-04, ⟨wall time⟩: 8.629 ms
+[54.82%] i: 4480, t: 5.48e+00, umax: (1.159e+00, 0.000e+00, 1.624e+00), CFL: 2.0000e-01, next Δt: 9.62e-04, ⟨wall time⟩: 7.677 ms
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 388.000 μs
+[ Info: Calculation time: 469.299 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=8.557 ms, size=262.1 KiB, Δsize=4.6 KiB
-[55.01%] i: 4500, t: 5.50e+00, umax: (1.197e+00, 0.000e+00, 1.616e+00), CFL: 2.0000e-01, next Δt: 9.67e-04, ⟨wall time⟩: 7.708 ms
-[55.20%] i: 4520, t: 5.52e+00, umax: (1.226e+00, 0.000e+00, 1.607e+00), CFL: 2.0000e-01, next Δt: 9.72e-04, ⟨wall time⟩: 7.675 ms
-[55.40%] i: 4540, t: 5.54e+00, umax: (1.245e+00, 0.000e+00, 1.596e+00), CFL: 2.0000e-01, next Δt: 9.79e-04, ⟨wall time⟩: 6.655 ms
-[55.59%] i: 4560, t: 5.56e+00, umax: (1.254e+00, 0.000e+00, 1.588e+00), CFL: 2.0000e-01, next Δt: 9.84e-04, ⟨wall time⟩: 6.762 ms
-[55.79%] i: 4580, t: 5.58e+00, umax: (1.256e+00, 0.000e+00, 1.580e+00), CFL: 2.0000e-01, next Δt: 9.89e-04, ⟨wall time⟩: 6.667 ms
-[55.99%] i: 4600, t: 5.60e+00, umax: (1.270e+00, 0.000e+00, 1.574e+00), CFL: 2.0000e-01, next Δt: 9.93e-04, ⟨wall time⟩: 6.592 ms
+[ Info: Writing done: time=9.315 ms, size=262.1 KiB, Δsize=4.6 KiB
+[55.01%] i: 4500, t: 5.50e+00, umax: (1.197e+00, 0.000e+00, 1.616e+00), CFL: 2.0000e-01, next Δt: 9.67e-04, ⟨wall time⟩: 65.504 ms
+[55.20%] i: 4520, t: 5.52e+00, umax: (1.226e+00, 0.000e+00, 1.607e+00), CFL: 2.0000e-01, next Δt: 9.72e-04, ⟨wall time⟩: 7.168 ms
+[55.40%] i: 4540, t: 5.54e+00, umax: (1.245e+00, 0.000e+00, 1.596e+00), CFL: 2.0000e-01, next Δt: 9.79e-04, ⟨wall time⟩: 7.855 ms
+[55.59%] i: 4560, t: 5.56e+00, umax: (1.254e+00, 0.000e+00, 1.588e+00), CFL: 2.0000e-01, next Δt: 9.84e-04, ⟨wall time⟩: 7.584 ms
+[55.79%] i: 4580, t: 5.58e+00, umax: (1.256e+00, 0.000e+00, 1.580e+00), CFL: 2.0000e-01, next Δt: 9.89e-04, ⟨wall time⟩: 7.920 ms
+[55.99%] i: 4600, t: 5.60e+00, umax: (1.270e+00, 0.000e+00, 1.574e+00), CFL: 2.0000e-01, next Δt: 9.93e-04, ⟨wall time⟩: 7.244 ms
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 343.900 μs
+[ Info: Calculation time: 340.401 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=8.437 ms, size=266.7 KiB, Δsize=4.6 KiB
-[56.19%] i: 4620, t: 5.62e+00, umax: (1.294e+00, 0.000e+00, 1.566e+00), CFL: 2.0000e-01, next Δt: 9.98e-04, ⟨wall time⟩: 10.210 ms
-[56.39%] i: 4640, t: 5.64e+00, umax: (1.310e+00, 0.000e+00, 1.559e+00), CFL: 2.0000e-01, next Δt: 1.00e-03, ⟨wall time⟩: 6.938 ms
-[56.59%] i: 4660, t: 5.66e+00, umax: (1.330e+00, 0.000e+00, 1.548e+00), CFL: 2.0000e-01, next Δt: 1.01e-03, ⟨wall time⟩: 7.406 ms
-[56.79%] i: 4680, t: 5.68e+00, umax: (1.355e+00, 0.000e+00, 1.540e+00), CFL: 2.0000e-01, next Δt: 1.01e-03, ⟨wall time⟩: 6.793 ms
-[56.99%] i: 4700, t: 5.70e+00, umax: (1.372e+00, 0.000e+00, 1.525e+00), CFL: 2.0000e-01, next Δt: 1.02e-03, ⟨wall time⟩: 6.376 ms
+[ Info: Writing done: time=9.026 ms, size=266.7 KiB, Δsize=4.6 KiB
+[56.19%] i: 4620, t: 5.62e+00, umax: (1.294e+00, 0.000e+00, 1.566e+00), CFL: 2.0000e-01, next Δt: 9.98e-04, ⟨wall time⟩: 57.865 ms
+[56.39%] i: 4640, t: 5.64e+00, umax: (1.310e+00, 0.000e+00, 1.559e+00), CFL: 2.0000e-01, next Δt: 1.00e-03, ⟨wall time⟩: 6.912 ms
+[56.59%] i: 4660, t: 5.66e+00, umax: (1.330e+00, 0.000e+00, 1.548e+00), CFL: 2.0000e-01, next Δt: 1.01e-03, ⟨wall time⟩: 7.373 ms
+[56.79%] i: 4680, t: 5.68e+00, umax: (1.355e+00, 0.000e+00, 1.540e+00), CFL: 2.0000e-01, next Δt: 1.01e-03, ⟨wall time⟩: 7.565 ms
+[56.99%] i: 4700, t: 5.70e+00, umax: (1.372e+00, 0.000e+00, 1.525e+00), CFL: 2.0000e-01, next Δt: 1.02e-03, ⟨wall time⟩: 7.739 ms
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 365.399 μs
+[ Info: Calculation time: 363.300 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=9.111 ms, size=271.2 KiB, Δsize=4.6 KiB
-[57.20%] i: 4720, t: 5.72e+00, umax: (1.387e+00, 0.000e+00, 1.513e+00), CFL: 2.0000e-01, next Δt: 1.03e-03, ⟨wall time⟩: 9.953 ms
-[57.40%] i: 4740, t: 5.74e+00, umax: (1.416e+00, 0.000e+00, 1.496e+00), CFL: 2.0000e-01, next Δt: 1.04e-03, ⟨wall time⟩: 6.706 ms
-[57.61%] i: 4760, t: 5.76e+00, umax: (1.437e+00, 0.000e+00, 1.482e+00), CFL: 2.0000e-01, next Δt: 1.05e-03, ⟨wall time⟩: 7.033 ms
-[57.82%] i: 4780, t: 5.78e+00, umax: (1.447e+00, 0.000e+00, 1.463e+00), CFL: 2.0000e-01, next Δt: 1.07e-03, ⟨wall time⟩: 6.545 ms
+[ Info: Writing done: time=8.504 ms, size=271.2 KiB, Δsize=4.6 KiB
+[57.20%] i: 4720, t: 5.72e+00, umax: (1.387e+00, 0.000e+00, 1.513e+00), CFL: 2.0000e-01, next Δt: 1.03e-03, ⟨wall time⟩: 68.809 ms
+[57.40%] i: 4740, t: 5.74e+00, umax: (1.416e+00, 0.000e+00, 1.496e+00), CFL: 2.0000e-01, next Δt: 1.04e-03, ⟨wall time⟩: 7.648 ms
+[57.61%] i: 4760, t: 5.76e+00, umax: (1.437e+00, 0.000e+00, 1.482e+00), CFL: 2.0000e-01, next Δt: 1.05e-03, ⟨wall time⟩: 7.673 ms
+[57.82%] i: 4780, t: 5.78e+00, umax: (1.447e+00, 0.000e+00, 1.463e+00), CFL: 2.0000e-01, next Δt: 1.07e-03, ⟨wall time⟩: 8.153 ms
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 290.500 μs
+[ Info: Calculation time: 352.200 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=8.426 ms, size=275.8 KiB, Δsize=4.6 KiB
-[58.04%] i: 4800, t: 5.80e+00, umax: (1.461e+00, 0.000e+00, 1.444e+00), CFL: 2.0000e-01, next Δt: 1.07e-03, ⟨wall time⟩: 8.250 ms
-[58.25%] i: 4820, t: 5.83e+00, umax: (1.465e+00, 0.000e+00, 1.421e+00), CFL: 2.0000e-01, next Δt: 1.07e-03, ⟨wall time⟩: 6.844 ms
-[58.46%] i: 4840, t: 5.85e+00, umax: (1.458e+00, 0.000e+00, 1.398e+00), CFL: 2.0000e-01, next Δt: 1.07e-03, ⟨wall time⟩: 6.470 ms
-[58.68%] i: 4860, t: 5.87e+00, umax: (1.455e+00, 0.000e+00, 1.369e+00), CFL: 2.0000e-01, next Δt: 1.07e-03, ⟨wall time⟩: 7.155 ms
-[58.89%] i: 4880, t: 5.89e+00, umax: (1.441e+00, 0.000e+00, 1.337e+00), CFL: 2.0000e-01, next Δt: 1.08e-03, ⟨wall time⟩: 6.606 ms
+[ Info: Writing done: time=17.784 ms, size=275.8 KiB, Δsize=4.6 KiB
+[58.04%] i: 4800, t: 5.80e+00, umax: (1.461e+00, 0.000e+00, 1.444e+00), CFL: 2.0000e-01, next Δt: 1.07e-03, ⟨wall time⟩: 54.132 ms
+[58.25%] i: 4820, t: 5.83e+00, umax: (1.465e+00, 0.000e+00, 1.421e+00), CFL: 2.0000e-01, next Δt: 1.07e-03, ⟨wall time⟩: 7.799 ms
+[58.46%] i: 4840, t: 5.85e+00, umax: (1.458e+00, 0.000e+00, 1.398e+00), CFL: 2.0000e-01, next Δt: 1.07e-03, ⟨wall time⟩: 7.606 ms
+[58.68%] i: 4860, t: 5.87e+00, umax: (1.455e+00, 0.000e+00, 1.369e+00), CFL: 2.0000e-01, next Δt: 1.07e-03, ⟨wall time⟩: 7.060 ms
+[58.89%] i: 4880, t: 5.89e+00, umax: (1.441e+00, 0.000e+00, 1.337e+00), CFL: 2.0000e-01, next Δt: 1.08e-03, ⟨wall time⟩: 8.057 ms
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 337.000 μs
+[ Info: Calculation time: 354.400 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=6.439 ms, size=280.3 KiB, Δsize=4.6 KiB
-[59.11%] i: 4900, t: 5.91e+00, umax: (1.415e+00, 0.000e+00, 1.304e+00), CFL: 2.0000e-01, next Δt: 1.10e-03, ⟨wall time⟩: 8.482 ms
-[59.33%] i: 4920, t: 5.93e+00, umax: (1.385e+00, 0.000e+00, 1.268e+00), CFL: 2.0000e-01, next Δt: 1.13e-03, ⟨wall time⟩: 6.748 ms
-[59.56%] i: 4940, t: 5.96e+00, umax: (1.346e+00, 0.000e+00, 1.227e+00), CFL: 2.0000e-01, next Δt: 1.16e-03, ⟨wall time⟩: 6.581 ms
-[59.79%] i: 4960, t: 5.98e+00, umax: (1.304e+00, 0.000e+00, 1.186e+00), CFL: 2.0000e-01, next Δt: 1.20e-03, ⟨wall time⟩: 6.622 ms
+[ Info: Writing done: time=12.011 ms, size=280.3 KiB, Δsize=4.6 KiB
+[59.11%] i: 4900, t: 5.91e+00, umax: (1.415e+00, 0.000e+00, 1.304e+00), CFL: 2.0000e-01, next Δt: 1.10e-03, ⟨wall time⟩: 59.329 ms
+[59.33%] i: 4920, t: 5.93e+00, umax: (1.385e+00, 0.000e+00, 1.268e+00), CFL: 2.0000e-01, next Δt: 1.13e-03, ⟨wall time⟩: 6.907 ms
+[59.56%] i: 4940, t: 5.96e+00, umax: (1.346e+00, 0.000e+00, 1.227e+00), CFL: 2.0000e-01, next Δt: 1.16e-03, ⟨wall time⟩: 7.530 ms
+[59.79%] i: 4960, t: 5.98e+00, umax: (1.304e+00, 0.000e+00, 1.186e+00), CFL: 2.0000e-01, next Δt: 1.20e-03, ⟨wall time⟩: 7.409 ms
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 661.499 μs
+[ Info: Calculation time: 552.800 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_fields.jld2...
-[ Info: Writing done: time=9.721 ms, size=7.0 MiB, Δsize=1.0 MiB
+[ Info: Writing done: time=10.130 ms, size=7.0 MiB, Δsize=1.0 MiB
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 362.400 μs
+[ Info: Calculation time: 512.301 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=7.969 ms, size=284.9 KiB, Δsize=4.6 KiB
-[60.03%] i: 4980, t: 6.00e+00, umax: (1.255e+00, 0.000e+00, 1.143e+00), CFL: 2.0000e-01, next Δt: 1.24e-03, ⟨wall time⟩: 11.176 ms
-[60.28%] i: 5000, t: 6.03e+00, umax: (1.189e+00, 0.000e+00, 1.096e+00), CFL: 2.0000e-01, next Δt: 1.31e-03, ⟨wall time⟩: 7.789 ms
-[60.54%] i: 5020, t: 6.05e+00, umax: (1.118e+00, 0.000e+00, 1.078e+00), CFL: 2.0000e-01, next Δt: 1.40e-03, ⟨wall time⟩: 6.989 ms
-[60.82%] i: 5040, t: 6.08e+00, umax: (1.034e+00, 0.000e+00, 1.086e+00), CFL: 2.0000e-01, next Δt: 1.44e-03, ⟨wall time⟩: 6.655 ms
+[ Info: Writing done: time=6.476 ms, size=284.9 KiB, Δsize=4.6 KiB
+[60.03%] i: 4980, t: 6.00e+00, umax: (1.255e+00, 0.000e+00, 1.143e+00), CFL: 2.0000e-01, next Δt: 1.24e-03, ⟨wall time⟩: 101.719 ms
+[60.28%] i: 5000, t: 6.03e+00, umax: (1.189e+00, 0.000e+00, 1.096e+00), CFL: 2.0000e-01, next Δt: 1.31e-03, ⟨wall time⟩: 6.947 ms
+[60.54%] i: 5020, t: 6.05e+00, umax: (1.118e+00, 0.000e+00, 1.078e+00), CFL: 2.0000e-01, next Δt: 1.40e-03, ⟨wall time⟩: 8.200 ms
+[60.82%] i: 5040, t: 6.08e+00, umax: (1.034e+00, 0.000e+00, 1.086e+00), CFL: 2.0000e-01, next Δt: 1.44e-03, ⟨wall time⟩: 8.600 ms
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 274.300 μs
+[ Info: Calculation time: 343.901 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=9.623 ms, size=289.4 KiB, Δsize=4.6 KiB
-[61.11%] i: 5060, t: 6.11e+00, umax: (9.511e-01, 0.000e+00, 1.114e+00), CFL: 2.0000e-01, next Δt: 1.40e-03, ⟨wall time⟩: 8.836 ms
-[61.39%] i: 5080, t: 6.14e+00, umax: (8.879e-01, 0.000e+00, 1.149e+00), CFL: 2.0000e-01, next Δt: 1.36e-03, ⟨wall time⟩: 7.300 ms
-[61.66%] i: 5100, t: 6.17e+00, umax: (8.502e-01, 0.000e+00, 1.180e+00), CFL: 2.0000e-01, next Δt: 1.32e-03, ⟨wall time⟩: 6.795 ms
-[61.93%] i: 5120, t: 6.19e+00, umax: (8.202e-01, 0.000e+00, 1.204e+00), CFL: 2.0000e-01, next Δt: 1.30e-03, ⟨wall time⟩: 6.671 ms
+[ Info: Writing done: time=6.484 ms, size=289.4 KiB, Δsize=4.6 KiB
+[61.11%] i: 5060, t: 6.11e+00, umax: (9.511e-01, 0.000e+00, 1.114e+00), CFL: 2.0000e-01, next Δt: 1.40e-03, ⟨wall time⟩: 63.630 ms
+[61.39%] i: 5080, t: 6.14e+00, umax: (8.879e-01, 0.000e+00, 1.149e+00), CFL: 2.0000e-01, next Δt: 1.36e-03, ⟨wall time⟩: 8.338 ms
+[61.66%] i: 5100, t: 6.17e+00, umax: (8.502e-01, 0.000e+00, 1.180e+00), CFL: 2.0000e-01, next Δt: 1.32e-03, ⟨wall time⟩: 16.404 ms
+[61.93%] i: 5120, t: 6.19e+00, umax: (8.202e-01, 0.000e+00, 1.204e+00), CFL: 2.0000e-01, next Δt: 1.30e-03, ⟨wall time⟩: 10.224 ms
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 338.300 μs
+[ Info: Calculation time: 498.899 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=8.928 ms, size=294.0 KiB, Δsize=4.6 KiB
-[62.18%] i: 5140, t: 6.22e+00, umax: (7.988e-01, 0.000e+00, 1.212e+00), CFL: 2.0000e-01, next Δt: 1.29e-03, ⟨wall time⟩: 9.744 ms
-[62.44%] i: 5160, t: 6.24e+00, umax: (7.763e-01, 0.000e+00, 1.215e+00), CFL: 2.0000e-01, next Δt: 1.29e-03, ⟨wall time⟩: 6.392 ms
-[62.70%] i: 5180, t: 6.27e+00, umax: (7.671e-01, 0.000e+00, 1.225e+00), CFL: 2.0000e-01, next Δt: 1.28e-03, ⟨wall time⟩: 6.644 ms
-[62.95%] i: 5200, t: 6.30e+00, umax: (7.648e-01, 0.000e+00, 1.221e+00), CFL: 2.0000e-01, next Δt: 1.28e-03, ⟨wall time⟩: 6.631 ms
+[ Info: Writing done: time=8.556 ms, size=294.0 KiB, Δsize=4.6 KiB
+[62.18%] i: 5140, t: 6.22e+00, umax: (7.988e-01, 0.000e+00, 1.212e+00), CFL: 2.0000e-01, next Δt: 1.29e-03, ⟨wall time⟩: 78.943 ms
+[62.44%] i: 5160, t: 6.24e+00, umax: (7.763e-01, 0.000e+00, 1.215e+00), CFL: 2.0000e-01, next Δt: 1.29e-03, ⟨wall time⟩: 8.531 ms
+[62.70%] i: 5180, t: 6.27e+00, umax: (7.671e-01, 0.000e+00, 1.225e+00), CFL: 2.0000e-01, next Δt: 1.28e-03, ⟨wall time⟩: 8.094 ms
+[62.95%] i: 5200, t: 6.30e+00, umax: (7.648e-01, 0.000e+00, 1.221e+00), CFL: 2.0000e-01, next Δt: 1.28e-03, ⟨wall time⟩: 9.323 ms
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 343.100 μs
+[ Info: Calculation time: 377.701 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=9.731 ms, size=298.6 KiB, Δsize=4.6 KiB
-[63.21%] i: 5220, t: 6.32e+00, umax: (7.657e-01, 0.000e+00, 1.207e+00), CFL: 2.0000e-01, next Δt: 1.29e-03, ⟨wall time⟩: 10.405 ms
-[63.47%] i: 5240, t: 6.35e+00, umax: (7.711e-01, 0.000e+00, 1.189e+00), CFL: 2.0000e-01, next Δt: 1.31e-03, ⟨wall time⟩: 6.571 ms
-[63.73%] i: 5260, t: 6.37e+00, umax: (7.743e-01, 0.000e+00, 1.172e+00), CFL: 2.0000e-01, next Δt: 1.33e-03, ⟨wall time⟩: 6.540 ms
-[64.00%] i: 5280, t: 6.40e+00, umax: (7.685e-01, 0.000e+00, 1.155e+00), CFL: 2.0000e-01, next Δt: 1.35e-03, ⟨wall time⟩: 6.883 ms
+[ Info: Writing done: time=13.853 ms, size=298.6 KiB, Δsize=4.6 KiB
+[63.21%] i: 5220, t: 6.32e+00, umax: (7.657e-01, 0.000e+00, 1.207e+00), CFL: 2.0000e-01, next Δt: 1.29e-03, ⟨wall time⟩: 84.531 ms
+[63.47%] i: 5240, t: 6.35e+00, umax: (7.711e-01, 0.000e+00, 1.189e+00), CFL: 2.0000e-01, next Δt: 1.31e-03, ⟨wall time⟩: 11.195 ms
+[63.73%] i: 5260, t: 6.37e+00, umax: (7.743e-01, 0.000e+00, 1.172e+00), CFL: 2.0000e-01, next Δt: 1.33e-03, ⟨wall time⟩: 13.774 ms
+[64.00%] i: 5280, t: 6.40e+00, umax: (7.685e-01, 0.000e+00, 1.155e+00), CFL: 2.0000e-01, next Δt: 1.35e-03, ⟨wall time⟩: 16.846 ms
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 440.799 μs
+[ Info: Calculation time: 643.901 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=8.646 ms, size=303.1 KiB, Δsize=4.6 KiB
-[64.27%] i: 5300, t: 6.43e+00, umax: (7.571e-01, 0.000e+00, 1.144e+00), CFL: 2.0000e-01, next Δt: 1.37e-03, ⟨wall time⟩: 10.277 ms
-[64.54%] i: 5320, t: 6.45e+00, umax: (7.655e-01, 0.000e+00, 1.147e+00), CFL: 2.0000e-01, next Δt: 1.36e-03, ⟨wall time⟩: 6.564 ms
-[64.82%] i: 5340, t: 6.48e+00, umax: (7.717e-01, 0.000e+00, 1.169e+00), CFL: 2.0000e-01, next Δt: 1.34e-03, ⟨wall time⟩: 6.350 ms
+[ Info: Writing done: time=11.156 ms, size=303.1 KiB, Δsize=4.6 KiB
+[64.27%] i: 5300, t: 6.43e+00, umax: (7.571e-01, 0.000e+00, 1.144e+00), CFL: 2.0000e-01, next Δt: 1.37e-03, ⟨wall time⟩: 94.815 ms
+[64.54%] i: 5320, t: 6.45e+00, umax: (7.655e-01, 0.000e+00, 1.147e+00), CFL: 2.0000e-01, next Δt: 1.36e-03, ⟨wall time⟩: 10.455 ms
+[64.82%] i: 5340, t: 6.48e+00, umax: (7.717e-01, 0.000e+00, 1.169e+00), CFL: 2.0000e-01, next Δt: 1.34e-03, ⟨wall time⟩: 13.555 ms
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 293.600 μs
+[ Info: Calculation time: 409.601 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=7.957 ms, size=307.7 KiB, Δsize=4.6 KiB
-[65.08%] i: 5360, t: 6.51e+00, umax: (7.872e-01, 0.000e+00, 1.200e+00), CFL: 2.0000e-01, next Δt: 1.30e-03, ⟨wall time⟩: 7.721 ms
-[65.34%] i: 5380, t: 6.53e+00, umax: (7.955e-01, 0.000e+00, 1.223e+00), CFL: 2.0000e-01, next Δt: 1.28e-03, ⟨wall time⟩: 6.971 ms
-[65.60%] i: 5400, t: 6.56e+00, umax: (7.892e-01, 0.000e+00, 1.224e+00), CFL: 2.0000e-01, next Δt: 1.28e-03, ⟨wall time⟩: 6.461 ms
-[65.85%] i: 5420, t: 6.59e+00, umax: (7.828e-01, 0.000e+00, 1.235e+00), CFL: 2.0000e-01, next Δt: 1.27e-03, ⟨wall time⟩: 6.675 ms
+[ Info: Writing done: time=10.612 ms, size=307.7 KiB, Δsize=4.6 KiB
+[65.08%] i: 5360, t: 6.51e+00, umax: (7.872e-01, 0.000e+00, 1.200e+00), CFL: 2.0000e-01, next Δt: 1.30e-03, ⟨wall time⟩: 100.105 ms
+[65.34%] i: 5380, t: 6.53e+00, umax: (7.955e-01, 0.000e+00, 1.223e+00), CFL: 2.0000e-01, next Δt: 1.28e-03, ⟨wall time⟩: 8.955 ms
+[65.60%] i: 5400, t: 6.56e+00, umax: (7.892e-01, 0.000e+00, 1.224e+00), CFL: 2.0000e-01, next Δt: 1.28e-03, ⟨wall time⟩: 8.442 ms
+[65.85%] i: 5420, t: 6.59e+00, umax: (7.828e-01, 0.000e+00, 1.235e+00), CFL: 2.0000e-01, next Δt: 1.27e-03, ⟨wall time⟩: 8.267 ms
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 402.799 μs
+[ Info: Calculation time: 354.400 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=9.205 ms, size=312.2 KiB, Δsize=4.6 KiB
-[66.11%] i: 5440, t: 6.61e+00, umax: (7.714e-01, 0.000e+00, 1.257e+00), CFL: 2.0000e-01, next Δt: 1.24e-03, ⟨wall time⟩: 9.535 ms
-[66.36%] i: 5460, t: 6.64e+00, umax: (7.969e-01, 0.000e+00, 1.249e+00), CFL: 2.0000e-01, next Δt: 1.25e-03, ⟨wall time⟩: 6.951 ms
-[66.61%] i: 5480, t: 6.66e+00, umax: (8.165e-01, 0.000e+00, 1.251e+00), CFL: 2.0000e-01, next Δt: 1.25e-03, ⟨wall time⟩: 6.864 ms
-[66.86%] i: 5500, t: 6.69e+00, umax: (8.330e-01, 0.000e+00, 1.262e+00), CFL: 2.0000e-01, next Δt: 1.24e-03, ⟨wall time⟩: 7.297 ms
+[ Info: Writing done: time=8.991 ms, size=312.2 KiB, Δsize=4.6 KiB
+[66.11%] i: 5440, t: 6.61e+00, umax: (7.714e-01, 0.000e+00, 1.257e+00), CFL: 2.0000e-01, next Δt: 1.24e-03, ⟨wall time⟩: 72.311 ms
+[66.36%] i: 5460, t: 6.64e+00, umax: (7.969e-01, 0.000e+00, 1.249e+00), CFL: 2.0000e-01, next Δt: 1.25e-03, ⟨wall time⟩: 8.134 ms
+[66.61%] i: 5480, t: 6.66e+00, umax: (8.165e-01, 0.000e+00, 1.251e+00), CFL: 2.0000e-01, next Δt: 1.25e-03, ⟨wall time⟩: 8.493 ms
+[66.86%] i: 5500, t: 6.69e+00, umax: (8.330e-01, 0.000e+00, 1.262e+00), CFL: 2.0000e-01, next Δt: 1.24e-03, ⟨wall time⟩: 8.889 ms
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 486.001 μs
+[ Info: Calculation time: 362.999 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=9.584 ms, size=316.8 KiB, Δsize=4.6 KiB
-[67.10%] i: 5520, t: 6.71e+00, umax: (8.451e-01, 0.000e+00, 1.274e+00), CFL: 2.0000e-01, next Δt: 1.23e-03, ⟨wall time⟩: 10.797 ms
-[67.35%] i: 5540, t: 6.73e+00, umax: (8.525e-01, 0.000e+00, 1.296e+00), CFL: 2.0000e-01, next Δt: 1.21e-03, ⟨wall time⟩: 6.801 ms
-[67.59%] i: 5560, t: 6.76e+00, umax: (8.553e-01, 0.000e+00, 1.307e+00), CFL: 2.0000e-01, next Δt: 1.20e-03, ⟨wall time⟩: 6.878 ms
-[67.83%] i: 5580, t: 6.78e+00, umax: (8.533e-01, 0.000e+00, 1.310e+00), CFL: 2.0000e-01, next Δt: 1.19e-03, ⟨wall time⟩: 6.577 ms
+[ Info: Writing done: time=6.954 ms, size=316.8 KiB, Δsize=4.6 KiB
+[67.10%] i: 5520, t: 6.71e+00, umax: (8.451e-01, 0.000e+00, 1.274e+00), CFL: 2.0000e-01, next Δt: 1.23e-03, ⟨wall time⟩: 58.845 ms
+[67.35%] i: 5540, t: 6.73e+00, umax: (8.525e-01, 0.000e+00, 1.296e+00), CFL: 2.0000e-01, next Δt: 1.21e-03, ⟨wall time⟩: 8.301 ms
+[67.59%] i: 5560, t: 6.76e+00, umax: (8.553e-01, 0.000e+00, 1.307e+00), CFL: 2.0000e-01, next Δt: 1.20e-03, ⟨wall time⟩: 8.901 ms
+[67.83%] i: 5580, t: 6.78e+00, umax: (8.533e-01, 0.000e+00, 1.310e+00), CFL: 2.0000e-01, next Δt: 1.19e-03, ⟨wall time⟩: 10.238 ms
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 291.701 μs
+[ Info: Calculation time: 352.100 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=8.344 ms, size=321.3 KiB, Δsize=4.6 KiB
-[68.07%] i: 5600, t: 6.81e+00, umax: (8.475e-01, 0.000e+00, 1.306e+00), CFL: 2.0000e-01, next Δt: 1.20e-03, ⟨wall time⟩: 8.467 ms
-[68.31%] i: 5620, t: 6.83e+00, umax: (8.394e-01, 0.000e+00, 1.292e+00), CFL: 2.0000e-01, next Δt: 1.21e-03, ⟨wall time⟩: 6.863 ms
-[68.55%] i: 5640, t: 6.85e+00, umax: (8.283e-01, 0.000e+00, 1.273e+00), CFL: 2.0000e-01, next Δt: 1.23e-03, ⟨wall time⟩: 6.746 ms
-[68.79%] i: 5660, t: 6.88e+00, umax: (8.140e-01, 0.000e+00, 1.260e+00), CFL: 2.0000e-01, next Δt: 1.24e-03, ⟨wall time⟩: 6.501 ms
+[ Info: Writing done: time=8.386 ms, size=321.3 KiB, Δsize=4.6 KiB
+[68.07%] i: 5600, t: 6.81e+00, umax: (8.475e-01, 0.000e+00, 1.306e+00), CFL: 2.0000e-01, next Δt: 1.20e-03, ⟨wall time⟩: 58.058 ms
+[68.31%] i: 5620, t: 6.83e+00, umax: (8.394e-01, 0.000e+00, 1.292e+00), CFL: 2.0000e-01, next Δt: 1.21e-03, ⟨wall time⟩: 10.926 ms
+[68.55%] i: 5640, t: 6.85e+00, umax: (8.283e-01, 0.000e+00, 1.273e+00), CFL: 2.0000e-01, next Δt: 1.23e-03, ⟨wall time⟩: 9.310 ms
+[68.79%] i: 5660, t: 6.88e+00, umax: (8.140e-01, 0.000e+00, 1.260e+00), CFL: 2.0000e-01, next Δt: 1.24e-03, ⟨wall time⟩: 8.300 ms
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 415.001 μs
+[ Info: Calculation time: 465.601 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=32.627 ms, size=325.9 KiB, Δsize=4.6 KiB
-[69.04%] i: 5680, t: 6.90e+00, umax: (7.982e-01, 0.000e+00, 1.240e+00), CFL: 2.0000e-01, next Δt: 1.26e-03, ⟨wall time⟩: 8.543 ms
-[69.29%] i: 5700, t: 6.93e+00, umax: (7.806e-01, 0.000e+00, 1.213e+00), CFL: 2.0000e-01, next Δt: 1.29e-03, ⟨wall time⟩: 7.080 ms
-[69.55%] i: 5720, t: 6.96e+00, umax: (7.637e-01, 0.000e+00, 1.194e+00), CFL: 2.0000e-01, next Δt: 1.31e-03, ⟨wall time⟩: 6.578 ms
-[69.81%] i: 5740, t: 6.98e+00, umax: (7.520e-01, 0.000e+00, 1.168e+00), CFL: 2.0000e-01, next Δt: 1.34e-03, ⟨wall time⟩: 6.645 ms
+[ Info: Writing done: time=9.265 ms, size=325.9 KiB, Δsize=4.6 KiB
+[69.04%] i: 5680, t: 6.90e+00, umax: (7.982e-01, 0.000e+00, 1.240e+00), CFL: 2.0000e-01, next Δt: 1.26e-03, ⟨wall time⟩: 53.031 ms
+[69.29%] i: 5700, t: 6.93e+00, umax: (7.806e-01, 0.000e+00, 1.213e+00), CFL: 2.0000e-01, next Δt: 1.29e-03, ⟨wall time⟩: 8.522 ms
+[69.55%] i: 5720, t: 6.96e+00, umax: (7.637e-01, 0.000e+00, 1.194e+00), CFL: 2.0000e-01, next Δt: 1.31e-03, ⟨wall time⟩: 8.914 ms
+[69.81%] i: 5740, t: 6.98e+00, umax: (7.520e-01, 0.000e+00, 1.168e+00), CFL: 2.0000e-01, next Δt: 1.34e-03, ⟨wall time⟩: 8.867 ms
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 647.301 μs
+[ Info: Calculation time: 667.800 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_fields.jld2...
-[ Info: Writing done: time=8.525 ms, size=8.0 MiB, Δsize=1.0 MiB
+[ Info: Writing done: time=10.129 ms, size=8.0 MiB, Δsize=1.0 MiB
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 328.200 μs
+[ Info: Calculation time: 436.900 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=6.458 ms, size=330.4 KiB, Δsize=4.6 KiB
-[70.08%] i: 5760, t: 7.01e+00, umax: (7.477e-01, 0.000e+00, 1.148e+00), CFL: 2.0000e-01, next Δt: 1.36e-03, ⟨wall time⟩: 10.243 ms
-[70.35%] i: 5780, t: 7.04e+00, umax: (7.481e-01, 0.000e+00, 1.129e+00), CFL: 2.0000e-01, next Δt: 1.38e-03, ⟨wall time⟩: 7.183 ms
-[70.63%] i: 5800, t: 7.06e+00, umax: (7.492e-01, 0.000e+00, 1.131e+00), CFL: 2.0000e-01, next Δt: 1.38e-03, ⟨wall time⟩: 6.680 ms
-[70.91%] i: 5820, t: 7.09e+00, umax: (7.481e-01, 0.000e+00, 1.146e+00), CFL: 2.0000e-01, next Δt: 1.36e-03, ⟨wall time⟩: 6.742 ms
+[ Info: Writing done: time=10.348 ms, size=330.4 KiB, Δsize=4.6 KiB
+[70.08%] i: 5760, t: 7.01e+00, umax: (7.477e-01, 0.000e+00, 1.148e+00), CFL: 2.0000e-01, next Δt: 1.36e-03, ⟨wall time⟩: 103.814 ms
+[70.35%] i: 5780, t: 7.04e+00, umax: (7.481e-01, 0.000e+00, 1.129e+00), CFL: 2.0000e-01, next Δt: 1.38e-03, ⟨wall time⟩: 8.951 ms
+[70.63%] i: 5800, t: 7.06e+00, umax: (7.492e-01, 0.000e+00, 1.131e+00), CFL: 2.0000e-01, next Δt: 1.38e-03, ⟨wall time⟩: 8.158 ms
+[70.91%] i: 5820, t: 7.09e+00, umax: (7.481e-01, 0.000e+00, 1.146e+00), CFL: 2.0000e-01, next Δt: 1.36e-03, ⟨wall time⟩: 9.558 ms
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 331.000 μs
+[ Info: Calculation time: 358.200 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=8.549 ms, size=335.0 KiB, Δsize=4.6 KiB
-[71.18%] i: 5840, t: 7.12e+00, umax: (7.441e-01, 0.000e+00, 1.165e+00), CFL: 2.0000e-01, next Δt: 1.34e-03, ⟨wall time⟩: 9.893 ms
-[71.45%] i: 5860, t: 7.14e+00, umax: (7.351e-01, 0.000e+00, 1.185e+00), CFL: 2.0000e-01, next Δt: 1.32e-03, ⟨wall time⟩: 6.613 ms
-[71.71%] i: 5880, t: 7.17e+00, umax: (7.229e-01, 0.000e+00, 1.201e+00), CFL: 2.0000e-01, next Δt: 1.30e-03, ⟨wall time⟩: 6.765 ms
-[71.97%] i: 5900, t: 7.20e+00, umax: (7.062e-01, 0.000e+00, 1.219e+00), CFL: 2.0000e-01, next Δt: 1.28e-03, ⟨wall time⟩: 6.534 ms
+[ Info: Writing done: time=8.795 ms, size=335.0 KiB, Δsize=4.6 KiB
+[71.18%] i: 5840, t: 7.12e+00, umax: (7.441e-01, 0.000e+00, 1.165e+00), CFL: 2.0000e-01, next Δt: 1.34e-03, ⟨wall time⟩: 66.484 ms
+[71.45%] i: 5860, t: 7.14e+00, umax: (7.351e-01, 0.000e+00, 1.185e+00), CFL: 2.0000e-01, next Δt: 1.32e-03, ⟨wall time⟩: 9.891 ms
+[71.71%] i: 5880, t: 7.17e+00, umax: (7.229e-01, 0.000e+00, 1.201e+00), CFL: 2.0000e-01, next Δt: 1.30e-03, ⟨wall time⟩: 10.114 ms
+[71.97%] i: 5900, t: 7.20e+00, umax: (7.062e-01, 0.000e+00, 1.219e+00), CFL: 2.0000e-01, next Δt: 1.28e-03, ⟨wall time⟩: 8.478 ms
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 385.700 μs
+[ Info: Calculation time: 382.700 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=10.358 ms, size=339.6 KiB, Δsize=4.6 KiB
-[72.23%] i: 5920, t: 7.22e+00, umax: (6.857e-01, 0.000e+00, 1.233e+00), CFL: 2.0000e-01, next Δt: 1.27e-03, ⟨wall time⟩: 10.115 ms
-[72.48%] i: 5940, t: 7.25e+00, umax: (6.618e-01, 0.000e+00, 1.249e+00), CFL: 2.0000e-01, next Δt: 1.25e-03, ⟨wall time⟩: 6.276 ms
-[72.73%] i: 5960, t: 7.27e+00, umax: (6.353e-01, 0.000e+00, 1.266e+00), CFL: 2.0000e-01, next Δt: 1.23e-03, ⟨wall time⟩: 6.712 ms
-[72.98%] i: 5980, t: 7.30e+00, umax: (6.070e-01, 0.000e+00, 1.286e+00), CFL: 2.0000e-01, next Δt: 1.21e-03, ⟨wall time⟩: 7.025 ms
+[ Info: Writing done: time=8.874 ms, size=339.6 KiB, Δsize=4.6 KiB
+[72.23%] i: 5920, t: 7.22e+00, umax: (6.857e-01, 0.000e+00, 1.233e+00), CFL: 2.0000e-01, next Δt: 1.27e-03, ⟨wall time⟩: 84.482 ms
+[72.48%] i: 5940, t: 7.25e+00, umax: (6.618e-01, 0.000e+00, 1.249e+00), CFL: 2.0000e-01, next Δt: 1.25e-03, ⟨wall time⟩: 13.147 ms
+[72.73%] i: 5960, t: 7.27e+00, umax: (6.353e-01, 0.000e+00, 1.266e+00), CFL: 2.0000e-01, next Δt: 1.23e-03, ⟨wall time⟩: 13.018 ms
+[72.98%] i: 5980, t: 7.30e+00, umax: (6.070e-01, 0.000e+00, 1.286e+00), CFL: 2.0000e-01, next Δt: 1.21e-03, ⟨wall time⟩: 12.464 ms
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 409.199 μs
+[ Info: Calculation time: 573.901 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=9.942 ms, size=344.1 KiB, Δsize=4.6 KiB
-[73.22%] i: 6000, t: 7.32e+00, umax: (6.086e-01, 0.000e+00, 1.306e+00), CFL: 2.0000e-01, next Δt: 1.20e-03, ⟨wall time⟩: 11.591 ms
-[73.46%] i: 6020, t: 7.35e+00, umax: (6.321e-01, 0.000e+00, 1.326e+00), CFL: 2.0000e-01, next Δt: 1.18e-03, ⟨wall time⟩: 6.830 ms
-[73.70%] i: 6040, t: 7.37e+00, umax: (6.598e-01, 0.000e+00, 1.349e+00), CFL: 2.0000e-01, next Δt: 1.16e-03, ⟨wall time⟩: 6.588 ms
-[73.93%] i: 6060, t: 7.39e+00, umax: (6.855e-01, 0.000e+00, 1.371e+00), CFL: 2.0000e-01, next Δt: 1.14e-03, ⟨wall time⟩: 6.251 ms
-[ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 390.500 μs
-[ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=8.759 ms, size=348.7 KiB, Δsize=4.6 KiB
-[74.15%] i: 6080, t: 7.42e+00, umax: (7.106e-01, 0.000e+00, 1.395e+00), CFL: 2.0000e-01, next Δt: 1.12e-03, ⟨wall time⟩: 9.542 ms
-[74.38%] i: 6100, t: 7.44e+00, umax: (7.318e-01, 0.000e+00, 1.421e+00), CFL: 2.0000e-01, next Δt: 1.10e-03, ⟨wall time⟩: 6.383 ms
-[74.60%] i: 6120, t: 7.46e+00, umax: (7.541e-01, 0.000e+00, 1.449e+00), CFL: 2.0000e-01, next Δt: 1.08e-03, ⟨wall time⟩: 7.027 ms
-[74.81%] i: 6140, t: 7.48e+00, umax: (7.717e-01, 0.000e+00, 1.486e+00), CFL: 2.0000e-01, next Δt: 1.05e-03, ⟨wall time⟩: 6.269 ms
+[ Info: Writing done: time=10.465 ms, size=344.1 KiB, Δsize=4.6 KiB
+[73.22%] i: 6000, t: 7.32e+00, umax: (6.086e-01, 0.000e+00, 1.306e+00), CFL: 2.0000e-01, next Δt: 1.20e-03, ⟨wall time⟩: 115.424 ms
+[73.46%] i: 6020, t: 7.35e+00, umax: (6.321e-01, 0.000e+00, 1.326e+00), CFL: 2.0000e-01, next Δt: 1.18e-03, ⟨wall time⟩: 9.535 ms
+[73.70%] i: 6040, t: 7.37e+00, umax: (6.598e-01, 0.000e+00, 1.349e+00), CFL: 2.0000e-01, next Δt: 1.16e-03, ⟨wall time⟩: 11.338 ms
+[73.93%] i: 6060, t: 7.39e+00, umax: (6.855e-01, 0.000e+00, 1.371e+00), CFL: 2.0000e-01, next Δt: 1.14e-03, ⟨wall time⟩: 9.367 ms
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
 [ Info: Calculation time: 350.299 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=7.926 ms, size=353.2 KiB, Δsize=4.6 KiB
-[75.02%] i: 6160, t: 7.50e+00, umax: (7.871e-01, 0.000e+00, 1.521e+00), CFL: 2.0000e-01, next Δt: 1.03e-03, ⟨wall time⟩: 10.783 ms
-[75.23%] i: 6180, t: 7.52e+00, umax: (8.000e-01, 0.000e+00, 1.550e+00), CFL: 2.0000e-01, next Δt: 1.01e-03, ⟨wall time⟩: 7.186 ms
-[75.43%] i: 6200, t: 7.54e+00, umax: (8.088e-01, 0.000e+00, 1.584e+00), CFL: 2.0000e-01, next Δt: 9.86e-04, ⟨wall time⟩: 6.257 ms
-[75.63%] i: 6220, t: 7.56e+00, umax: (8.134e-01, 0.000e+00, 1.622e+00), CFL: 2.0000e-01, next Δt: 9.63e-04, ⟨wall time⟩: 6.739 ms
-[75.82%] i: 6240, t: 7.58e+00, umax: (8.172e-01, 0.000e+00, 1.653e+00), CFL: 2.0000e-01, next Δt: 9.45e-04, ⟨wall time⟩: 6.738 ms
+[ Info: Writing done: time=8.171 ms, size=348.7 KiB, Δsize=4.6 KiB
+[74.15%] i: 6080, t: 7.42e+00, umax: (7.106e-01, 0.000e+00, 1.395e+00), CFL: 2.0000e-01, next Δt: 1.12e-03, ⟨wall time⟩: 60.161 ms
+[74.38%] i: 6100, t: 7.44e+00, umax: (7.318e-01, 0.000e+00, 1.421e+00), CFL: 2.0000e-01, next Δt: 1.10e-03, ⟨wall time⟩: 14.888 ms
+[74.60%] i: 6120, t: 7.46e+00, umax: (7.541e-01, 0.000e+00, 1.449e+00), CFL: 2.0000e-01, next Δt: 1.08e-03, ⟨wall time⟩: 10.151 ms
+[74.81%] i: 6140, t: 7.48e+00, umax: (7.717e-01, 0.000e+00, 1.486e+00), CFL: 2.0000e-01, next Δt: 1.05e-03, ⟨wall time⟩: 8.643 ms
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 384.300 μs
+[ Info: Calculation time: 372.699 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=8.356 ms, size=357.8 KiB, Δsize=4.6 KiB
-[76.01%] i: 6260, t: 7.60e+00, umax: (8.175e-01, 0.000e+00, 1.675e+00), CFL: 2.0000e-01, next Δt: 9.33e-04, ⟨wall time⟩: 8.072 ms
-[76.20%] i: 6280, t: 7.62e+00, umax: (8.150e-01, 0.000e+00, 1.694e+00), CFL: 2.0000e-01, next Δt: 9.22e-04, ⟨wall time⟩: 7.584 ms
-[76.38%] i: 6300, t: 7.64e+00, umax: (8.101e-01, 0.000e+00, 1.717e+00), CFL: 2.0000e-01, next Δt: 9.10e-04, ⟨wall time⟩: 6.401 ms
-[76.56%] i: 6320, t: 7.66e+00, umax: (8.049e-01, 0.000e+00, 1.735e+00), CFL: 2.0000e-01, next Δt: 9.00e-04, ⟨wall time⟩: 7.066 ms
-[76.74%] i: 6340, t: 7.67e+00, umax: (7.985e-01, 0.000e+00, 1.747e+00), CFL: 2.0000e-01, next Δt: 8.94e-04, ⟨wall time⟩: 6.601 ms
-[76.92%] i: 6360, t: 7.69e+00, umax: (7.925e-01, 0.000e+00, 1.755e+00), CFL: 2.0000e-01, next Δt: 8.90e-04, ⟨wall time⟩: 6.983 ms
+[ Info: Writing done: time=8.521 ms, size=353.2 KiB, Δsize=4.6 KiB
+[75.02%] i: 6160, t: 7.50e+00, umax: (7.871e-01, 0.000e+00, 1.521e+00), CFL: 2.0000e-01, next Δt: 1.03e-03, ⟨wall time⟩: 55.252 ms
+[75.23%] i: 6180, t: 7.52e+00, umax: (8.000e-01, 0.000e+00, 1.550e+00), CFL: 2.0000e-01, next Δt: 1.01e-03, ⟨wall time⟩: 7.834 ms
+[75.43%] i: 6200, t: 7.54e+00, umax: (8.088e-01, 0.000e+00, 1.584e+00), CFL: 2.0000e-01, next Δt: 9.86e-04, ⟨wall time⟩: 8.388 ms
+[75.63%] i: 6220, t: 7.56e+00, umax: (8.134e-01, 0.000e+00, 1.622e+00), CFL: 2.0000e-01, next Δt: 9.63e-04, ⟨wall time⟩: 11.473 ms
+[75.82%] i: 6240, t: 7.58e+00, umax: (8.172e-01, 0.000e+00, 1.653e+00), CFL: 2.0000e-01, next Δt: 9.45e-04, ⟨wall time⟩: 7.968 ms
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 299.200 μs
+[ Info: Calculation time: 384.000 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=8.156 ms, size=362.3 KiB, Δsize=4.6 KiB
-[77.10%] i: 6380, t: 7.71e+00, umax: (7.857e-01, 0.000e+00, 1.759e+00), CFL: 2.0000e-01, next Δt: 8.89e-04, ⟨wall time⟩: 8.964 ms
-[77.28%] i: 6400, t: 7.73e+00, umax: (7.868e-01, 0.000e+00, 1.759e+00), CFL: 2.0000e-01, next Δt: 8.89e-04, ⟨wall time⟩: 6.558 ms
-[77.46%] i: 6420, t: 7.75e+00, umax: (7.897e-01, 0.000e+00, 1.753e+00), CFL: 2.0000e-01, next Δt: 8.91e-04, ⟨wall time⟩: 6.588 ms
-[77.63%] i: 6440, t: 7.76e+00, umax: (7.968e-01, 0.000e+00, 1.743e+00), CFL: 2.0000e-01, next Δt: 8.96e-04, ⟨wall time⟩: 6.813 ms
-[77.81%] i: 6460, t: 7.78e+00, umax: (8.054e-01, 0.000e+00, 1.729e+00), CFL: 2.0000e-01, next Δt: 9.04e-04, ⟨wall time⟩: 6.215 ms
-[77.99%] i: 6480, t: 7.80e+00, umax: (8.128e-01, 0.000e+00, 1.707e+00), CFL: 2.0000e-01, next Δt: 9.15e-04, ⟨wall time⟩: 8.810 ms
+[ Info: Writing done: time=6.100 ms, size=357.8 KiB, Δsize=4.6 KiB
+[76.01%] i: 6260, t: 7.60e+00, umax: (8.175e-01, 0.000e+00, 1.675e+00), CFL: 2.0000e-01, next Δt: 9.33e-04, ⟨wall time⟩: 56.421 ms
+[76.20%] i: 6280, t: 7.62e+00, umax: (8.150e-01, 0.000e+00, 1.694e+00), CFL: 2.0000e-01, next Δt: 9.22e-04, ⟨wall time⟩: 8.206 ms
+[76.38%] i: 6300, t: 7.64e+00, umax: (8.101e-01, 0.000e+00, 1.717e+00), CFL: 2.0000e-01, next Δt: 9.10e-04, ⟨wall time⟩: 7.650 ms
+[76.56%] i: 6320, t: 7.66e+00, umax: (8.049e-01, 0.000e+00, 1.735e+00), CFL: 2.0000e-01, next Δt: 9.00e-04, ⟨wall time⟩: 10.823 ms
+[76.74%] i: 6340, t: 7.67e+00, umax: (7.985e-01, 0.000e+00, 1.747e+00), CFL: 2.0000e-01, next Δt: 8.94e-04, ⟨wall time⟩: 10.297 ms
+[76.92%] i: 6360, t: 7.69e+00, umax: (7.925e-01, 0.000e+00, 1.755e+00), CFL: 2.0000e-01, next Δt: 8.90e-04, ⟨wall time⟩: 10.265 ms
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 756.500 μs
+[ Info: Calculation time: 343.200 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=7.258 ms, size=366.9 KiB, Δsize=4.6 KiB
-[78.18%] i: 6500, t: 7.82e+00, umax: (8.175e-01, 0.000e+00, 1.681e+00), CFL: 2.0000e-01, next Δt: 9.30e-04, ⟨wall time⟩: 9.850 ms
-[78.36%] i: 6520, t: 7.84e+00, umax: (8.231e-01, 0.000e+00, 1.655e+00), CFL: 2.0000e-01, next Δt: 9.44e-04, ⟨wall time⟩: 6.018 ms
-[78.55%] i: 6540, t: 7.86e+00, umax: (8.247e-01, 0.000e+00, 1.625e+00), CFL: 2.0000e-01, next Δt: 9.62e-04, ⟨wall time⟩: 6.222 ms
-[78.74%] i: 6560, t: 7.87e+00, umax: (8.254e-01, 0.000e+00, 1.587e+00), CFL: 2.0000e-01, next Δt: 9.85e-04, ⟨wall time⟩: 6.520 ms
-[78.94%] i: 6580, t: 7.89e+00, umax: (8.224e-01, 0.000e+00, 1.542e+00), CFL: 2.0000e-01, next Δt: 1.01e-03, ⟨wall time⟩: 6.329 ms
+[ Info: Writing done: time=8.238 ms, size=362.3 KiB, Δsize=4.6 KiB
+[77.10%] i: 6380, t: 7.71e+00, umax: (7.857e-01, 0.000e+00, 1.759e+00), CFL: 2.0000e-01, next Δt: 8.89e-04, ⟨wall time⟩: 61.658 ms
+[77.28%] i: 6400, t: 7.73e+00, umax: (7.868e-01, 0.000e+00, 1.759e+00), CFL: 2.0000e-01, next Δt: 8.89e-04, ⟨wall time⟩: 10.070 ms
+[77.46%] i: 6420, t: 7.75e+00, umax: (7.897e-01, 0.000e+00, 1.753e+00), CFL: 2.0000e-01, next Δt: 8.91e-04, ⟨wall time⟩: 8.326 ms
+[77.63%] i: 6440, t: 7.76e+00, umax: (7.968e-01, 0.000e+00, 1.743e+00), CFL: 2.0000e-01, next Δt: 8.96e-04, ⟨wall time⟩: 7.980 ms
+[77.81%] i: 6460, t: 7.78e+00, umax: (8.054e-01, 0.000e+00, 1.729e+00), CFL: 2.0000e-01, next Δt: 9.04e-04, ⟨wall time⟩: 8.608 ms
+[77.99%] i: 6480, t: 7.80e+00, umax: (8.128e-01, 0.000e+00, 1.707e+00), CFL: 2.0000e-01, next Δt: 9.15e-04, ⟨wall time⟩: 8.902 ms
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 338.899 μs
+[ Info: Calculation time: 717.200 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=9.769 ms, size=371.4 KiB, Δsize=4.6 KiB
-[79.14%] i: 6600, t: 7.91e+00, umax: (8.178e-01, 0.000e+00, 1.501e+00), CFL: 2.0000e-01, next Δt: 1.04e-03, ⟨wall time⟩: 9.643 ms
-[79.35%] i: 6620, t: 7.94e+00, umax: (8.063e-01, 0.000e+00, 1.463e+00), CFL: 2.0000e-01, next Δt: 1.07e-03, ⟨wall time⟩: 6.744 ms
-[79.57%] i: 6640, t: 7.96e+00, umax: (7.955e-01, 0.000e+00, 1.419e+00), CFL: 2.0000e-01, next Δt: 1.10e-03, ⟨wall time⟩: 6.514 ms
-[79.79%] i: 6660, t: 7.98e+00, umax: (7.816e-01, 0.000e+00, 1.370e+00), CFL: 2.0000e-01, next Δt: 1.14e-03, ⟨wall time⟩: 6.435 ms
+[ Info: Writing done: time=10.130 ms, size=366.9 KiB, Δsize=4.6 KiB
+[78.18%] i: 6500, t: 7.82e+00, umax: (8.175e-01, 0.000e+00, 1.681e+00), CFL: 2.0000e-01, next Δt: 9.30e-04, ⟨wall time⟩: 64.340 ms
+[78.36%] i: 6520, t: 7.84e+00, umax: (8.231e-01, 0.000e+00, 1.655e+00), CFL: 2.0000e-01, next Δt: 9.44e-04, ⟨wall time⟩: 8.208 ms
+[78.55%] i: 6540, t: 7.86e+00, umax: (8.247e-01, 0.000e+00, 1.625e+00), CFL: 2.0000e-01, next Δt: 9.62e-04, ⟨wall time⟩: 8.266 ms
+[78.74%] i: 6560, t: 7.87e+00, umax: (8.254e-01, 0.000e+00, 1.587e+00), CFL: 2.0000e-01, next Δt: 9.85e-04, ⟨wall time⟩: 8.233 ms
+[78.94%] i: 6580, t: 7.89e+00, umax: (8.224e-01, 0.000e+00, 1.542e+00), CFL: 2.0000e-01, next Δt: 1.01e-03, ⟨wall time⟩: 8.011 ms
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 469.801 μs
+[ Info: Calculation time: 355.501 μs
+[ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
+[ Info: Writing done: time=6.759 ms, size=371.4 KiB, Δsize=4.6 KiB
+[79.14%] i: 6600, t: 7.91e+00, umax: (8.178e-01, 0.000e+00, 1.501e+00), CFL: 2.0000e-01, next Δt: 1.04e-03, ⟨wall time⟩: 65.410 ms
+[79.35%] i: 6620, t: 7.94e+00, umax: (8.063e-01, 0.000e+00, 1.463e+00), CFL: 2.0000e-01, next Δt: 1.07e-03, ⟨wall time⟩: 8.658 ms
+[79.57%] i: 6640, t: 7.96e+00, umax: (7.955e-01, 0.000e+00, 1.419e+00), CFL: 2.0000e-01, next Δt: 1.10e-03, ⟨wall time⟩: 8.341 ms
+[79.79%] i: 6660, t: 7.98e+00, umax: (7.816e-01, 0.000e+00, 1.370e+00), CFL: 2.0000e-01, next Δt: 1.14e-03, ⟨wall time⟩: 10.170 ms
+[ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
+[ Info: Calculation time: 784.500 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_fields.jld2...
-[ Info: Writing done: time=8.520 ms, size=9.0 MiB, Δsize=1.0 MiB
+[ Info: Writing done: time=8.983 ms, size=9.0 MiB, Δsize=1.0 MiB
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 485.501 μs
+[ Info: Calculation time: 377.800 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=8.163 ms, size=376.0 KiB, Δsize=4.6 KiB
-[80.01%] i: 6680, t: 8.00e+00, umax: (7.657e-01, 0.000e+00, 1.315e+00), CFL: 2.0000e-01, next Δt: 1.19e-03, ⟨wall time⟩: 13.021 ms
-[80.25%] i: 6700, t: 8.03e+00, umax: (7.482e-01, 0.000e+00, 1.254e+00), CFL: 2.0000e-01, next Δt: 1.25e-03, ⟨wall time⟩: 6.975 ms
-[80.50%] i: 6720, t: 8.05e+00, umax: (7.292e-01, 0.000e+00, 1.190e+00), CFL: 2.0000e-01, next Δt: 1.31e-03, ⟨wall time⟩: 6.530 ms
-[80.76%] i: 6740, t: 8.08e+00, umax: (7.080e-01, 0.000e+00, 1.127e+00), CFL: 2.0000e-01, next Δt: 1.39e-03, ⟨wall time⟩: 6.524 ms
+[ Info: Writing done: time=8.964 ms, size=376.0 KiB, Δsize=4.6 KiB
+[80.01%] i: 6680, t: 8.00e+00, umax: (7.657e-01, 0.000e+00, 1.315e+00), CFL: 2.0000e-01, next Δt: 1.19e-03, ⟨wall time⟩: 110.264 ms
+[80.25%] i: 6700, t: 8.03e+00, umax: (7.482e-01, 0.000e+00, 1.254e+00), CFL: 2.0000e-01, next Δt: 1.25e-03, ⟨wall time⟩: 7.534 ms
+[80.50%] i: 6720, t: 8.05e+00, umax: (7.292e-01, 0.000e+00, 1.190e+00), CFL: 2.0000e-01, next Δt: 1.31e-03, ⟨wall time⟩: 7.645 ms
+[80.76%] i: 6740, t: 8.08e+00, umax: (7.080e-01, 0.000e+00, 1.127e+00), CFL: 2.0000e-01, next Δt: 1.39e-03, ⟨wall time⟩: 8.243 ms
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 283.600 μs
+[ Info: Calculation time: 393.101 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=8.324 ms, size=380.6 KiB, Δsize=4.6 KiB
-[81.04%] i: 6760, t: 8.10e+00, umax: (6.842e-01, 0.000e+00, 1.098e+00), CFL: 2.0000e-01, next Δt: 1.42e-03, ⟨wall time⟩: 8.378 ms
-[81.33%] i: 6780, t: 8.13e+00, umax: (6.631e-01, 0.000e+00, 1.072e+00), CFL: 2.0000e-01, next Δt: 1.46e-03, ⟨wall time⟩: 7.635 ms
-[81.62%] i: 6800, t: 8.16e+00, umax: (6.482e-01, 0.000e+00, 1.043e+00), CFL: 2.0000e-01, next Δt: 1.50e-03, ⟨wall time⟩: 6.826 ms
-[81.92%] i: 6820, t: 8.19e+00, umax: (6.486e-01, 0.000e+00, 1.004e+00), CFL: 2.0000e-01, next Δt: 1.56e-03, ⟨wall time⟩: 7.726 ms
+[ Info: Writing done: time=6.632 ms, size=380.6 KiB, Δsize=4.6 KiB
+[81.04%] i: 6760, t: 8.10e+00, umax: (6.842e-01, 0.000e+00, 1.098e+00), CFL: 2.0000e-01, next Δt: 1.42e-03, ⟨wall time⟩: 58.267 ms
+[81.33%] i: 6780, t: 8.13e+00, umax: (6.631e-01, 0.000e+00, 1.072e+00), CFL: 2.0000e-01, next Δt: 1.46e-03, ⟨wall time⟩: 7.474 ms
+[81.62%] i: 6800, t: 8.16e+00, umax: (6.482e-01, 0.000e+00, 1.043e+00), CFL: 2.0000e-01, next Δt: 1.50e-03, ⟨wall time⟩: 10.499 ms
+[81.92%] i: 6820, t: 8.19e+00, umax: (6.486e-01, 0.000e+00, 1.004e+00), CFL: 2.0000e-01, next Δt: 1.56e-03, ⟨wall time⟩: 7.869 ms
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 340.799 μs
+[ Info: Calculation time: 430.801 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=8.501 ms, size=385.1 KiB, Δsize=4.6 KiB
-[82.23%] i: 6840, t: 8.22e+00, umax: (6.430e-01, 0.000e+00, 9.802e-01), CFL: 2.0000e-01, next Δt: 1.59e-03, ⟨wall time⟩: 10.676 ms
-[82.55%] i: 6860, t: 8.25e+00, umax: (6.673e-01, 0.000e+00, 9.603e-01), CFL: 2.0000e-01, next Δt: 1.63e-03, ⟨wall time⟩: 6.906 ms
-[82.87%] i: 6880, t: 8.29e+00, umax: (7.149e-01, 0.000e+00, 9.439e-01), CFL: 2.0000e-01, next Δt: 1.66e-03, ⟨wall time⟩: 6.424 ms
+[ Info: Writing done: time=8.185 ms, size=385.1 KiB, Δsize=4.6 KiB
+[82.23%] i: 6840, t: 8.22e+00, umax: (6.430e-01, 0.000e+00, 9.802e-01), CFL: 2.0000e-01, next Δt: 1.59e-03, ⟨wall time⟩: 52.822 ms
+[82.55%] i: 6860, t: 8.25e+00, umax: (6.673e-01, 0.000e+00, 9.603e-01), CFL: 2.0000e-01, next Δt: 1.63e-03, ⟨wall time⟩: 7.740 ms
+[82.87%] i: 6880, t: 8.29e+00, umax: (7.149e-01, 0.000e+00, 9.439e-01), CFL: 2.0000e-01, next Δt: 1.66e-03, ⟨wall time⟩: 7.642 ms
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 285.299 μs
+[ Info: Calculation time: 327.200 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=7.949 ms, size=389.7 KiB, Δsize=4.6 KiB
-[83.20%] i: 6900, t: 8.32e+00, umax: (7.635e-01, 0.000e+00, 9.359e-01), CFL: 2.0000e-01, next Δt: 1.67e-03, ⟨wall time⟩: 9.446 ms
-[83.54%] i: 6920, t: 8.35e+00, umax: (8.028e-01, 0.000e+00, 9.210e-01), CFL: 2.0000e-01, next Δt: 1.70e-03, ⟨wall time⟩: 6.320 ms
-[83.88%] i: 6940, t: 8.39e+00, umax: (8.339e-01, 0.000e+00, 9.098e-01), CFL: 2.0000e-01, next Δt: 1.72e-03, ⟨wall time⟩: 6.868 ms
+[ Info: Writing done: time=7.875 ms, size=389.7 KiB, Δsize=4.6 KiB
+[83.20%] i: 6900, t: 8.32e+00, umax: (7.635e-01, 0.000e+00, 9.359e-01), CFL: 2.0000e-01, next Δt: 1.67e-03, ⟨wall time⟩: 63.832 ms
+[83.54%] i: 6920, t: 8.35e+00, umax: (8.028e-01, 0.000e+00, 9.210e-01), CFL: 2.0000e-01, next Δt: 1.70e-03, ⟨wall time⟩: 8.373 ms
+[83.88%] i: 6940, t: 8.39e+00, umax: (8.339e-01, 0.000e+00, 9.098e-01), CFL: 2.0000e-01, next Δt: 1.72e-03, ⟨wall time⟩: 7.889 ms
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 272.301 μs
+[ Info: Calculation time: 431.700 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=8.443 ms, size=394.2 KiB, Δsize=4.6 KiB
-[84.22%] i: 6960, t: 8.42e+00, umax: (8.661e-01, 0.000e+00, 8.982e-01), CFL: 2.0000e-01, next Δt: 1.74e-03, ⟨wall time⟩: 8.963 ms
-[84.57%] i: 6980, t: 8.46e+00, umax: (8.981e-01, 0.000e+00, 8.777e-01), CFL: 2.0000e-01, next Δt: 1.74e-03, ⟨wall time⟩: 6.832 ms
-[84.92%] i: 7000, t: 8.49e+00, umax: (9.213e-01, 0.000e+00, 8.742e-01), CFL: 2.0000e-01, next Δt: 1.70e-03, ⟨wall time⟩: 6.490 ms
+[ Info: Writing done: time=12.549 ms, size=394.2 KiB, Δsize=4.6 KiB
+[84.22%] i: 6960, t: 8.42e+00, umax: (8.661e-01, 0.000e+00, 8.982e-01), CFL: 2.0000e-01, next Δt: 1.74e-03, ⟨wall time⟩: 55.271 ms
+[84.57%] i: 6980, t: 8.46e+00, umax: (8.981e-01, 0.000e+00, 8.777e-01), CFL: 2.0000e-01, next Δt: 1.74e-03, ⟨wall time⟩: 7.728 ms
+[84.92%] i: 7000, t: 8.49e+00, umax: (9.213e-01, 0.000e+00, 8.742e-01), CFL: 2.0000e-01, next Δt: 1.70e-03, ⟨wall time⟩: 8.263 ms
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 752.399 μs
+[ Info: Calculation time: 342.400 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=6.642 ms, size=398.8 KiB, Δsize=4.6 KiB
-[85.25%] i: 7020, t: 8.53e+00, umax: (9.309e-01, 0.000e+00, 8.824e-01), CFL: 2.0000e-01, next Δt: 1.68e-03, ⟨wall time⟩: 8.672 ms
-[85.59%] i: 7040, t: 8.56e+00, umax: (9.263e-01, 0.000e+00, 8.873e-01), CFL: 2.0000e-01, next Δt: 1.69e-03, ⟨wall time⟩: 6.546 ms
-[85.93%] i: 7060, t: 8.59e+00, umax: (9.099e-01, 0.000e+00, 8.889e-01), CFL: 2.0000e-01, next Δt: 1.72e-03, ⟨wall time⟩: 6.609 ms
+[ Info: Writing done: time=7.790 ms, size=398.8 KiB, Δsize=4.6 KiB
+[85.25%] i: 7020, t: 8.53e+00, umax: (9.309e-01, 0.000e+00, 8.824e-01), CFL: 2.0000e-01, next Δt: 1.68e-03, ⟨wall time⟩: 55.124 ms
+[85.59%] i: 7040, t: 8.56e+00, umax: (9.263e-01, 0.000e+00, 8.873e-01), CFL: 2.0000e-01, next Δt: 1.69e-03, ⟨wall time⟩: 7.652 ms
+[85.93%] i: 7060, t: 8.59e+00, umax: (9.099e-01, 0.000e+00, 8.889e-01), CFL: 2.0000e-01, next Δt: 1.72e-03, ⟨wall time⟩: 7.521 ms
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 281.501 μs
+[ Info: Calculation time: 345.301 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=7.217 ms, size=403.3 KiB, Δsize=4.6 KiB
-[86.27%] i: 7080, t: 8.63e+00, umax: (8.803e-01, 0.000e+00, 8.842e-01), CFL: 2.0000e-01, next Δt: 1.77e-03, ⟨wall time⟩: 9.154 ms
-[86.62%] i: 7100, t: 8.66e+00, umax: (8.377e-01, 0.000e+00, 8.811e-01), CFL: 2.0000e-01, next Δt: 1.77e-03, ⟨wall time⟩: 6.642 ms
-[86.98%] i: 7120, t: 8.70e+00, umax: (8.454e-01, 0.000e+00, 8.923e-01), CFL: 2.0000e-01, next Δt: 1.75e-03, ⟨wall time⟩: 6.588 ms
+[ Info: Writing done: time=6.448 ms, size=403.3 KiB, Δsize=4.6 KiB
+[86.27%] i: 7080, t: 8.63e+00, umax: (8.803e-01, 0.000e+00, 8.842e-01), CFL: 2.0000e-01, next Δt: 1.77e-03, ⟨wall time⟩: 56.989 ms
+[86.62%] i: 7100, t: 8.66e+00, umax: (8.377e-01, 0.000e+00, 8.811e-01), CFL: 2.0000e-01, next Δt: 1.77e-03, ⟨wall time⟩: 7.262 ms
+[86.98%] i: 7120, t: 8.70e+00, umax: (8.454e-01, 0.000e+00, 8.923e-01), CFL: 2.0000e-01, next Δt: 1.75e-03, ⟨wall time⟩: 7.916 ms
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 617.000 μs
+[ Info: Calculation time: 336.800 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=9.590 ms, size=407.9 KiB, Δsize=4.6 KiB
-[87.33%] i: 7140, t: 8.73e+00, umax: (8.541e-01, 0.000e+00, 9.022e-01), CFL: 2.0000e-01, next Δt: 1.73e-03, ⟨wall time⟩: 10.586 ms
-[87.68%] i: 7160, t: 8.77e+00, umax: (8.640e-01, 0.000e+00, 9.142e-01), CFL: 2.0000e-01, next Δt: 1.71e-03, ⟨wall time⟩: 6.596 ms
+[ Info: Writing done: time=13.791 ms, size=407.9 KiB, Δsize=4.6 KiB
+[87.33%] i: 7140, t: 8.73e+00, umax: (8.541e-01, 0.000e+00, 9.022e-01), CFL: 2.0000e-01, next Δt: 1.73e-03, ⟨wall time⟩: 70.975 ms
+[87.68%] i: 7160, t: 8.77e+00, umax: (8.640e-01, 0.000e+00, 9.142e-01), CFL: 2.0000e-01, next Δt: 1.71e-03, ⟨wall time⟩: 8.125 ms
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 297.201 μs
+[ Info: Calculation time: 436.999 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=6.554 ms, size=412.4 KiB, Δsize=4.6 KiB
-[88.02%] i: 7180, t: 8.80e+00, umax: (8.612e-01, 0.000e+00, 9.219e-01), CFL: 2.0000e-01, next Δt: 1.69e-03, ⟨wall time⟩: 7.222 ms
-[88.36%] i: 7200, t: 8.84e+00, umax: (8.417e-01, 0.000e+00, 9.226e-01), CFL: 2.0000e-01, next Δt: 1.69e-03, ⟨wall time⟩: 8.507 ms
-[88.70%] i: 7220, t: 8.87e+00, umax: (8.326e-01, 0.000e+00, 9.163e-01), CFL: 2.0000e-01, next Δt: 1.71e-03, ⟨wall time⟩: 6.794 ms
+[ Info: Writing done: time=8.325 ms, size=412.4 KiB, Δsize=4.6 KiB
+[88.02%] i: 7180, t: 8.80e+00, umax: (8.612e-01, 0.000e+00, 9.219e-01), CFL: 2.0000e-01, next Δt: 1.69e-03, ⟨wall time⟩: 50.059 ms
+[88.36%] i: 7200, t: 8.84e+00, umax: (8.417e-01, 0.000e+00, 9.226e-01), CFL: 2.0000e-01, next Δt: 1.69e-03, ⟨wall time⟩: 7.163 ms
+[88.70%] i: 7220, t: 8.87e+00, umax: (8.326e-01, 0.000e+00, 9.163e-01), CFL: 2.0000e-01, next Δt: 1.71e-03, ⟨wall time⟩: 7.870 ms
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 287.399 μs
+[ Info: Calculation time: 358.099 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=8.937 ms, size=417.0 KiB, Δsize=4.6 KiB
-[89.04%] i: 7240, t: 8.90e+00, umax: (8.365e-01, 0.000e+00, 9.046e-01), CFL: 2.0000e-01, next Δt: 1.73e-03, ⟨wall time⟩: 8.464 ms
-[89.38%] i: 7260, t: 8.94e+00, umax: (8.545e-01, 0.000e+00, 8.903e-01), CFL: 2.0000e-01, next Δt: 1.75e-03, ⟨wall time⟩: 6.958 ms
-[89.73%] i: 7280, t: 8.97e+00, umax: (8.803e-01, 0.000e+00, 8.789e-01), CFL: 2.0000e-01, next Δt: 1.78e-03, ⟨wall time⟩: 6.582 ms
+[ Info: Writing done: time=9.206 ms, size=417.0 KiB, Δsize=4.6 KiB
+[89.04%] i: 7240, t: 8.90e+00, umax: (8.365e-01, 0.000e+00, 9.046e-01), CFL: 2.0000e-01, next Δt: 1.73e-03, ⟨wall time⟩: 55.643 ms
+[89.38%] i: 7260, t: 8.94e+00, umax: (8.545e-01, 0.000e+00, 8.903e-01), CFL: 2.0000e-01, next Δt: 1.75e-03, ⟨wall time⟩: 7.978 ms
+[89.73%] i: 7280, t: 8.97e+00, umax: (8.803e-01, 0.000e+00, 8.789e-01), CFL: 2.0000e-01, next Δt: 1.78e-03, ⟨wall time⟩: 7.923 ms
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 504.000 μs
+[ Info: Calculation time: 513.999 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_fields.jld2...
-[ Info: Writing done: time=9.739 ms, size=10.0 MiB, Δsize=1.0 MiB
+[ Info: Writing done: time=10.382 ms, size=10.0 MiB, Δsize=1.0 MiB
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 500.501 μs
+[ Info: Calculation time: 427.000 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=8.879 ms, size=421.6 KiB, Δsize=4.6 KiB
-[90.09%] i: 7300, t: 9.01e+00, umax: (8.890e-01, 0.000e+00, 8.693e-01), CFL: 2.0000e-01, next Δt: 1.76e-03, ⟨wall time⟩: 10.350 ms
-[90.44%] i: 7320, t: 9.04e+00, umax: (8.827e-01, 0.000e+00, 8.572e-01), CFL: 2.0000e-01, next Δt: 1.77e-03, ⟨wall time⟩: 8.066 ms
-[90.79%] i: 7340, t: 9.08e+00, umax: (8.818e-01, 0.000e+00, 8.406e-01), CFL: 2.0000e-01, next Δt: 1.77e-03, ⟨wall time⟩: 6.217 ms
+[ Info: Writing done: time=8.300 ms, size=421.6 KiB, Δsize=4.6 KiB
+[90.09%] i: 7300, t: 9.01e+00, umax: (8.890e-01, 0.000e+00, 8.693e-01), CFL: 2.0000e-01, next Δt: 1.76e-03, ⟨wall time⟩: 107.409 ms
+[90.44%] i: 7320, t: 9.04e+00, umax: (8.827e-01, 0.000e+00, 8.572e-01), CFL: 2.0000e-01, next Δt: 1.77e-03, ⟨wall time⟩: 8.070 ms
+[90.79%] i: 7340, t: 9.08e+00, umax: (8.818e-01, 0.000e+00, 8.406e-01), CFL: 2.0000e-01, next Δt: 1.77e-03, ⟨wall time⟩: 8.014 ms
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 298.700 μs
+[ Info: Calculation time: 463.599 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=6.527 ms, size=426.1 KiB, Δsize=4.6 KiB
-[91.15%] i: 7360, t: 9.11e+00, umax: (8.938e-01, 0.000e+00, 8.207e-01), CFL: 2.0000e-01, next Δt: 1.75e-03, ⟨wall time⟩: 7.624 ms
-[91.50%] i: 7380, t: 9.15e+00, umax: (9.072e-01, 0.000e+00, 8.006e-01), CFL: 2.0000e-01, next Δt: 1.72e-03, ⟨wall time⟩: 6.858 ms
-[91.84%] i: 7400, t: 9.18e+00, umax: (9.171e-01, 0.000e+00, 7.844e-01), CFL: 2.0000e-01, next Δt: 1.70e-03, ⟨wall time⟩: 6.751 ms
+[ Info: Writing done: time=8.041 ms, size=426.1 KiB, Δsize=4.6 KiB
+[91.15%] i: 7360, t: 9.11e+00, umax: (8.938e-01, 0.000e+00, 8.207e-01), CFL: 2.0000e-01, next Δt: 1.75e-03, ⟨wall time⟩: 60.263 ms
+[91.50%] i: 7380, t: 9.15e+00, umax: (9.072e-01, 0.000e+00, 8.006e-01), CFL: 2.0000e-01, next Δt: 1.72e-03, ⟨wall time⟩: 8.132 ms
+[91.84%] i: 7400, t: 9.18e+00, umax: (9.171e-01, 0.000e+00, 7.844e-01), CFL: 2.0000e-01, next Δt: 1.70e-03, ⟨wall time⟩: 7.772 ms
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 281.400 μs
+[ Info: Calculation time: 347.101 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=10.216 ms, size=430.7 KiB, Δsize=4.6 KiB
-[92.18%] i: 7420, t: 9.22e+00, umax: (9.260e-01, 0.000e+00, 7.733e-01), CFL: 2.0000e-01, next Δt: 1.69e-03, ⟨wall time⟩: 9.889 ms
-[92.52%] i: 7440, t: 9.25e+00, umax: (9.341e-01, 0.000e+00, 7.660e-01), CFL: 2.0000e-01, next Δt: 1.67e-03, ⟨wall time⟩: 7.253 ms
-[92.85%] i: 7460, t: 9.29e+00, umax: (9.422e-01, 0.000e+00, 7.586e-01), CFL: 2.0000e-01, next Δt: 1.66e-03, ⟨wall time⟩: 6.858 ms
+[ Info: Writing done: time=8.323 ms, size=430.7 KiB, Δsize=4.6 KiB
+[92.18%] i: 7420, t: 9.22e+00, umax: (9.260e-01, 0.000e+00, 7.733e-01), CFL: 2.0000e-01, next Δt: 1.69e-03, ⟨wall time⟩: 58.283 ms
+[92.52%] i: 7440, t: 9.25e+00, umax: (9.341e-01, 0.000e+00, 7.660e-01), CFL: 2.0000e-01, next Δt: 1.67e-03, ⟨wall time⟩: 9.172 ms
+[92.85%] i: 7460, t: 9.29e+00, umax: (9.422e-01, 0.000e+00, 7.586e-01), CFL: 2.0000e-01, next Δt: 1.66e-03, ⟨wall time⟩: 10.640 ms
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 345.600 μs
+[ Info: Calculation time: 389.801 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=8.017 ms, size=435.2 KiB, Δsize=4.6 KiB
-[93.19%] i: 7480, t: 9.32e+00, umax: (9.466e-01, 0.000e+00, 7.514e-01), CFL: 2.0000e-01, next Δt: 1.65e-03, ⟨wall time⟩: 9.071 ms
-[93.52%] i: 7500, t: 9.35e+00, umax: (9.500e-01, 0.000e+00, 7.441e-01), CFL: 2.0000e-01, next Δt: 1.64e-03, ⟨wall time⟩: 6.369 ms
-[93.85%] i: 7520, t: 9.38e+00, umax: (9.488e-01, 0.000e+00, 7.358e-01), CFL: 2.0000e-01, next Δt: 1.65e-03, ⟨wall time⟩: 6.604 ms
+[ Info: Writing done: time=12.406 ms, size=435.2 KiB, Δsize=4.6 KiB
+[93.19%] i: 7480, t: 9.32e+00, umax: (9.466e-01, 0.000e+00, 7.514e-01), CFL: 2.0000e-01, next Δt: 1.65e-03, ⟨wall time⟩: 95.658 ms
+[93.52%] i: 7500, t: 9.35e+00, umax: (9.500e-01, 0.000e+00, 7.441e-01), CFL: 2.0000e-01, next Δt: 1.64e-03, ⟨wall time⟩: 13.281 ms
+[93.85%] i: 7520, t: 9.38e+00, umax: (9.488e-01, 0.000e+00, 7.358e-01), CFL: 2.0000e-01, next Δt: 1.65e-03, ⟨wall time⟩: 10.072 ms
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 275.700 μs
+[ Info: Calculation time: 398.100 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=8.393 ms, size=439.8 KiB, Δsize=4.6 KiB
-[94.17%] i: 7540, t: 9.42e+00, umax: (9.460e-01, 0.000e+00, 7.268e-01), CFL: 2.0000e-01, next Δt: 1.65e-03, ⟨wall time⟩: 8.618 ms
-[94.51%] i: 7560, t: 9.45e+00, umax: (9.411e-01, 0.000e+00, 7.165e-01), CFL: 2.0000e-01, next Δt: 1.66e-03, ⟨wall time⟩: 7.172 ms
-[94.84%] i: 7580, t: 9.48e+00, umax: (9.372e-01, 0.000e+00, 7.058e-01), CFL: 2.0000e-01, next Δt: 1.67e-03, ⟨wall time⟩: 6.599 ms
+[ Info: Writing done: time=7.006 ms, size=439.8 KiB, Δsize=4.6 KiB
+[94.17%] i: 7540, t: 9.42e+00, umax: (9.460e-01, 0.000e+00, 7.268e-01), CFL: 2.0000e-01, next Δt: 1.65e-03, ⟨wall time⟩: 71.866 ms
+[94.51%] i: 7560, t: 9.45e+00, umax: (9.411e-01, 0.000e+00, 7.165e-01), CFL: 2.0000e-01, next Δt: 1.66e-03, ⟨wall time⟩: 8.571 ms
+[94.84%] i: 7580, t: 9.48e+00, umax: (9.372e-01, 0.000e+00, 7.058e-01), CFL: 2.0000e-01, next Δt: 1.67e-03, ⟨wall time⟩: 9.071 ms
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 387.100 μs
+[ Info: Calculation time: 352.100 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=9.383 ms, size=444.3 KiB, Δsize=4.6 KiB
-[95.17%] i: 7600, t: 9.52e+00, umax: (9.361e-01, 0.000e+00, 6.946e-01), CFL: 2.0000e-01, next Δt: 1.67e-03, ⟨wall time⟩: 9.646 ms
-[95.50%] i: 7620, t: 9.55e+00, umax: (9.412e-01, 0.000e+00, 6.830e-01), CFL: 2.0000e-01, next Δt: 1.66e-03, ⟨wall time⟩: 6.571 ms
-[95.84%] i: 7640, t: 9.58e+00, umax: (9.470e-01, 0.000e+00, 6.714e-01), CFL: 2.0000e-01, next Δt: 1.65e-03, ⟨wall time⟩: 6.537 ms
+[ Info: Writing done: time=9.257 ms, size=444.3 KiB, Δsize=4.6 KiB
+[95.17%] i: 7600, t: 9.52e+00, umax: (9.361e-01, 0.000e+00, 6.946e-01), CFL: 2.0000e-01, next Δt: 1.67e-03, ⟨wall time⟩: 69.322 ms
+[95.50%] i: 7620, t: 9.55e+00, umax: (9.412e-01, 0.000e+00, 6.830e-01), CFL: 2.0000e-01, next Δt: 1.66e-03, ⟨wall time⟩: 7.143 ms
+[95.84%] i: 7640, t: 9.58e+00, umax: (9.470e-01, 0.000e+00, 6.714e-01), CFL: 2.0000e-01, next Δt: 1.65e-03, ⟨wall time⟩: 7.554 ms
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 329.500 μs
+[ Info: Calculation time: 453.399 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=8.274 ms, size=448.9 KiB, Δsize=4.6 KiB
-[96.17%] i: 7660, t: 9.62e+00, umax: (9.547e-01, 0.000e+00, 6.701e-01), CFL: 2.0000e-01, next Δt: 1.64e-03, ⟨wall time⟩: 9.279 ms
-[96.49%] i: 7680, t: 9.65e+00, umax: (9.600e-01, 0.000e+00, 6.984e-01), CFL: 2.0000e-01, next Δt: 1.63e-03, ⟨wall time⟩: 6.395 ms
-[96.82%] i: 7700, t: 9.68e+00, umax: (9.607e-01, 0.000e+00, 7.252e-01), CFL: 2.0000e-01, next Δt: 1.63e-03, ⟨wall time⟩: 6.658 ms
+[ Info: Writing done: time=8.601 ms, size=448.9 KiB, Δsize=4.6 KiB
+[96.17%] i: 7660, t: 9.62e+00, umax: (9.547e-01, 0.000e+00, 6.701e-01), CFL: 2.0000e-01, next Δt: 1.64e-03, ⟨wall time⟩: 53.688 ms
+[96.49%] i: 7680, t: 9.65e+00, umax: (9.600e-01, 0.000e+00, 6.984e-01), CFL: 2.0000e-01, next Δt: 1.63e-03, ⟨wall time⟩: 7.335 ms
+[96.82%] i: 7700, t: 9.68e+00, umax: (9.607e-01, 0.000e+00, 7.252e-01), CFL: 2.0000e-01, next Δt: 1.63e-03, ⟨wall time⟩: 11.711 ms
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 327.500 μs
+[ Info: Calculation time: 353.000 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=8.187 ms, size=453.4 KiB, Δsize=4.6 KiB
-[97.14%] i: 7720, t: 9.71e+00, umax: (9.642e-01, 0.000e+00, 7.492e-01), CFL: 2.0000e-01, next Δt: 1.62e-03, ⟨wall time⟩: 8.744 ms
-[97.47%] i: 7740, t: 9.75e+00, umax: (9.601e-01, 0.000e+00, 7.702e-01), CFL: 2.0000e-01, next Δt: 1.63e-03, ⟨wall time⟩: 6.874 ms
-[97.79%] i: 7760, t: 9.78e+00, umax: (9.616e-01, 0.000e+00, 7.890e-01), CFL: 2.0000e-01, next Δt: 1.62e-03, ⟨wall time⟩: 6.492 ms
+[ Info: Writing done: time=8.805 ms, size=453.4 KiB, Δsize=4.6 KiB
+[97.14%] i: 7720, t: 9.71e+00, umax: (9.642e-01, 0.000e+00, 7.492e-01), CFL: 2.0000e-01, next Δt: 1.62e-03, ⟨wall time⟩: 59.849 ms
+[97.47%] i: 7740, t: 9.75e+00, umax: (9.601e-01, 0.000e+00, 7.702e-01), CFL: 2.0000e-01, next Δt: 1.63e-03, ⟨wall time⟩: 7.923 ms
+[97.79%] i: 7760, t: 9.78e+00, umax: (9.616e-01, 0.000e+00, 7.890e-01), CFL: 2.0000e-01, next Δt: 1.62e-03, ⟨wall time⟩: 9.843 ms
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 382.900 μs
+[ Info: Calculation time: 491.199 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=8.310 ms, size=458.0 KiB, Δsize=4.6 KiB
-[98.12%] i: 7780, t: 9.81e+00, umax: (9.584e-01, 0.000e+00, 8.048e-01), CFL: 2.0000e-01, next Δt: 1.63e-03, ⟨wall time⟩: 7.950 ms
-[98.45%] i: 7800, t: 9.84e+00, umax: (9.572e-01, 0.000e+00, 8.181e-01), CFL: 2.0000e-01, next Δt: 1.63e-03, ⟨wall time⟩: 6.677 ms
-[98.77%] i: 7820, t: 9.88e+00, umax: (9.574e-01, 0.000e+00, 8.294e-01), CFL: 2.0000e-01, next Δt: 1.63e-03, ⟨wall time⟩: 6.834 ms
+[ Info: Writing done: time=11.137 ms, size=458.0 KiB, Δsize=4.6 KiB
+[98.12%] i: 7780, t: 9.81e+00, umax: (9.584e-01, 0.000e+00, 8.048e-01), CFL: 2.0000e-01, next Δt: 1.63e-03, ⟨wall time⟩: 65.721 ms
+[98.45%] i: 7800, t: 9.84e+00, umax: (9.572e-01, 0.000e+00, 8.181e-01), CFL: 2.0000e-01, next Δt: 1.63e-03, ⟨wall time⟩: 10.750 ms
+[98.77%] i: 7820, t: 9.88e+00, umax: (9.574e-01, 0.000e+00, 8.294e-01), CFL: 2.0000e-01, next Δt: 1.63e-03, ⟨wall time⟩: 8.696 ms
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 318.900 μs
+[ Info: Calculation time: 471.301 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=6.713 ms, size=462.6 KiB, Δsize=4.6 KiB
-[99.10%] i: 7840, t: 9.91e+00, umax: (9.561e-01, 0.000e+00, 8.388e-01), CFL: 2.0000e-01, next Δt: 1.63e-03, ⟨wall time⟩: 9.496 ms
-[99.43%] i: 7860, t: 9.94e+00, umax: (9.568e-01, 0.000e+00, 8.469e-01), CFL: 2.0000e-01, next Δt: 1.63e-03, ⟨wall time⟩: 6.342 ms
-[99.75%] i: 7880, t: 9.98e+00, umax: (9.579e-01, 0.000e+00, 8.534e-01), CFL: 2.0000e-01, next Δt: 1.63e-03, ⟨wall time⟩: 6.377 ms
+[ Info: Writing done: time=8.200 ms, size=462.6 KiB, Δsize=4.6 KiB
+[99.10%] i: 7840, t: 9.91e+00, umax: (9.561e-01, 0.000e+00, 8.388e-01), CFL: 2.0000e-01, next Δt: 1.63e-03, ⟨wall time⟩: 52.593 ms
+[99.43%] i: 7860, t: 9.94e+00, umax: (9.568e-01, 0.000e+00, 8.469e-01), CFL: 2.0000e-01, next Δt: 1.63e-03, ⟨wall time⟩: 7.468 ms
+[99.75%] i: 7880, t: 9.98e+00, umax: (9.579e-01, 0.000e+00, 8.534e-01), CFL: 2.0000e-01, next Δt: 1.63e-03, ⟨wall time⟩: 7.817 ms
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 646.201 μs
+[ Info: Calculation time: 483.300 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_fields.jld2...
-[ Info: Writing done: time=9.669 ms, size=11.0 MiB, Δsize=1.0 MiB
+[ Info: Writing done: time=9.931 ms, size=11.0 MiB, Δsize=1.0 MiB
 [ Info: Calculating JLD2 output Symbol[:w, :b, :v, :u]...
-[ Info: Calculation time: 737.400 μs
+[ Info: Calculation time: 337.799 μs
 [ Info: Writing JLD2 output Symbol[:w, :b, :v, :u] to .\rayleigh_taylor_instability_3d_horizontal_averages.jld2...
-[ Info: Writing done: time=7.772 ms, size=467.1 KiB, Δsize=4.6 KiB
-[100.08%] i: 7900, t: 1.00e+01, umax: (9.590e-01, 0.000e+00, 8.586e-01), CFL: 2.0000e-01, next Δt: 1.63e-03, ⟨wall time⟩: 10.600 ms
- 61.181964 seconds (8.96 M allocations: 1020.471 MiB, 0.55% gc time)
+[ Info: Writing done: time=6.499 ms, size=467.1 KiB, Δsize=4.6 KiB
+[100.08%] i: 7900, t: 1.00e+01, umax: (9.590e-01, 0.000e+00, 8.586e-01), CFL: 2.0000e-01, next Δt: 1.63e-03, ⟨wall time⟩: 110.211 ms
+289.617880 seconds (34.18 M allocations: 2.314 GiB, 0.35% gc time)

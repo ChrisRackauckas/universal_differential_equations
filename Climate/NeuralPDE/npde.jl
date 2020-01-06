@@ -71,7 +71,7 @@ u0 = getu0(grid)
 ops = getops(grid)
 soldata = ground_truth(grid, tspan)
 
-ann = Chain(Dense(30,16,tanh), Dense(16,16,tanh), Dense(16,30,tanh)) |> _gpu
+ann = Chain(Dense(30,8,tanh), Dense(8,30,tanh)) |> _gpu
 pp = param(Flux.data(DiffEqFlux.destructure(ann)))
 lyrs = Flux.params(pp)
 
@@ -119,6 +119,11 @@ learning_rate = ADAM(0.001)
 epochs = Iterators.repeated((), 1000)
 Flux.train!(loss_adjoint, lyrs, epochs, learning_rate, cb=cb)
 cb()
+
+prob2 = ODEProblem{false}(dudt,u0,(0f0,10f0),pp)
+@time full_sol = solve(prob2,
+                       ROCK2(eigen_est = (integ)->integ.eigen_est = EIGEN_EST[]),
+                       saveat = saveat, abstol=1e-4, reltol=1e-2)
 
 cur_pred = collect(Flux.data(predict_adjoint()))
 n = size(training_data, 1)
