@@ -2,10 +2,14 @@ cd(@__DIR__)
 using Pkg; Pkg.activate("."); Pkg.instantiate()
 
 #This script simulates the Fisher-KPP equation and fits
-#a neural PDE to the data with the reaction term replaced
+#a neural PDE to the data with the growth (aka reaction) term replaced
 #by a feed-forward neural network and the diffusion term with a CNN
 
 using PyPlot, Printf
+using LinearAlgebra
+using DifferentialEquations
+using Flux, DiffEqFlux
+using Printf
 
 #parameter
 D = 0.01; #diffusion
@@ -19,6 +23,7 @@ t = collect(0:dt:T);
 Nx = Int64(X/dx+1);
 Nt = Int64(T/dt+1);
 
+#initial conditions
 Amp = 1.0;
 Delta = 0.2
 #IC-1
@@ -35,16 +40,11 @@ end
 mkdir(save_folder)
 
 close("all")
-
-
 figure()
 plot(x, rho0)
 gcf()
 
-
 reaction(u) = r * u .* (1 .- u)
-
-using LinearAlgebra
 
 lap = diagm(0 => -2.0 * ones(Nx), 1=> ones(Nx-1), -1 => ones(Nx-1)) ./ dx^2
 #Periodic BC
@@ -59,7 +59,6 @@ function rc_ode(drho, rho, p, t)
     drho .= D * lap * rho + reaction.(rho)
 end
 
-using DifferentialEquations
 prob = ODEProblem(rc_ode, rho0, (0.0, T), saveat=dt)
 sol = solve(prob, Tsit5());
 ode_data = Array(sol);
@@ -82,8 +81,6 @@ savefig(@sprintf("%s/true_solution.pdf", save_folder))
 gcf()
 
 #### Define neural net for reverse mode AD
-using Flux, DiffEqFlux
-
 n_weights = 10
 
 #for the reaction term
@@ -139,8 +136,6 @@ loss_rd() = sum(abs2, ode_data .- predict_rd()) + 10^2 * abs(sum(diff_cnn_.weigh
 
 #Optimization
 opt = ADAM(0.001)
-
-using Printf
 
 global count = 0
 global save_count = 0
@@ -226,7 +221,6 @@ cb = function ()
     count += 1
 
 end
-
 cb()
 
 using Flux: @epochs
@@ -290,7 +284,6 @@ fig = figure(figsize=(4,4))
 
     tight_layout(h_pad=1)
     gcf()
-
 
 savefig(@sprintf("%s/fisher_kpp.pdf", save_folder))
 
