@@ -2,7 +2,7 @@ cd(@__DIR__)
 using Pkg; Pkg.activate("."); Pkg.instantiate()
 
 #This script simulates the Fisher-KPP equation and fits
-#a neural PDE to the data with the reaction term replaced
+#a neural PDE to the data with the growth (aka reaction) term replaced
 #by a feed-forward neural network and the diffusion term with a CNN
 
 using PyPlot, Printf
@@ -24,6 +24,7 @@ t = collect(0:dt:T);
 Nx = Int64(X/dx+1);
 Nt = Int64(T/dt+1);
 
+#initial conditions
 Amp = 1.0;
 Delta = 0.2
 #IC-1
@@ -39,7 +40,6 @@ end
 mkdir(save_folder)
 
 close("all")
-
 figure()
 plot(x, rho0)
 title("Initial Condition")
