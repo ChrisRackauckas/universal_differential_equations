@@ -23,25 +23,24 @@ function lotka(du, u, p, t)
 end
 
 # Define the experimental parameter
-# Empirical upper bound is 7
 tspan = (0.0f0,3.0f0)
 u0 = [0.44249296,4.6280594]
-#p = Float32[0.5, 0.5, 0.7, 0.3]
 p = Float32[1.3, 0.9, 0.5, 1.8]
-prob_true = ODEProblem(lotka, u0,tspan, p)
-solution = solve(prob_true, Vern7(), abstol=1e-12, reltol=1e-12, saveat = 0.1)
-plot(solution)
+prob = ODEProblem(lotka, u0,tspan, p)
+solution = solve(prob, Vern7(), saveat = 0.1)
+
+scatter(solution, alpha = 0.25)
+plot!(solution, alpha = 0.5)
+
+solution = solve(prob, Vern7(), abstol=1e-12, reltol=1e-12, saveat = 0.1)
 
 # Initial condition and parameter for the Neural ODE
 u0_ = Tracker.param(u0)
 p_ = param(p)
-
-
 # Define the neueral network which learns L(x, y, y(t-τ))
 # Actually, we do not care about overfitting right now, since we want to
 # extract the derivative information without numerical differentiation.
 ann = Chain(Dense(2, 32,swish),Dense(32, 32, swish), Dense(32, 2)) |> f32
-ann(u0_)
 
 function dudt_(u::TrackedArray,p,t)
     x, y = u
@@ -49,19 +48,21 @@ function dudt_(u::TrackedArray,p,t)
         -p[4]*y + ann(u)[2]])
 end
 
-dudt_(u0_, p_, 0.0f0)
-
-
 function dudt_(u::AbstractArray, p,t)
     x, y = u
     [p[1]*x + Flux.data.(ann(u)[1]),
         -p[4]*y + Flux.data.(ann(u)[2])]
 end
 
-prob_ = ODEProblem(dudt_,u0_, tspan, p_)
-s = diffeq_rd(p_, prob_, Tsit5())
+# Check the diff_rd functions
+isa(dudt_(u0_, p_, 0.0f0), TrackedArray)
+isa(dudt_(u0, p, 0.0f0), Array)
 
-plot(Flux.data.(s)')
+prob_ = ODEProblem(dudt_,u0_, tspan, p_)
+s = diffeq_rd(p_, prob_, Tsit5(), saveat = solution.t)
+
+plot(solution)
+plot!(solution.t, Flux.data.(s)')
 
 function predict_rd()
     diffeq_rd(p_, prob_, Vern7(), saveat = solution.t, abstol=1e-6, reltol=1e-6)
@@ -78,19 +79,18 @@ loss_rd() = sum(abs2, solution[:,:] .- predict_rd()[:,:]) # + 1e-5*sum(sum.(abs,
 loss_rd()
 
 # AdamW forgets, which might be nice since the nn changes topology over time
-opt = ADAM(3e-2)
+opt = ADAMW()
 
+const losses = []
 callback() = begin
-    display(loss_rd())
+    push!(losses, Flux.data(loss_rd()))
+    if length(losses)%50==0
+        println(losses[end])
+    end
 end
 
 # Train the neural DDE
-Juno.@progress for i in 1:1000
-    Flux.train!(loss_rd, params(ann), [()], opt, cb = callback)
-end
-
-opt = Descent(1e-4)
-Juno.@progress for i in 1:10000
+Juno.@progress for i in 1:3000 - length(losses)
     Flux.train!(loss_rd, params(ann), [()], opt, cb = callback)
 end
 
@@ -99,34 +99,53 @@ plot(solution.t, Flux.data.(predict_rd(solution)'))
 plot!(solution.t, solution[:,:]')
 loss_rd()
 
-_sol = diffeq_rd(p_, prob_, Vern7(), saveat = 0.1, abstol=1e-8, reltol=1e-8)
-Z = Tracker.data.(_sol[:,:])
-L = Flux.data(ann(Z))
-# Get the analytical solution
-l1 = -p[2]*Z[1,:].*Z[2,:]
-l2 = p[3]*Z[1,:].*Z[2,:]
+# Collect the state trajectory and the derivatives
+X = solution[:,:]
+DX = solution(solution.t, Val{1})[:,:] #- [p[1]*(X[1,:])';  -p[4]*(X[2,:])']
+L̃ = Flux.data(ann(X))
+_sol = predict_rd()
+DX_ = Flux.data.(_sol(solution.t, Val{1})[:,:])
+# The learned derivatives
+plot(DX')
+plot!(DX_')
+
+L = [-p[2]*(X[1,:].*X[2,:])';p[3]*(X[1,:].*X[2,:])']
+X̂ = rand(2, 200)
+L̂ = Flux.data(ann(X̂))
+scatter(L̂')
+plot(L')
+plot!(L̃')
 
 # Create a Basis
 @variables u[1:2]
-
 # Lots of polynomials
-polys = [0u[1]]
+polys = []
 for i ∈ 1:3
-
     push!(polys, u[1]^i)
     push!(polys, u[2]^i)
-
     for j ∈ i:3
-        push!(polys, (u[1]^i)*(u[2]^j))
+        if i == j
+            push!(polys, (u[1]^i)*(u[2]^j))
+        end
     end
 end
 
 # And some other stuff
-h = [cos(u[1]); sin(u[1]); polys...]
-L̃ = [l1'; l2']
+h = [cos(u[1]); sin(u[1]); 1u[1]^0; polys...]
+
 basis = Basis(h, u)
-Ψ = SInDy(Z[:, :], L̃[:, :], basis, ϵ = 1e-1)
-Ψ.basis
+Ψ = SInDy(X[:,:], DX[:,:], basis, ϵ = 1e-1) # Fail
+println(Ψ.basis)
+Ψ = SInDy(X[:, :], L[:, :], basis, ϵ = 1e-1) # Suceed
+println(Ψ.basis)
+Ψ = SInDy(X[:, :], L̃[:, :], basis, ϵ = 1e-1) # Fail
+println(Ψ.basis)
+
+# Works most of the time
+θ = hcat([basis(xi, p = []) for xi in eachcol(X)]...)
+Ξ = DataDrivenDiffEq.STRridge(θ', L̃', ϵ = 3e-1, maxiter = 10000)
+Ψ = Basis(simplify_constants.(Ξ'*basis.basis), u)
+println(Ψ.basis)
 
 function approx(du, u, p, t)
     #z = [u..., h(p, t-2.0f0)[2]]
