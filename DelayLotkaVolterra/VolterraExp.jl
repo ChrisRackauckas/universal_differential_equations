@@ -25,18 +25,17 @@ end
 # Define the experimental parameter
 tspan = (0.0f0,3.0f0)
 u0 = [0.44249296,4.6280594]
-p = Float32[1.3, 0.9, 0.5, 1.8]
+p = Float32[1.3, 0.9, 0.8, 1.8]
 prob = ODEProblem(lotka, u0,tspan, p)
-solution = solve(prob, Vern7(), saveat = 0.1)
+solution = solve(prob, Vern7(), abstol=1e-12, reltol=1e-12, saveat = 0.1)
 
 scatter(solution, alpha = 0.25)
 plot!(solution, alpha = 0.5)
 
-solution = solve(prob, Vern7(), abstol=1e-12, reltol=1e-12, saveat = 0.1)
-
 # Initial condition and parameter for the Neural ODE
 u0_ = Tracker.param(u0)
 p_ = param(p)
+
 # Define the neueral network which learns L(x, y, y(t-τ))
 # Actually, we do not care about overfitting right now, since we want to
 # extract the derivative information without numerical differentiation.
@@ -78,8 +77,8 @@ end
 loss_rd() = sum(abs2, solution[:,:] .- predict_rd()[:,:]) # + 1e-5*sum(sum.(abs, params(ann)))
 loss_rd()
 
-# AdamW forgets, which might be nice since the nn changes topology over time
-opt = ADAMW()
+# Optimizer
+opt = ADAM()
 
 const losses = []
 callback() = begin
@@ -90,8 +89,11 @@ callback() = begin
 end
 
 # Train the neural DDE
-Juno.@progress for i in 1:3000 - length(losses)
+Juno.@progress for i in 1:10000 - length(losses)
     Flux.train!(loss_rd, params(ann), [()], opt, cb = callback)
+    if losses[end] < 1e-3
+        break
+    end
 end
 
 # Plot the data and the approximation
@@ -134,16 +136,16 @@ end
 h = [cos(u[1]); sin(u[1]); 1u[1]^0; polys...]
 
 basis = Basis(h, u)
-Ψ = SInDy(X[:,:], DX[:,:], basis, ϵ = 1e-1) # Fail
+Ψ = SInDy(X[:,:], DX[:,:], basis, ϵ = 6e-1) # Fail
 println(Ψ.basis)
-Ψ = SInDy(X[:, :], L[:, :], basis, ϵ = 1e-1) # Suceed
+Ψ = SInDy(X[:, :], L[:, :], basis, ϵ = 6e-1) # Suceed
 println(Ψ.basis)
-Ψ = SInDy(X[:, :], L̃[:, :], basis, ϵ = 1e-1) # Fail
+Ψ = SInDy(X[:, :], L̃[:, :], basis, ϵ = 6e-1) # Fail
 println(Ψ.basis)
 
 # Works most of the time
 θ = hcat([basis(xi, p = []) for xi in eachcol(X)]...)
-Ξ = DataDrivenDiffEq.STRridge(θ', L̃', ϵ = 3e-1, maxiter = 10000)
+Ξ = DataDrivenDiffEq.STRridge(θ', L̃', ϵ = 6e-1, maxiter = 1000)
 Ψ = Basis(simplify_constants.(Ξ'*basis.basis), u)
 println(Ψ.basis)
 
@@ -164,11 +166,11 @@ a_prob = ODEProblem(approx, u0, tspan, p)
 a_solution = solve(a_prob, Vern7(), saveat = 0.1f0, abstol=1e-6, reltol=1e-6)
 
 prob_true2 = ODEProblem(lotka, u0,tspan, p)
-solution_long = solve(prob_true, Vern7(), abstol=1e-8, reltol=1e-8, saveat = 0.1)
+solution_long = solve(prob_true2, Vern7(), abstol=1e-8, reltol=1e-8, saveat = 0.1)
 
 using JLD2
-@save "knowledge_enhanced_NN.jld2" solution Ψ a_solution NNsolution ann solution_long Z L l1 l2
-@load "knowledge_enhanced_NN.jld2" solution Ψ a_solution NNsolution ann solution_long Z L l1 l2
+@save "knowledge_enhanced_NN.jld2" solution Ψ a_solution NNsolution ann solution_long X L L̃
+@load "knowledge_enhanced_NN.jld2" solution Ψ a_solution NNsolution ann solution_long X L L̃
 
 p1 = plot(abs.(solution .- NNsolution)' .+ eps(Float32),
           lw = 3, yaxis = :log, title = "Timeseries of UODE Error",
@@ -177,11 +179,11 @@ p1 = plot(abs.(solution .- NNsolution)' .+ eps(Float32),
           legend = :bottomright)
 
 # Plot L₂
-p2 = plot(Z[1,:], Z[2,:], L[2,:], lw = 3,
+p2 = plot(X[1,:], X[2,:], L[2,:], lw = 3,
      title = "Neural Network Fit of U2(t)", color = :blue,
      label = "Neural Network", xaxis = "x", yaxis="y",
      legend = :bottomright)
-plot!(Z[1,:], Z[2,:], l2, lw = 3, label = "True Missing Term", color=:green)
+plot!(X[1,:], X[2,:], L̃[2,:], lw = 3, label = "True Missing Term", color=:green)
 
 p3 = scatter(solution, color = [:red :orange], label = ["x data" "y data"], title = "Extrapolated Fit From Short Training Data")
 plot!(p3,solution_long, color = [:red :orange], label = ["True x(t)" "True y(t)"])
