@@ -14,7 +14,7 @@ L = 1   # Physical length of each dimension.
 κ = 0.05  # Diffusivity
 ν = κ     # Assuming Prandtl number Pr = 1
 
-end_time = 10.0
+end_time = 1.5
 
 # Boundary conditions
 c_bcs = HorizontallyPeriodicBCs(   top = BoundaryCondition(Neumann, 0),
@@ -39,7 +39,7 @@ model = Model(
 )
 
 # Setting initial conditions
-c₀(x, y, z) = exp(-200(z-0.75)^2)
+c₀(x, y, z) = exp(-200(z-0.75)^2) + 1e-8 * randn()
 set!(model, c=c₀)
 
 # Add JLD2 output writer for 3D fields.
@@ -72,7 +72,7 @@ model.output_writers[:horizontal_averages] =
                      interval=0.01, force=true, verbose=true)
 
 # Set up adaptive time stepping.
-wizard = TimeStepWizard(cfl=0.1, Δt=1e-6, max_change=1.2, max_Δt=1e-4)
+wizard = TimeStepWizard(cfl=0.1, Δt=1e-6, max_change=1.2, max_Δt=1e-1)
 
 # Set up CFL diagnostics.
  cfl = AdvectiveCFL(wizard)
@@ -97,6 +97,6 @@ while model.clock.time < end_time
 
     # Print progress statement.
     i, t = model.clock.iteration, model.clock.time
-    @printf("[%06.2f%%] i: %d, t: %5.2e days, umax: (%6.3e, %6.3e, %6.3e), CFL: %6.4g, next Δt: %8.5e, ⟨wall time⟩: %s\n",
+    @printf("[%06.2f%%] i: %d, t: %5.2e, umax: (%6.3e, %6.3e, %6.3e), CFL: %6.4e, next Δt: %8.5e, ⟨wall time⟩: %s\n",
             progress, i, t, umax, vmax, wmax, cfl(model), wizard.Δt, prettytime(walltime / Ni))
 end
