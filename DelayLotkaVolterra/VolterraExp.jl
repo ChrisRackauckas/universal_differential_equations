@@ -89,7 +89,7 @@ callback() = begin
 end
 
 # Train the neural DDE
-Juno.@progress for i in 1:10000 - length(losses)
+Juno.@progress for i in 1:15000 - length(losses)
     Flux.train!(loss_rd, params(ann), [()], opt, cb = callback)
     if losses[end] < 1e-3
         break
@@ -146,24 +146,59 @@ println(Ψ.basis)
 # Works most of the time
 θ = hcat([basis(xi, p = []) for xi in eachcol(X)]...)
 Ξ = DataDrivenDiffEq.STRridge(θ', L̃', ϵ = 6e-1, maxiter = 1000)
-Ψ = Basis(simplify_constants.(Ξ'*basis.basis), u)
-println(Ψ.basis)
+# Derive a new basis
+Ξ2 = similar(Ξ)
+p2 = p[[1, 4]]
+for i in 1:size(Ξ, 2)
+    for k in 1:size(Ξ, 1)
+        if abs(Ξ[k, i]) > 0
+            Ξ2[k, i] = 1.0
+            push!(p2, Ξ[k, i])
+        else
+            Ξ2[k, i] = 0.0
+        end
 
-function approx(du, u, p, t)
-    #z = [u..., h(p, t-2.0f0)[2]]
-    α, β, γ, δ = p
-    # Known Dynamics
-    du[1] = α*u[1]
-    du[2] = -δ*u[2]
-    # Add SInDy Term
-    du .+= Ψ(u)
+    end
 end
 
-NNsolution = Flux.data.(predict_rd()[:,:])
+Ψ = Basis(simplify_constants.(Ξ2'*basis.basis), u)
+println(Ψ.basis)
+
+p2_ = Flux.param(p2)
+# Derive a new parameter basis
+
+function approx(du, u, p, t)
+    # Add SInDy Term
+    z = Ψ(u)
+    du[1] = p[1]*u[1] + p[3]*z[1]
+    du[2] = -p[2]*u[2] + p[4]*z[2]
+end
+
+tspan = (0.0f0, 3.0f0)
+
+a_prob = ODEProblem(approx, Float32.(u0), tspan, p2)
+a_solution = solve(a_prob, Tsit5(), saveat = 0.1f0)
+
+plot(a_solution)
+
+function predict_adjoint()
+    diffeq_adjoint(p2_, a_prob, Vern7(), saveat = solution.t)
+end
+
+predict_adjoint()
+
+loss_parameters() = sum(abs2, solution[:,:] - predict_adjoint())
+
+opt_parameters = ADAM(1e-2)
+data = Iterators.repeated((), 1)
+cb_parameters() = println(loss_parameters())
+Flux.@epochs 100 Flux.train!(loss_parameters, Flux.params(p2_), data, opt_parameters, cb = cb_parameters)
+
 
 tspan = (0.0f0, 20.0f0)
-a_prob = ODEProblem(approx, u0, tspan, p)
-a_solution = solve(a_prob, Vern7(), saveat = 0.1f0, abstol=1e-6, reltol=1e-6)
+a_prob = ODEProblem(approx, Float32.(u0), tspan, Flux.data(p2_))
+a_solution = solve(a_prob, Vern7(), abstol=1e-8, reltol=1e-8, saveat = 0.1)
+plot(a_solution)
 
 prob_true2 = ODEProblem(lotka, u0,tspan, p)
 solution_long = solve(prob_true2, Vern7(), abstol=1e-8, reltol=1e-8, saveat = 0.1)
