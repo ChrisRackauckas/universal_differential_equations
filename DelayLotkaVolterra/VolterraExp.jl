@@ -146,7 +146,8 @@ println(Ψ.basis)
 # Works most of the time
 θ = hcat([basis(xi, p = []) for xi in eachcol(X)]...)
 Ξ = DataDrivenDiffEq.STRridge(θ', L̃', ϵ = 6e-1, maxiter = 1000)
-# Derive a new basis
+
+# Derive a new basis with only structural parameters
 Ξ2 = similar(Ξ)
 p2 = p[[1, 4]]
 for i in 1:size(Ξ, 2)
@@ -162,10 +163,7 @@ for i in 1:size(Ξ, 2)
 end
 
 Ψ = Basis(simplify_constants.(Ξ2'*basis.basis), u)
-println(Ψ.basis)
-
 p2_ = Flux.param(p2)
-# Derive a new parameter basis
 
 function approx(du, u, p, t)
     # Add SInDy Term
@@ -173,8 +171,6 @@ function approx(du, u, p, t)
     du[1] = p[1]*u[1] + p[3]*z[1]
     du[2] = -p[2]*u[2] + p[4]*z[2]
 end
-
-tspan = (0.0f0, 3.0f0)
 
 a_prob = ODEProblem(approx, Float32.(u0), tspan, p2)
 a_solution = solve(a_prob, Tsit5(), saveat = 0.1f0)
@@ -192,9 +188,9 @@ loss_parameters() = sum(abs2, solution[:,:] - predict_adjoint())
 opt_parameters = ADAM(1e-2)
 data = Iterators.repeated((), 1)
 cb_parameters() = println(loss_parameters())
-Flux.@epochs 100 Flux.train!(loss_parameters, Flux.params(p2_), data, opt_parameters, cb = cb_parameters)
+Flux.@epochs 300 Flux.train!(loss_parameters, Flux.params(p2_), data, opt_parameters, cb = cb_parameters)
 
-
+# Make the plots
 tspan = (0.0f0, 20.0f0)
 a_prob = ODEProblem(approx, Float32.(u0), tspan, Flux.data(p2_))
 a_solution = solve(a_prob, Vern7(), abstol=1e-8, reltol=1e-8, saveat = 0.1)
@@ -220,7 +216,8 @@ p2 = plot(X[1,:], X[2,:], L[2,:], lw = 3,
      legend = :bottomright)
 plot!(X[1,:], X[2,:], L̃[2,:], lw = 3, label = "True Missing Term", color=:green)
 
-p3 = scatter(solution, color = [:red :orange], label = ["x data" "y data"], title = "Extrapolated Fit From Short Training Data")
+p3 = scatter(solution, color = [:red :orange], label = ["x data" "y data"],
+ title = "Extrapolated Fit From Short Training Data")
 plot!(p3,solution_long, color = [:red :orange], label = ["True x(t)" "True y(t)"])
 plot!(p3,a_solution, linestyle = :dash , color = [:blue :green], label = ["Estimated x(t)" "Estimated y(t)"])
 
