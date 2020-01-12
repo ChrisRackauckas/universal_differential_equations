@@ -53,11 +53,10 @@ function mode_loss(f0,f1,γd)
 
     prob = ODEProblem(dudt_,u0,tspan,p)
     loss_rd() =   begin
-        P_RD = vcat(Flux.Tracker.collect(diffeq_rd(p,prob,Tsit5(),u0=u0,saveat=tsave,
-                                                   abstol=1e-6,reltol=1e-6))
+        P_RD = vcat(Flux.Tracker.collect(diffeq_rd(p,prob,Tsit5(),u0=u0,saveat=tsave))
                       ,γd.(tsave)')
         σ_out = [f0(P_RD[:,i])[1] for i = 1:size(P_RD,2)]
-        return mean( (σ_out .- σ_exact).^2 )
+        return sum( (σ_out .- σ_exact).^2 )
     end
     return loss_rd
 end
@@ -69,7 +68,7 @@ function test_NN(γd,f0,f1)
     σ_exact = find_σ_exact(tsave,γd)
     dudt_(u::AbstractArray,p,t) = Flux.data(f1(vcat(u,[γd(t)])))
     prob = ODEProblem(dudt_,[0.0f0],tspan,p)
-    ode_solve = solve(prob,u0=[0.0f0],Tsit5(),abstol=1e-6,reltol=1e-6)
+    ode_solve = solve(prob,u0=[0.0f0],Tsit5())
     f0_ = Flux.data(f0)
     σ_approx = [f0_([ode_solve(t)[1],γd(t)]).data[1] for t in tsave]
 
@@ -77,18 +76,18 @@ function test_NN(γd,f0,f1)
 end
 function test_err(γd,f0,f1)
     tsave, σ_approx, σ_exact = test_NN(γd,f0,f1)
-    return mean( (σ_approx .- σ_exact).^2 )
+    return sum( (σ_approx .- σ_exact).^2 )
 end
 
 ## --- Define NN and linear model ---
-f0_n = Chain(Dense(2,2,tanh), Dense(2,1))
-f1_n = Chain(Dense(2,2,tanh), Dense(2,1))
+f0_n = Chain(Dense(2,4,tanh), Dense(4,1))
+f1_n = Chain(Dense(2,4,tanh), Dense(4,1))
 f0_l = Chain(Dense(2,1))
 f1_l = Chain(Dense(2,1))
 # --- Define the total loss across various strain rates ----
 t_loss(f0,f1) =  sum(mode_loss(f0,f1,t -> 12.0f0*cos.(ω.*t))() for ω in 1.0f0:0.2f0:2.0f0)
-data = Iterators.repeated((), 1000)
-opt = Descent(0.005)
+data = Iterators.repeated((), 5000)
+opt = ADAM(0.015)
 p = []
 # --- Define test strain rate here, so call back can see how all errors improve
 #     with time ----
@@ -101,18 +100,18 @@ Flux.train!(() -> t_loss(f0_l,f1_l), params(f0_l,f1_l,p), data, opt,cb= () -> cb
 
 # --- Make plot of how error goes with time ------
 Er = (i,er) -> [e[i] for e in er]
-plot(Er(1,err_n),xscale=:log10,yscale=:log10,ylabel="Error",xlabel="Training steps",
-        label="Training error, Neural net")
-plot!(Er(2,err_n),label="Testing error, Neural net")
-plot!(Er(1,err_l), label="Training error, linear model")
-plot!(Er(2,err_l),label="Testing error, linear model")
+p1 = plot(Er(1,err_n),xscale=:log10,yscale=:log10,ylabel="Error",xlabel="Training steps",
+        label="Training error, Neural net",legend=:bottomleft)
+plot!(p1,Er(2,err_n),label="Testing error, Neural net")
+plot!(p1,Er(1,err_l), label="Training error, linear model")
+plot!(p1,Er(2,err_l),label="Testing error, linear model")
 
 # --- Plot approximations vs true sol ----
 tsave, σ_approx_n, σ_exact = test_NN(γd_test,f0_n,f1_n)
 tsave, σ_approx_l, σ_exact = test_NN(γd_test,f0_l,f1_l)
-plot(tsave,σ_approx_n,m=:circle,label="NN solution",ylabel="stress",xlabel="time")
-plot!(tsave,σ_approx_l,m=:hexagon,label="Linear model")
-plot!(tsave,σ_exact,label="True solution",leg=:bottomright,size=(700,400))
+p2 = plot(tsave,σ_approx_n,m=:circle,label="NN solution",ylabel="stress",xlabel="time")
+plot!(p2,tsave,σ_approx_l,m=:hexagon,label="Linear model")
+plot!(p2,tsave,σ_exact,label="True solution",leg=:bottomright,size=(700,400))
 
 
 # program takes time to run, so save data for tweaking figures
@@ -126,9 +125,9 @@ end;
 
 # Timing
 using StaticArrays, BenchmarkTools
-W1 = convert(SMatrix{2,2},Tracker.data(f1_n[1].W))
-b1 = convert(SVector{2},Tracker.data(f1_n[1].b))
-W2 = convert(SMatrix{1,2},Tracker.data(f1_n[2].W))
+W1 = convert(SMatrix{4,2},Tracker.data(f1_n[1].W))
+b1 = convert(SVector{4},Tracker.data(f1_n[1].b))
+W2 = convert(SMatrix{1,4},Tracker.data(f1_n[2].W))
 b2 = convert(SVector{1},Tracker.data(f1_n[2].b))
 
 tspan = (0.0f0,10.0f0)
@@ -136,5 +135,5 @@ tsave = range(tspan[1],tspan[2],length=100)
 σ_exact = find_σ_exact(tsave,γd_test)
 dudt_(u,p,t) = first(W2*broadcast(tanh,W1*@SVector([u[1],γd_test(t)])+b1)+b2)
 prob = ODEProblem(dudt_,0.0f0,tspan,p)
-@btime ode_solve = solve(prob,Tsit5(),tsave=tsave)
+@btime ode_solve = solve(prob,Tsit5(),saveat=tsave)
 @btime find_σ_exact(tsave,γd_test)

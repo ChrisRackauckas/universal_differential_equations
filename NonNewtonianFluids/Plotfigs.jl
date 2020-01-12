@@ -10,11 +10,14 @@ using DelimitedFiles, Plots
 er_outfile = "er_data.txt"
 plt_outfile = "plt_data.txt"
 
+# er_dat = [Er(1,err_n) Er(2,err_n) Er(1,err_l) Er(2,err_l)]
+# plt_dat = [[t for t in tsave]  σ_approx_n σ_approx_l σ_exact]
+
 er_dat = readdlm(er_outfile, '\t', Float32, '\n')
 plt_dat = readdlm(plt_outfile, '\t', Float32, '\n')
 
 p1 = plot(er_dat[:,1],xscale=:log10,yscale=:log10,ylabel="Error",xlabel="Training steps",
-        label="Training error, Neural net")
+        label="Training error, Neural net",legend = :bottomleft)
 plot!(p1,er_dat[:,2],label="Testing error, Neural net")
 plot!(p1,er_dat[:,3], label="Training error, linear model")
 plot!(p1,er_dat[:,4],label="Testing error, linear model")
@@ -29,4 +32,4 @@ plot!(p2,plt_dat[:,1],plt_dat[:,4],label="True solution",lw=3,lc=:black,
 pt = plot(p1,p2,layout=(2,1),size=(600,500))
 
 # or path to wherever
-savefig(pt, "CombFig.pdf")
+savefig(pt, "FENEP.pdf")
