@@ -97,6 +97,7 @@ Juno.@progress for i in 1:15000 - length(losses)
 end
 
 # Plot the data and the approximation
+NNsolution = Flux.data.(predict_rd(solution))
 plot(solution.t, Flux.data.(predict_rd(solution)'))
 plot!(solution.t, solution[:,:]')
 loss_rd()
@@ -181,14 +182,14 @@ function predict_adjoint()
     diffeq_adjoint(p2_, a_prob, Vern7(), saveat = solution.t)
 end
 
-predict_adjoint()
+predict_adjoint()[:,1:end-1]
 
-loss_parameters() = sum(abs2, solution[:,:] - predict_adjoint())
+loss_parameters() = sum(abs2, solution[:,:] - predict_adjoint()[:,1:end-1])
 
 opt_parameters = ADAM(1e-2)
 data = Iterators.repeated((), 1)
 cb_parameters() = println(loss_parameters())
-Flux.@epochs 300 Flux.train!(loss_parameters, Flux.params(p2_), data, opt_parameters, cb = cb_parameters)
+Flux.@epochs 600 Flux.train!(loss_parameters, Flux.params(p2_), data, opt_parameters, cb = cb_parameters)
 
 # Make the plots
 tspan = (0.0f0, 20.0f0)
@@ -203,24 +204,34 @@ using JLD2
 @save "knowledge_enhanced_NN.jld2" solution Ψ a_solution NNsolution ann solution_long X L L̃
 @load "knowledge_enhanced_NN.jld2" solution Ψ a_solution NNsolution ann solution_long X L L̃
 
-p1 = plot(abs.(solution .- NNsolution)' .+ eps(Float32),
+p1 = plot(0.1:0.1:3,abs.(Array(solution)[:,2:end] .- NNsolution[:,2:end])' .+ eps(Float32),
           lw = 3, yaxis = :log, title = "Timeseries of UODE Error",
-          color = [:blue :green],
+          color = [3 :orange], xlabel = "t",
           label = ["x(t)" "y(t)"],
-          legend = :bottomright)
+          titlefont = "Helvetica", legendfont = "Helvetica",
+          legend = :topright)
 
 # Plot L₂
 p2 = plot(X[1,:], X[2,:], L[2,:], lw = 3,
-     title = "Neural Network Fit of U2(t)", color = :blue,
+     title = "Neural Network Fit of U2(t)", color = 3,
      label = "Neural Network", xaxis = "x", yaxis="y",
+     titlefont = "Helvetica", legendfont = "Helvetica",
      legend = :bottomright)
-plot!(X[1,:], X[2,:], L̃[2,:], lw = 3, label = "True Missing Term", color=:green)
+plot!(X[1,:], X[2,:], L̃[2,:], lw = 3, label = "True Missing Term", color=:orange)
 
-p3 = scatter(solution, color = [:red :orange], label = ["x data" "y data"],
- title = "Extrapolated Fit From Short Training Data")
-plot!(p3,solution_long, color = [:red :orange], label = ["True x(t)" "True y(t)"])
-plot!(p3,a_solution, linestyle = :dash , color = [:blue :green], label = ["Estimated x(t)" "Estimated y(t)"])
+c1 = 3 # RGBA(174/255,192/255,201/255,1) # Maroon
+c2 = :orange # RGBA(132/255,159/255,173/255,1) # Red
+c3 = :blue # RGBA(255/255,90/255,0,1) # Orange
+c4 = :purple # RGBA(153/255,50/255,204/255,1) # Purple
 
+p3 = scatter(solution, color = [c1 c2], label = ["x data" "y data"],
+             title = "Extrapolated Fit From Short Training Data",
+             titlefont = "Helvetica", legendfont = "Helvetica",
+             markersize = 5)
+plot!(p3,solution_long, color = [c1 c2], linestyle = :dot, lw=5, label = ["True x(t)" "True y(t)"])
+plot!(p3,a_solution, color = [c3 c4], lw=1, label = ["Estimated x(t)" "Estimated y(t)"])
+plot!(p3,[2.99,3.01],[0.0,maximum(hcat(Array(solution),Array(a_solution)))],lw=2,color=:black)
+annotate!([(1.5,9,text("Training \nData", 10, :center, :top, :black, "Helvetica"))])
 l = @layout [grid(1,2)
              grid(1,1)]
 plot(p1,p2,p3,layout = l)
