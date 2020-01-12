@@ -17,17 +17,19 @@ er_dat = readdlm(er_outfile, '\t', Float32, '\n')
 plt_dat = readdlm(plt_outfile, '\t', Float32, '\n')
 
 p1 = plot(er_dat[:,1],xscale=:log10,yscale=:log10,ylabel="Error",xlabel="Training steps",
-        label="Training error, Neural net",legend = :bottomleft)
-plot!(p1,er_dat[:,2],label="Testing error, Neural net")
-plot!(p1,er_dat[:,3], label="Training error, linear model")
-plot!(p1,er_dat[:,4],label="Testing error, linear model")
+        label="Training error, Neural net",legend = :bottomleft,linestyle = :dot,
+        lw=4,titlefont = "Helvetica", legendfont = "Helvetica",color=2)
+plot!(p1,er_dat[:,2],label="Testing error, Neural net",lw=4,color=2)
+plot!(p1,er_dat[:,3], label="Training error, linear model",lw=4,color=1,linestyle = :dot)
+plot!(p1,er_dat[:,4],label="Testing error, linear model",lw=4,color=1)
 
 p2 = plot(plt_dat[:,1],plt_dat[:,3],m=:hexagon, lw=3, ms=3,
-        label="Linear model",ylabel="stress",xlabel="time")
+          titlefont = "Helvetica", legendfont = "Helvetica",
+          label="Linear model",ylabel="stress",xlabel="time")
 plot!(p2,plt_dat[:,1],plt_dat[:,2],m=:circle,lw=3,ms=3,
         label="NN solution")
-plot!(p2,plt_dat[:,1],plt_dat[:,4],label="True solution",lw=3,lc=:black,
-        xlims=(0,7),leg=:bottomright)
+plot!(p2,plt_dat[:,1],plt_dat[:,4],label="True solution",lw=1,lc=:black,
+        xlims=(0,7),leg=:bottom)
 
 pt = plot(p1,p2,layout=(2,1),size=(600,500))
 
