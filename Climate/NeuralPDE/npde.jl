@@ -1,11 +1,12 @@
 cd(@__DIR__)
 using Pkg; Pkg.activate("."); Pkg.instantiate()
-
 using Revise
+using Zygote, Optim
 using OrdinaryDiffEq, Flux, DiffEqFlux, LinearAlgebra, Plots
 using DiffEqSensitivity
 const EIGEN_EST = Ref(0.0f0)
 const USE_GPU = Ref(false)
+
 USE_GPU[] = false # the network is small enough such that CPU works just great
 
 USE_GPU[] && (using CuArrays)
@@ -37,9 +38,6 @@ function getops(grid, T=Float32)
     # Boundary conditions matrix QQ
     Q = Matrix{Int}(I, N-2, N-2)
     QQ = _cu(vcat(zeros(1,N-2), Q, zeros(1,N-2)))
-    #display(QQ)
-    #display(D1)
-    #display(D1_B)
 
     D1 = D1_B * QQ
     D2 = D2_B * QQ
@@ -72,60 +70,59 @@ ops = getops(grid)
 soldata = ground_truth(grid, tspan)
 
 ann = Chain(Dense(30,8,tanh), Dense(8,30,tanh)) |> _gpu
-pp = param(Flux.data(DiffEqFlux.destructure(ann)))
+pp, re = Flux.destructure(ann)
 lyrs = Flux.params(pp)
-
-function dudt(u::TrackedArray,p,t)
-    Φ = DiffEqFlux.restructure(ann, p)
+function dudt_(u,p,t)
+    Φ = re(p)
     return ops.D1*Φ(u) + ops.D2*u
 end
-function dudt(u::AbstractArray,p,t)
-    Φ = DiffEqFlux.restructure(ann, p)
-    return ops.D1*Tracker.data(Φ(u)) + ops.D2*u
+
+function predict_adjoint(fullp)
+    Array(concrete_solve(prob,
+                         ROCK4(eigen_est = (integ)->integ.eigen_est = EIGEN_EST[]),
+    u0, fullp, saveat = saveat))
 end
 
-predict_adjoint() = diffeq_adjoint(pp,
-                              prob,
-                              ROCK4(eigen_est = (integ)->integ.eigen_est = EIGEN_EST[]),
-                              u0=u0, saveat = saveat,
-                              # no back solve
-                              sensealg=SensitivityAlg(quad=false, backsolve=false))
-
-function loss_adjoint()
-    pre = predict_adjoint()
+function loss_adjoint(fullp)
+    pre = predict_adjoint(fullp)
     sum(abs2, training_data - pre)
 end
 
-cb = function ()
-    cur_pred = collect(Flux.data(predict_adjoint()))
+
+
+function cb(opt_state:: Optim.OptimizationState)
+    cur_pred = collect(predict_adjoint(opt_state.metadata["x"]))
     n = size(training_data, 1)
     pl = scatter(1:n,training_data[:,10],label="data", legend =:bottomright,title="Spatial Plot at t=$(saveat[10])")
     scatter!(pl,1:n,cur_pred[:,10],label="prediction")
     pl2 = scatter(saveat,training_data[N÷2,:],label="data", legend =:bottomright, title="Timeseries Plot at Middle X")
     scatter!(pl2,saveat,cur_pred[N÷2,:],label="prediction")
     display(plot(pl, pl2, size=(600, 300)))
-    display(loss_adjoint())
+    display(opt_state.value)    
+    false
 end
 
-prob = ODEProblem{false}(dudt,u0,tspan,pp)
-epochs = Iterators.repeated((), 30)
-nn = 1
-saveat = range(tspan..., length = 30) #time range
-training_data = _cu(soldata(saveat))
-epochs = Iterators.repeated((), 200)
-learning_rate = ADAM(0.01)
-Flux.train!(loss_adjoint, lyrs, epochs, learning_rate, cb=cb)
-learning_rate = ADAM(0.001)
-epochs = Iterators.repeated((), 1000)
-Flux.train!(loss_adjoint, lyrs, epochs, learning_rate, cb=cb)
-cb()
+cb(trace::Optim.OptimizationTrace) = cb(last(trace))
 
-prob2 = ODEProblem{false}(dudt,u0,(0f0,10f0),pp)
+
+saveat = range(tspan..., length = 30) #time range
+prob = ODEProblem{false}(dudt_,u0,tspan,pp)
+training_data = _cu(soldata(saveat))
+concrete_solve(prob, ROCK4(eigen_est = (integ)->integ.eigen_est = EIGEN_EST[]), u0, pp) 
+loss_adjoint(pp)
+
+function loss_adjoint_gradient!(G, fullp)
+    G .= Zygote.gradient(loss_adjoint, fullp)[1]
+end
+
+result =  optimize(loss_adjoint, loss_adjoint_gradient!, pp, BFGS(), Optim.Options(extended_trace=true,callback = cb))
+
+prob2 = ODEProblem{false}(dudt_,u0,(0f0,10f0),pp)
 @time full_sol = solve(prob2,
                        ROCK2(eigen_est = (integ)->integ.eigen_est = EIGEN_EST[]),
                        saveat = saveat, abstol=1e-4, reltol=1e-2)
 
-cur_pred = collect(Flux.data(predict_adjoint()))
+cur_pred = collect((predict_adjoint(result.minimizer)))
 n = size(training_data, 1)
 pl = scatter(1:n,training_data[:,10],label="data", legend =:bottomright)
 scatter!(pl,1:n,cur_pred[:,10],label="prediction",title="Spatial Plot at t=$(saveat[10])")
