@@ -7,7 +7,7 @@ using Pkg; Pkg.activate("."); Pkg.instantiate()
 
 using PyPlot, Printf
 using LinearAlgebra
-using Flux, DiffEqFlux
+using Flux, DiffEqFlux, Optim, DiffEqSensitivity
 using BSON: @save, @load
 using Flux: @epochs
 using DifferentialEquations
@@ -57,9 +57,9 @@ lap[end,1] = 1.0/dx^2
 #lap[1,2] = 2.0/dx^2
 #lap[end,end-1] = 2.0/dx^2
 
-function rc_ode(drho, rho, p, t)
+function rc_ode(rho, p, t)
     #finite difference
-    drho .= D * lap * rho + reaction.(rho)
+    D * lap * rho + reaction.(rho)
 end
 
 prob = ODEProblem(rc_ode, rho0, (0.0, T), saveat=dt)
@@ -94,54 +94,53 @@ rx_nn = Chain(Dense(1, n_weights, tanh),
                 Dense(2*n_weights, n_weights, tanh),
                 Dense(n_weights, 1),
                 x -> x[1])
-rx_nn_dat = Chain(rx_nn, x -> x.data)
 
 #conv with bias with initial values as 1/dx^2
 w_err = 0.0
 init_w = reshape([1.1 -2.5 1.0], (3, 1, 1, 1))
-diff_cnn_ = Conv(param(init_w), param([0.]), pad=(0,0,0,0))
-
-#remove bias
-diff_cnn(x) = diff_cnn_(x) .- diff_cnn_.bias
+diff_cnn_ = Conv(init_w, [0.], pad=(0,0,0,0))
 
 #initialize D0 close to D/dx^2
-D0 = param([6.5])
+D0 = [6.5]
 
-function nn_ode(u::TrackedArray,p,t)
+p1,re1 = Flux.destructure(rx_nn)
+p2,re2 = Flux.destructure(diff_cnn_)
+p = [p1;p2;D0]
+full_restructure(p) = re1(p[1:length(p1)]), re2(p[(length(p1)+1):end-1]), p[end]
 
+function nn_ode(u,p,t)
+    rx_nn = re1(p[1:length(p1)])
+
+    u_cnn_1   = [p[end-4] * u[end] + p[end-3] * u[1] + p[end-2] * u[2]]
+    u_cnn     = [p[end-4] * u[i-1] + p[end-3] * u[i] + p[end-2] * u[i+1] for i in 2:Nx-1]
+    u_cnn_end = [p[end-4] * u[end-1] + p[end-3] * u[end] + p[end-2] * u[1]]
+
+    # Equivalent using Flux, but slower!
     #CNN term with periodic BC
-    u_cnn = reshape(diff_cnn(reshape(u, (Nx, 1, 1, 1))), (Nx-2,))
-    u_cnn_1 = reshape(diff_cnn(reshape(vcat(u[end:end], u[1:1], u[2:2]), (3, 1, 1, 1))), (1,))
-    u_cnn_end = reshape(diff_cnn(reshape(vcat(u[end-1:end-1], u[end:end], u[1:1]), (3, 1, 1, 1))), (1,))
+    #diff_cnn_ = Conv(reshape(p[(end-4):(end-2)],(3,1,1,1)), [0.0], pad=(0,0,0,0))
+    #u_cnn = reshape(diff_cnn_(reshape(u, (Nx, 1, 1, 1))), (Nx-2,))
+    #u_cnn_1 = reshape(diff_cnn_(reshape(vcat(u[end:end], u[1:1], u[2:2]), (3, 1, 1, 1))), (1,))
+    #u_cnn_end = reshape(diff_cnn_(reshape(vcat(u[end-1:end-1], u[end:end], u[1:1]), (3, 1, 1, 1))), (1,))
 
-    du = Tracker.collect(rx_nn.([u[i:i] for i in 1:Nx])) +
-            p[1] * vcat(u_cnn_1, u_cnn, u_cnn_end)
-    return du
-end
-
-function nn_ode(u::AbstractArray,p,t)
-    #CNN term with periodic BC
-    u_cnn = reshape(diff_cnn(reshape(u, (Nx, 1, 1, 1))), (Nx-2,))
-    u_cnn_1 = reshape(diff_cnn(reshape(vcat(u[end:end], u[1:1], u[2:2]), (3, 1, 1, 1))), (1,))
-    u_cnn_end = reshape(diff_cnn(reshape(vcat(u[end-1:end-1], u[end:end], u[1:1]), (3, 1, 1, 1))), (1,))
-
-    du = [Flux.data(rx_nn([u[i]]))[1] for i in 1:Nx]
-            + Flux.data(p)[1] * Flux.data(vcat(u_cnn_1, u_cnn, u_cnn_end))
-    return du
+    [rx_nn([u[i]])[1] for i in 1:Nx] + p[end] * vcat(u_cnn_1, u_cnn, u_cnn_end)
 end
 
 ########################
 # Soving the neural PDE and setting up loss function
 ########################
-prob_nn = ODEProblem(nn_ode,param(rho0), (0.0, T), D0)
-sol_nn = diffeq_rd(D0, prob_nn,Tsit5())
+prob_nn = ODEProblem(nn_ode, rho0, (0.0, T), p)
+sol_nn = concrete_solve(prob_nn,Tsit5(), rho0, p)
 
-function predict_rd()
-  Flux.Tracker.collect(diffeq_rd(D0,prob_nn,Tsit5(),u0=param(rho0),saveat=dt))
+function predict_rd(θ)
+  # No ReverseDiff if using Flux
+  Array(concrete_solve(prob_nn,Tsit5(),rho0,θ,saveat=dt,sensealg=InterpolatingAdjoint(autojacvec=ReverseDiffVJP())))
 end
 
 #match data and force the weights of the CNN to add up to zero
-loss_rd() = sum(abs2, ode_data .- predict_rd()) + 10^2 * abs(sum(diff_cnn_.weight))
+function loss_rd(p)
+    pred = predict_rd(p)
+    sum(abs2, ode_data .- pred) + 10^2 * abs(sum(p[end-4 : end-2])), pred
+end
 
 ########################
 # Training
@@ -161,17 +160,18 @@ w2_arr = Float64[]
 w3_arr = Float64[]
 
 #callback function to observe training
-cb = function ()
-    push!(train_arr, Flux.data(loss_rd()))
-    push!(diff_arr, Flux.data(D0)[1])
+cb = function (p,l,pred)
+    rx_nn, diff_cnn_, D0 = full_restructure(p)
+    push!(train_arr, l)
+    push!(diff_arr, p[end])
 
-    weight = diff_cnn_.weight[:].data
+    weight = diff_cnn_.weight[:]
     push!(w1_arr, weight[1])
     push!(w2_arr, weight[2])
     push!(w3_arr, weight[3])
 
     println(@sprintf("Loss: %0.4f\tD0: %0.4f Weights:(%0.4f,\t %0.4f, \t%0.4f) \t Sum: %0.4f"
-            , loss_rd(), Flux.data(D0)[1], weight[1], weight[2], weight[3], sum(weight)))
+            ,l, D0[1], weight[1], weight[2], weight[3], sum(weight)))
 
     global count
 
@@ -185,15 +185,14 @@ cb = function ()
         colorbar()
 
         subplot(132)
-        cur_pred = Flux.data(predict_rd())
-        img = pcolormesh(x,t,cur_pred')
+        img = pcolormesh(x,t,pred')
         global img
         xlabel(L"$x$"); ylabel(L"$t$"); title("Prediction")
         colorbar(); clim([0, 1]);
 
         ax = subplot(133); global ax
         u = collect(0:0.01:1)
-        rx_line = plot(u, rx_nn_dat.([[elem] for elem in u]), label="NN")[1];
+        rx_line = plot(u, rx_nn.([[elem] for elem in u]), label="NN")[1];
         global rx_line
         plot(u, reaction.(u), label="True")
         title("Reaction Term")
@@ -206,12 +205,11 @@ cb = function ()
 
     if count>0
         println("updating figure")
-        cur_pred = Flux.data(predict_rd())
-        img.set_array(cur_pred[1:end-1, 1:end-1][:])
+        img.set_array(pred[1:end-1, 1:end-1][:])
         ttl.set_text(@sprintf("Epoch = %d", count))
 
         u = collect(0:0.01:1)
-        rx_pred = rx_nn_dat.([[elem] for elem in u])
+        rx_pred = rx_nn.([[elem] for elem in u])
         rx_line.set_ydata(rx_pred)
         u = collect(0:0.01:1)
 
@@ -231,10 +229,13 @@ cb = function ()
     display(gcf())
     count += 1
 
+    false
 end
 
 #train
-@epochs 1000 Flux.train!(loss_rd, params(rx_nn, diff_cnn_, D0), [()], opt, cb = cb)
+res1 = DiffEqFlux.sciml_train(loss_rd, p, ADAM(0.001), cb=cb, maxiters = 100)
+res2 = DiffEqFlux.sciml_train(loss_rd, res1.minimizer, ADAM(0.001), cb=cb, maxiters = 300)
+res3 = DiffEqFlux.sciml_train(loss_rd, res2.minimizer, BFGS(), cb=cb, maxiters = 1000)
 
 ## Save trained model
 @save @sprintf("%s/model.bson", save_folder) rx_nn diff_cnn_ w1_arr w2_arr w3_arr train_arr diff_arr
@@ -245,7 +246,6 @@ end
 @load @sprintf("%s/model.bson", save_folder) rx_nn diff_cnn_ w1_arr w2_arr w3_arr train_arr diff_arr
 #re-defintions for newly loaded data
 diff_cnn(x) = diff_cnn_(x) .- diff_cnn_.bias
-rx_nn_dat = Chain(rx_nn, x -> x.data)
 D0 = diff_arr[end]
 
 fig = figure(figsize=(4,4))
@@ -284,7 +284,7 @@ legend(loc="lower right", frameon=false, fontsize=6)
 
 subplot(224)
 u = collect(0:0.01:1)
-plot(u, rx_nn_dat.([[elem] for elem in u]), label="UPDE")[1];
+plot(u, rx_nn.([[elem] for elem in u]), label="UPDE")[1];
 plot(u, reaction.(u), linestyle="--", label="True")
 xlabel(L"$\rho$")
 title("Reaction Term")
