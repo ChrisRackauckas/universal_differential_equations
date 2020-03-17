@@ -237,16 +237,20 @@ res1 = DiffEqFlux.sciml_train(loss_rd, p, ADAM(0.001), cb=cb, maxiters = 100)
 res2 = DiffEqFlux.sciml_train(loss_rd, res1.minimizer, ADAM(0.001), cb=cb, maxiters = 300)
 res3 = DiffEqFlux.sciml_train(loss_rd, res2.minimizer, BFGS(), cb=cb, maxiters = 1000)
 
+pstar = res3.minimizer
+
 ## Save trained model
-@save @sprintf("%s/model.bson", save_folder) rx_nn diff_cnn_ w1_arr w2_arr w3_arr train_arr diff_arr
+@save @sprintf("%s/model.bson", save_folder) pstar
 
 ########################
 # Plot for PNAS paper
 ########################
-@load @sprintf("%s/model.bson", save_folder) rx_nn diff_cnn_ w1_arr w2_arr w3_arr train_arr diff_arr
+@load @sprintf("%s/model.bson", save_folder) pstar
 #re-defintions for newly loaded data
+
+diff_cnn_ = Conv(reshape(pstar[(end-4):(end-2)],(3,1,1,1)), [0.0], pad=(0,0,0,0))
 diff_cnn(x) = diff_cnn_(x) .- diff_cnn_.bias
-D0 = diff_arr[end]
+D0 = res3.minimizer[end]
 
 fig = figure(figsize=(4,4))
 
@@ -263,7 +267,7 @@ xlabel(L"$x$"); ylabel(L"$t$"); title("Data")
 yticks([0, 1, 2, 3, 4, 5])
 
 ax = subplot(222)
-cur_pred = Flux.data(predict_rd())
+cur_pred = predict_rd(pstar)[1]
 img = pcolormesh(x,t,cur_pred', rasterized=true)
 global img
 xlabel(L"$x$"); ylabel(L"$t$"); title("Prediction")
