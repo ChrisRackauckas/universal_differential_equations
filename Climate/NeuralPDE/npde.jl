@@ -69,12 +69,12 @@ u0 = getu0(grid)
 ops = getops(grid)
 soldata = ground_truth(grid, tspan)
 
-ann = Chain(Dense(30,8,tanh), Dense(8,30,tanh)) |> _gpu
-pp, re = Flux.destructure(ann)
+ann = FastChain(FastDense(30,8,tanh), FastDense(8,30,tanh)) |> _gpu
+pp = initial_params(ann)
 lyrs = Flux.params(pp)
 function dudt_(u,p,t)
-    Φ = re(p)
-    return ops.D1*Φ(u) + ops.D2*u
+    Φ = ann 
+    return ops.D1*Φ(u, p) + ops.D2*u
 end
 
 function predict_adjoint(fullp)
@@ -88,45 +88,41 @@ function loss_adjoint(fullp)
     sum(abs2, training_data - pre)
 end
 
-
-
-function cb(opt_state:: Optim.OptimizationState)
-    cur_pred = collect(predict_adjoint(opt_state.metadata["x"]))
-    n = size(training_data, 1)
-    pl = scatter(1:n,training_data[:,10],label="data", legend =:bottomright,title="Spatial Plot at t=$(saveat[10])")
-    scatter!(pl,1:n,cur_pred[:,10],label="prediction")
-    pl2 = scatter(saveat,training_data[N÷2,:],label="data", legend =:bottomright, title="Timeseries Plot at Middle X")
-    scatter!(pl2,saveat,cur_pred[N÷2,:],label="prediction")
-    display(plot(pl, pl2, size=(600, 300)))
-    display(opt_state.value)    
-    false
+function random_data()
+    print("here")
+    ones(N-2)
 end
 
-cb(trace::Optim.OptimizationTrace) = cb(last(trace))
+cb = function(fullp, l)
+    println(l)
+    return false
+end
 
 
 saveat = range(tspan..., length = 30) #time range
 prob = ODEProblem{false}(dudt_,u0,tspan,pp)
 training_data = _cu(soldata(saveat))
+
+epochs = Iterators.repeated(random_data(), 20)
 concrete_solve(prob, ROCK4(eigen_est = (integ)->integ.eigen_est = EIGEN_EST[]), u0, pp) 
 loss_adjoint(pp)
-print("here")
-function loss_adjoint_gradient!(G, fullp)
-    G .= Zygote.gradient(loss_adjoint, fullp)[1]
-end
 
-result =  optimize(loss_adjoint, loss_adjoint_gradient!, pp, BFGS(), Optim.Options(extended_trace=true,callback = cb))
+#function loss_adjoint_gradient!(G, fullp)
+#    G .= Zygote.gradient(loss_adjoint, fullp)[1]
+#end
+res = DiffEqFlux.sciml_train(loss_adjoint, p, BFGS(initial_stepnorm=0.01), epochs;cb = cb,maxiters = 1000)
+#result =  optimize(loss_adjoint, loss_adjoint_gradient!, pp, BFGS(), Optim.Options(extended_trace=true,callback = cb))
 
-prob2 = ODEProblem{false}(dudt_,u0,(0f0,10f0),pp)
-@time full_sol = solve(prob2,
-                       ROCK2(eigen_est = (integ)->integ.eigen_est = EIGEN_EST[]),
-                       saveat = saveat, abstol=1e-4, reltol=1e-2)
-
-cur_pred = collect((predict_adjoint(result.minimizer)))
-n = size(training_data, 1)
-pl = scatter(1:n,training_data[:,10],label="data", legend =:bottomright)
-scatter!(pl,1:n,cur_pred[:,10],label="prediction",title="Spatial Plot at t=$(saveat[10])")
-pl2 = scatter(saveat,training_data[N÷2,:],label="data", legend =:bottomright, title="Time Series Plot: Middle X")
-scatter!(pl2,saveat,cur_pred[N÷2,:],label="prediction")
-plot(pl, pl2, size=(600, 300))
-savefig("npde_fit.pdf")
+#prob2 = ODEProblem{false}(dudt_,u0,(0f0,10f0),pp)
+#@time full_sol = solve(prob2,
+#                       ROCK2(eigen_est = (integ)->integ.eigen_est = EIGEN_EST[]),
+#                       saveat = saveat, abstol=1e-4, reltol=1e-2)
+#
+#cur_pred = collect((predict_adjoint(result.minimizer)))
+#n = size(training_data, 1)
+#pl = scatter(1:n,training_data[:,10],label="data", legend =:bottomright)
+#scatter!(pl,1:n,cur_pred[:,10],label="prediction",title="Spatial Plot at t=$(saveat[10])")
+#pl2 = scatter(saveat,training_data[N÷2,:],label="data", legend =:bottomright, title="Time Series Plot: Middle X")
+#scatter!(pl2,saveat,cur_pred[N÷2,:],label="prediction")
+#plot(pl, pl2, size=(600, 300))
+#savefig("npde_fit.pdf")
