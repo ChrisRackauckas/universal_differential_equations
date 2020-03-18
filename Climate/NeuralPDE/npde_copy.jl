@@ -77,35 +77,26 @@ function dudt_(u,p,t)
     return ops.D1*Φ(u, p) + ops.D2*u
 end
 
-function predict_adjoint(iterat, fullp)
+function predict_adjoint(fullp)
     Array(concrete_solve(prob,
                          ROCK4(eigen_est = (integ)->integ.eigen_est = EIGEN_EST[]),
     u0, fullp, saveat = saveat))
 end
 
-function loss_adjoint(iterat, fullp)
+function loss_adjoint(fullp)
     pre = predict_adjoint(fullp)
     sum(abs2, training_data - pre)
 end
 
 function random_data()
     print("here")
-    ones(N, N)
+    ones(N-2)
 end
 
-function cb(opt_state:: Optim.OptimizationState)
-    cur_pred = collect(predict_adjoint(opt_state.metadata["x"]))
-    n = size(training_data, 1)
-    #pl = scatter(1:n,training_data[:,10],label="data", legend =:bottomright,title="Spatial Plot at t=$(saveat[10])")
-    #scatter!(pl,1:n,cur_pred[:,10],label="prediction")
-    #pl2 = scatter(saveat,training_data[N÷2,:],label="data", legend =:bottomright, title="Timeseries Plot at Middle X")
-    #scatter!(pl2,saveat,cur_pred[N÷2,:],label="prediction")
-    #display(plot(pl, pl2, size=(600, 300)))
-    display(opt_state.value)    
-    false
+cb = function(fullp, l)
+    println(l)
+    return false
 end
-
-cb(trace::Optim.OptimizationTrace) = cb(last(trace))
 
 
 saveat = range(tspan..., length = 30) #time range
@@ -119,7 +110,7 @@ loss_adjoint(pp)
 #function loss_adjoint_gradient!(G, fullp)
 #    G .= Zygote.gradient(loss_adjoint, fullp)[1]
 #end
-res = DiffEqFlux.sciml_train(loss_adjoint, pp, BFGS(initial_stepnorm=0.01), epochs;cb = cb,maxiters = 1000)
+res = DiffEqFlux.sciml_train(loss_adjoint, p, BFGS(initial_stepnorm=0.01), epochs;cb = cb,maxiters = 1000)
 #result =  optimize(loss_adjoint, loss_adjoint_gradient!, pp, BFGS(), Optim.Options(extended_trace=true,callback = cb))
 
 #prob2 = ODEProblem{false}(dudt_,u0,(0f0,10f0),pp)
