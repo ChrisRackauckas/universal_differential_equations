@@ -83,14 +83,17 @@ function predict_adjoint(fullp)
     u0, fullp, saveat = saveat))
 end
 
-function loss_adjoint(fullp)
+function loss_adjoint(fullp, data)
+    #I am pretty sure this is how I pass to the loss function
+    print(data)
     pre = predict_adjoint(fullp)
     sum(abs2, training_data - pre)
 end
 
 function random_data()
+    #just a temp function for random data returns array
     print("here")
-    ones(N-2)
+    return ones(5) 
 end
 
 cb = function(fullp, l)
@@ -102,15 +105,16 @@ end
 saveat = range(tspan..., length = 30) #time range
 prob = ODEProblem{false}(dudt_,u0,tspan,pp)
 training_data = _cu(soldata(saveat))
-
-epochs = Iterators.repeated(random_data(), 20)
+#HERE is where I am stuck, what do I do with the iterator
+epochs = Iterators.repeated([random_data()], 20)
+display(epochs)
 concrete_solve(prob, ROCK4(eigen_est = (integ)->integ.eigen_est = EIGEN_EST[]), u0, pp) 
-loss_adjoint(pp)
+#loss_adjoint(pp)
 
 #function loss_adjoint_gradient!(G, fullp)
 #    G .= Zygote.gradient(loss_adjoint, fullp)[1]
 #end
-res = DiffEqFlux.sciml_train(loss_adjoint, p, BFGS(initial_stepnorm=0.01), epochs;cb = cb,maxiters = 1000)
+res = DiffEqFlux.sciml_train(loss_adjoint, pp, BFGS(initial_stepnorm=0.01), epochs;cb = cb,maxiters = 1000)
 #result =  optimize(loss_adjoint, loss_adjoint_gradient!, pp, BFGS(), Optim.Options(extended_trace=true,callback = cb))
 
 #prob2 = ODEProblem{false}(dudt_,u0,(0f0,10f0),pp)
