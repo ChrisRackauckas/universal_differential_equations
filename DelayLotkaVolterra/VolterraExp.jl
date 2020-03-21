@@ -8,13 +8,10 @@ using Pkg; Pkg.activate("."); Pkg.instantiate()
 using OrdinaryDiffEq
 using ModelingToolkit
 using DataDrivenDiffEq
-using Flux, Tracker
-using LinearAlgebra
-using DiffEqFlux
+using LinearAlgebra, DiffEqSensitivity, Optim
+using DiffEqFlux, Flux
 using Plots
 gr()
-
-
 
 function lotka(du, u, p, t)
     α, β, γ, δ = p
@@ -24,7 +21,7 @@ end
 
 # Define the experimental parameter
 tspan = (0.0f0,3.0f0)
-u0 = [0.44249296,4.6280594]
+u0 = Float32[0.44249296,4.6280594]
 p = Float32[1.3, 0.9, 0.8, 1.8]
 prob = ODEProblem(lotka, u0,tspan, p)
 solution = solve(prob, Vern7(), abstol=1e-12, reltol=1e-12, saveat = 0.1)
@@ -32,89 +29,72 @@ solution = solve(prob, Vern7(), abstol=1e-12, reltol=1e-12, saveat = 0.1)
 scatter(solution, alpha = 0.25)
 plot!(solution, alpha = 0.5)
 
-# Initial condition and parameter for the Neural ODE
-u0_ = Tracker.param(u0)
-p_ = param(p)
+tsdata = Array(solution)
 
 # Define the neueral network which learns L(x, y, y(t-τ))
 # Actually, we do not care about overfitting right now, since we want to
 # extract the derivative information without numerical differentiation.
-ann = Chain(Dense(2, 32,swish),Dense(32, 32, swish), Dense(32, 2)) |> f32
+ann = FastChain(FastDense(2, 32, tanh),FastDense(32, 32, tanh), FastDense(32, 2))
+p = initial_params(ann)
 
-function dudt_(u::TrackedArray,p,t)
+function dudt_(u, p,t)
     x, y = u
-    Tracker.collect([p[1]*x + ann(u)[1],
-        -p[4]*y + ann(u)[2]])
+    z = ann(u,p)
+    [p[1]*x + z[1],
+    -p[4]*y + z[2]]
 end
 
-function dudt_(u::AbstractArray, p,t)
-    x, y = u
-    [p[1]*x + Flux.data.(ann(u)[1]),
-        -p[4]*y + Flux.data.(ann(u)[2])]
-end
-
-# Check the diff_rd functions
-isa(dudt_(u0_, p_, 0.0f0), TrackedArray)
-isa(dudt_(u0, p, 0.0f0), Array)
-
-prob_ = ODEProblem(dudt_,u0_, tspan, p_)
-s = diffeq_rd(p_, prob_, Tsit5(), saveat = solution.t)
+prob_nn = ODEProblem(dudt_,u0, tspan, p)
+s = concrete_solve(prob_nn, Tsit5(), u0, p, saveat = 0.1)
 
 plot(solution)
-plot!(solution.t, Flux.data.(s)')
+plot!(s)
 
-function predict_rd()
-    diffeq_rd(p_, prob_, Vern7(), saveat = solution.t, abstol=1e-6, reltol=1e-6)
-end
-
-function predict_rd(sol)
-    diffeq_rd(p_, prob_, u0 = param(sol[:,1]), Vern7(),
-              abstol=1e-6, reltol=1e-6,
-              saveat = sol.t)
+function predict(θ)
+    Array(concrete_solve(prob_nn, Vern7(), u0, θ, saveat = 0.1,
+                         abstol=1e-6, reltol=1e-6,
+                         sensealg = InterpolatingAdjoint(autojacvec=ReverseDiffVJP())))
 end
 
 # No regularisation right now
-loss_rd() = sum(abs2, solution[:,:] .- predict_rd()[:,:]) # + 1e-5*sum(sum.(abs, params(ann)))
-loss_rd()
-
-# Optimizer
-opt = ADAM()
+function loss(θ)
+    pred = predict(θ)
+    sum(abs2, tsdata .- pred), pred # + 1e-5*sum(sum.(abs, params(ann)))
+end
+loss(p)
 
 const losses = []
-callback() = begin
-    push!(losses, Flux.data(loss_rd()))
+callback(θ,l,pred) = begin
+    push!(losses, l)
     if length(losses)%50==0
         println(losses[end])
     end
+    false
 end
 
-# Train the neural DDE
-Juno.@progress for i in 1:15000 - length(losses)
-    Flux.train!(loss_rd, params(ann), [()], opt, cb = callback)
-    if losses[end] < 1e-3
-        break
-    end
-end
+res1 = DiffEqFlux.sciml_train(loss, p, ADAM(0.01), cb=callback, maxiters = 100)
+res2 = DiffEqFlux.sciml_train(loss, res1.minimizer, BFGS(initial_stepnorm=0.01), cb=callback, maxiters = 10000)
 
 # Plot the data and the approximation
-NNsolution = Flux.data.(predict_rd(solution))
-plot(solution.t, Flux.data.(predict_rd(solution)'))
-plot!(solution.t, solution[:,:]')
-loss_rd()
+NNsolution = predict(res2.minimizer)
+plot(solution.t, NNsolution')
+plot!(solution.t, tsdata')
 
 # Collect the state trajectory and the derivatives
-X = solution[:,:]
-DX = solution(solution.t, Val{1})[:,:] #- [p[1]*(X[1,:])';  -p[4]*(X[2,:])']
-L̃ = Flux.data(ann(X))
-_sol = predict_rd()
-DX_ = Flux.data.(_sol(solution.t, Val{1})[:,:])
+X = tsdata
+DX = Array(solution(solution.t, Val{1})) #- [p[1]*(X[1,:])';  -p[4]*(X[2,:])']
+L̃ = ann(X,p)
+
+prob_nn2 = ODEProblem(dudt_,u0, tspan, res2.minimizer)
+_sol = solve(prob_nn2, Tsit5())
+DX_ = Array(_sol(solution.t, Val{1}))
+
 # The learned derivatives
 plot(DX')
 plot!(DX_')
 
 L = [-p[2]*(X[1,:].*X[2,:])';p[3]*(X[1,:].*X[2,:])']
-X̂ = rand(2, 200)
-L̂ = Flux.data(ann(X̂))
+L̂ = ann(X,res2.minimizer)
 scatter(L̂')
 plot(L')
 plot!(L̃')
@@ -137,11 +117,11 @@ end
 h = [cos(u[1]); sin(u[1]); 1u[1]^0; polys...]
 
 basis = Basis(h, u)
-Ψ = SInDy(X[:,:], DX[:,:], basis, ϵ = 6e-1) # Fail
+Ψ = SInDy(X, DX, basis) # Fail
 println(Ψ.basis)
-Ψ = SInDy(X[:, :], L[:, :], basis, ϵ = 6e-1) # Suceed
+Ψ = SInDy(X, L, basis) # Suceed
 println(Ψ.basis)
-Ψ = SInDy(X[:, :], L̃[:, :], basis, ϵ = 6e-1) # Fail
+Ψ = SInDy(X, L̃, basis) # Fail
 println(Ψ.basis)
 
 # Works most of the time
