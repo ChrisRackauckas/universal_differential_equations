@@ -8,13 +8,10 @@ using Pkg; Pkg.activate("."); Pkg.instantiate()
 using OrdinaryDiffEq
 using ModelingToolkit
 using DataDrivenDiffEq
-using Flux, Tracker
-using LinearAlgebra
-using DiffEqFlux
+using LinearAlgebra, DiffEqSensitivity, Optim
+using DiffEqFlux, Flux
 using Plots
 gr()
-
-
 
 function lotka(du, u, p, t)
     α, β, γ, δ = p
@@ -23,188 +20,165 @@ function lotka(du, u, p, t)
 end
 
 # Define the experimental parameter
-tspan = (0.0f0,3.0f0)
-u0 = [0.44249296,4.6280594]
-p = Float32[1.3, 0.9, 0.8, 1.8]
-prob = ODEProblem(lotka, u0,tspan, p)
+tspan = (0.0f0,2.5f0)
+u0 = Float32[0.44249296,4.6280594]
+p_ = Float32[1.3, 0.9, 0.8, 1.8]
+prob = ODEProblem(lotka, u0,tspan, p_)
 solution = solve(prob, Vern7(), abstol=1e-12, reltol=1e-12, saveat = 0.1)
 
 scatter(solution, alpha = 0.25)
 plot!(solution, alpha = 0.5)
 
-# Initial condition and parameter for the Neural ODE
-u0_ = Tracker.param(u0)
-p_ = param(p)
+# Ideal data
+tsdata = Array(solution)
+# Add noise to the data
+noisy_data = tsdata + Float32(1e-3)*randn(eltype(tsdata), size(tsdata))
+
+plot(abs.(tsdata-noisy_data)')
 
 # Define the neueral network which learns L(x, y, y(t-τ))
 # Actually, we do not care about overfitting right now, since we want to
 # extract the derivative information without numerical differentiation.
-ann = Chain(Dense(2, 32,swish),Dense(32, 32, swish), Dense(32, 2)) |> f32
+ann = FastChain(FastDense(2, 32, tanh),FastDense(32, 32, tanh), FastDense(32, 2))
+p = initial_params(ann)
 
-function dudt_(u::TrackedArray,p,t)
+function dudt_(u, p,t)
     x, y = u
-    Tracker.collect([p[1]*x + ann(u)[1],
-        -p[4]*y + ann(u)[2]])
+    z = ann(u,p)
+    [p_[1]*x + z[1],
+    -p_[4]*y + z[2]]
 end
 
-function dudt_(u::AbstractArray, p,t)
-    x, y = u
-    [p[1]*x + Flux.data.(ann(u)[1]),
-        -p[4]*y + Flux.data.(ann(u)[2])]
-end
-
-# Check the diff_rd functions
-isa(dudt_(u0_, p_, 0.0f0), TrackedArray)
-isa(dudt_(u0, p, 0.0f0), Array)
-
-prob_ = ODEProblem(dudt_,u0_, tspan, p_)
-s = diffeq_rd(p_, prob_, Tsit5(), saveat = solution.t)
+prob_nn = ODEProblem(dudt_,u0, tspan, p)
+s = concrete_solve(prob_nn, Tsit5(), u0, p, saveat = solution.t)
 
 plot(solution)
-plot!(solution.t, Flux.data.(s)')
+plot!(s)
 
-function predict_rd()
-    diffeq_rd(p_, prob_, Vern7(), saveat = solution.t, abstol=1e-6, reltol=1e-6)
-end
-
-function predict_rd(sol)
-    diffeq_rd(p_, prob_, u0 = param(sol[:,1]), Vern7(),
-              abstol=1e-6, reltol=1e-6,
-              saveat = sol.t)
+function predict(θ)
+    Array(concrete_solve(prob_nn, Vern7(), u0, θ, saveat = solution.t,
+                         abstol=1e-6, reltol=1e-6,
+                         sensealg = InterpolatingAdjoint(autojacvec=ReverseDiffVJP())))
 end
 
 # No regularisation right now
-loss_rd() = sum(abs2, solution[:,:] .- predict_rd()[:,:]) # + 1e-5*sum(sum.(abs, params(ann)))
-loss_rd()
+function loss(θ)
+    pred = predict(θ)
+    sum(abs2, noisy_data .- pred), pred # + 1e-5*sum(sum.(abs, params(ann)))
+end
 
-# Optimizer
-opt = ADAM()
+loss(p)
 
 const losses = []
-callback() = begin
-    push!(losses, Flux.data(loss_rd()))
+callback(θ,l,pred) = begin
+    push!(losses, l)
     if length(losses)%50==0
         println(losses[end])
     end
+    false
 end
 
-# Train the neural DDE
-Juno.@progress for i in 1:15000 - length(losses)
-    Flux.train!(loss_rd, params(ann), [()], opt, cb = callback)
-    if losses[end] < 1e-3
-        break
-    end
-end
+res1 = DiffEqFlux.sciml_train(loss, p, ADAM(0.01), cb=callback, maxiters = 100)
+res2 = DiffEqFlux.sciml_train(loss, res1.minimizer, BFGS(initial_stepnorm=0.01), cb=callback, maxiters = 10000)
+
+# Plot the losses
+plot(losses, yaxis = :log, xaxis = :log, xlabel = "Iterations", ylabel = "Loss")
 
 # Plot the data and the approximation
-NNsolution = Flux.data.(predict_rd(solution))
-plot(solution.t, Flux.data.(predict_rd(solution)'))
-plot!(solution.t, solution[:,:]')
-loss_rd()
+NNsolution = predict(res2.minimizer)
+# Trained on noisy data vs real solution
+plot(solution.t, NNsolution')
+plot!(solution.t, tsdata')
 
 # Collect the state trajectory and the derivatives
-X = solution[:,:]
-DX = solution(solution.t, Val{1})[:,:] #- [p[1]*(X[1,:])';  -p[4]*(X[2,:])']
-L̃ = Flux.data(ann(X))
-_sol = predict_rd()
-DX_ = Flux.data.(_sol(solution.t, Val{1})[:,:])
+X = noisy_data
+# Ideal derivatives
+DX = Array(solution(solution.t, Val{1})) #- [p[1]*(X[1,:])';  -p[4]*(X[2,:])']
+
+prob_nn2 = ODEProblem(dudt_,u0, tspan, res2.minimizer)
+_sol = solve(prob_nn2, Tsit5())
+DX_ = Array(_sol(solution.t, Val{1}))
+
 # The learned derivatives
 plot(DX')
 plot!(DX_')
 
-L = [-p[2]*(X[1,:].*X[2,:])';p[3]*(X[1,:].*X[2,:])']
-X̂ = rand(2, 200)
-L̂ = Flux.data(ann(X̂))
-scatter(L̂')
-plot(L')
-plot!(L̃')
+# Ideal data
+L = [-p_[2]*(X[1,:].*X[2,:])';p_[3]*(X[1,:].*X[2,:])']
+L̂ = ann(X,res2.minimizer)
+scatter(L')
+plot!(L̂')
+
+scatter(abs.(L-L̂)', yaxis = :log)
 
 # Create a Basis
 @variables u[1:2]
 # Lots of polynomials
-polys = []
-for i ∈ 1:3
+polys = Operation[1]
+for i ∈ 1:5
     push!(polys, u[1]^i)
     push!(polys, u[2]^i)
-    for j ∈ i:3
-        if i == j
+    for j ∈ i:4
+        if i != j
             push!(polys, (u[1]^i)*(u[2]^j))
+            push!(polys, u[2]^i*u[1]^i)
         end
     end
 end
 
 # And some other stuff
-h = [cos(u[1]); sin(u[1]); 1u[1]^0; polys...]
-
+h = [cos.(u)...; sin.(u)...; polys...]
 basis = Basis(h, u)
-Ψ = SInDy(X[:,:], DX[:,:], basis, ϵ = 6e-1) # Fail
+
+# Create an optimizer for the SINDY problem
+opt = STRRidge(1e-1)
+# Create the thresholds which should be used in the search process
+λ = exp10.(-6:0.1:0)
+
+# Test on original data and without further knowledge
+Ψ = SInDy(X[:, :], DX[:, :], basis, λ, opt = opt, maxiter = 100) # Fail
 println(Ψ.basis)
-Ψ = SInDy(X[:, :], L[:, :], basis, ϵ = 6e-1) # Suceed
+# Test on ideal derivative data ( not available )
+Ψ = SInDy(X[:, 5:end], L[:, 5:end], basis, λ, opt = opt, maxiter = 100) # Suceed
 println(Ψ.basis)
-Ψ = SInDy(X[:, :], L̃[:, :], basis, ϵ = 6e-1) # Fail
+# Test on uode derivative data
+# We use even less data since the nn
+Ψ = SInDy(noisy_data[:, 2:end], L̂[:, 2:end], basis,λ,  opt = opt, maxiter = 100, normalize = true, denoise = true) # Suceed
 println(Ψ.basis)
 
-# Works most of the time
-θ = hcat([basis(xi, p = []) for xi in eachcol(X)]...)
-Ξ = DataDrivenDiffEq.STRridge(θ', L̃', ϵ = 6e-1, maxiter = 1000)
-
-# Derive a new basis with only structural parameters
-Ξ2 = similar(Ξ)
-p2 = p[[1, 4]]
-for i in 1:size(Ξ, 2)
-    for k in 1:size(Ξ, 1)
-        if abs(Ξ[k, i]) > 0
-            Ξ2[k, i] = 1.0
-            push!(p2, Ξ[k, i])
-        else
-            Ξ2[k, i] = 0.0
-        end
-
-    end
-end
-
-Ψ = Basis(simplify_constants.(Ξ2'*basis.basis), u)
-p2_ = Flux.param(p2)
-
+# Build a ODE for the estimated system
 function approx(du, u, p, t)
     # Add SInDy Term
     z = Ψ(u)
-    du[1] = p[1]*u[1] + p[3]*z[1]
-    du[2] = -p[2]*u[2] + p[4]*z[2]
+    du[1] = p_[1]*u[1] + z[1]
+    du[2] = -p_[4]*u[2] + z[2]
 end
 
-a_prob = ODEProblem(approx, Float32.(u0), tspan, p2)
-a_solution = solve(a_prob, Tsit5(), saveat = 0.1f0)
+# Create the approximated problem and solution
+a_prob = ODEProblem(approx, u0, tspan, p_)
+a_solution = solve(a_prob, Tsit5(), saveat = 0.1)
 
+# Plot
+plot(solution)
+plot!(a_solution)
+
+# Look at long term prediction
+t_long = (0.0, 50.0)
+a_prob = ODEProblem(approx, u0, t_long, p_)
+a_solution = solve(a_prob, Tsit5()) # Using higher tolerances here results in exit of julia
 plot(a_solution)
 
-function predict_adjoint()
-    diffeq_adjoint(p2_, a_prob, Vern7(), saveat = solution.t)
-end
+prob_true2 = ODEProblem(lotka, u0, t_long, p_)
+solution_long = solve(prob_true2, Tsit5(), saveat = a_solution.t)
+plot!(solution_long)
 
-predict_adjoint()[:,1:end-1]
 
-loss_parameters() = sum(abs2, solution[:,:] - predict_adjoint()[:,1:end-1])
-
-opt_parameters = ADAM(1e-2)
-data = Iterators.repeated((), 1)
-cb_parameters() = println(loss_parameters())
-Flux.@epochs 600 Flux.train!(loss_parameters, Flux.params(p2_), data, opt_parameters, cb = cb_parameters)
-
-# Make the plots
-tspan = (0.0f0, 20.0f0)
-a_prob = ODEProblem(approx, Float32.(u0), tspan, Flux.data(p2_))
-a_solution = solve(a_prob, Vern7(), abstol=1e-8, reltol=1e-8, saveat = 0.1)
-plot(a_solution)
-
-prob_true2 = ODEProblem(lotka, u0,tspan, p)
-solution_long = solve(prob_true2, Vern7(), abstol=1e-8, reltol=1e-8, saveat = 0.1)
 
 using JLD2
-@save "knowledge_enhanced_NN.jld2" solution Ψ a_solution NNsolution ann solution_long X L L̃
-@load "knowledge_enhanced_NN.jld2" solution Ψ a_solution NNsolution ann solution_long X L L̃
+@save "knowledge_enhanced_NN.jld2" solution Ψ a_solution NNsolution ann solution_long X L L̂
+@load "knowledge_enhanced_NN.jld2" solution Ψ a_solution NNsolution ann solution_long X L L̂
 
-p1 = plot(0.1:0.1:3,abs.(Array(solution)[:,2:end] .- NNsolution[:,2:end])' .+ eps(Float32),
+p1 = plot(0.1:0.1:2,abs.(Array(solution)[:,2:end] .- NNsolution[:,2:end])' .+ eps(Float32),
           lw = 3, yaxis = :log, title = "Timeseries of UODE Error",
           color = [3 :orange], xlabel = "t",
           label = ["x(t)" "y(t)"],
@@ -217,7 +191,7 @@ p2 = plot(X[1,:], X[2,:], L[2,:], lw = 3,
      label = "Neural Network", xaxis = "x", yaxis="y",
      titlefont = "Helvetica", legendfont = "Helvetica",
      legend = :bottomright)
-plot!(X[1,:], X[2,:], L̃[2,:], lw = 3, label = "True Missing Term", color=:orange)
+plot!(X[1,:], X[2,:], L̂[2,:], lw = 3, label = "True Missing Term", color=:orange)
 
 c1 = 3 # RGBA(174/255,192/255,201/255,1) # Maroon
 c2 = :orange # RGBA(132/255,159/255,173/255,1) # Red
@@ -228,6 +202,7 @@ p3 = scatter(solution, color = [c1 c2], label = ["x data" "y data"],
              title = "Extrapolated Fit From Short Training Data",
              titlefont = "Helvetica", legendfont = "Helvetica",
              markersize = 5)
+
 plot!(p3,solution_long, color = [c1 c2], linestyle = :dot, lw=5, label = ["True x(t)" "True y(t)"])
 plot!(p3,a_solution, color = [c3 c4], lw=1, label = ["Estimated x(t)" "Estimated y(t)"])
 plot!(p3,[2.99,3.01],[0.0,maximum(hcat(Array(solution),Array(a_solution)))],lw=2,color=:black)
