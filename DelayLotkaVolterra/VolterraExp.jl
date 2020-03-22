@@ -20,7 +20,7 @@ function lotka(du, u, p, t)
 end
 
 # Define the experimental parameter
-tspan = (0.0f0,2.5f0)
+tspan = (0.0f0,3.0f0)
 u0 = Float32[0.44249296,4.6280594]
 p_ = Float32[1.3, 0.9, 0.8, 1.8]
 prob = ODEProblem(lotka, u0,tspan, p_)
@@ -32,7 +32,7 @@ plot!(solution, alpha = 0.5)
 # Ideal data
 tsdata = Array(solution)
 # Add noise to the data
-noisy_data = tsdata + Float32(1e-4)*randn(eltype(tsdata), size(tsdata))
+noisy_data = tsdata + Float32(1e-5)*randn(eltype(tsdata), size(tsdata))
 
 plot(abs.(tsdata-noisy_data)')
 
