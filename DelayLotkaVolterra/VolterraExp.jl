@@ -20,7 +20,7 @@ function lotka(du, u, p, t)
 end
 
 # Define the experimental parameter
-tspan = (0.0f0,2.0f0)
+tspan = (0.0f0,2.5f0)
 u0 = Float32[0.44249296,4.6280594]
 p_ = Float32[1.3, 0.9, 0.8, 1.8]
 prob = ODEProblem(lotka, u0,tspan, p_)
@@ -29,7 +29,12 @@ solution = solve(prob, Vern7(), abstol=1e-12, reltol=1e-12, saveat = 0.1)
 scatter(solution, alpha = 0.25)
 plot!(solution, alpha = 0.5)
 
+# Ideal data
 tsdata = Array(solution)
+# Add noise to the data
+noisy_data = tsdata + Float32(1e-3)*randn(eltype(tsdata), size(tsdata))
+
+plot(abs.(tsdata-noisy_data)')
 
 # Define the neueral network which learns L(x, y, y(t-τ))
 # Actually, we do not care about overfitting right now, since we want to
@@ -45,13 +50,13 @@ function dudt_(u, p,t)
 end
 
 prob_nn = ODEProblem(dudt_,u0, tspan, p)
-s = concrete_solve(prob_nn, Tsit5(), u0, p, saveat = 0.1)
+s = concrete_solve(prob_nn, Tsit5(), u0, p, saveat = solution.t)
 
 plot(solution)
 plot!(s)
 
 function predict(θ)
-    Array(concrete_solve(prob_nn, Vern7(), u0, θ, saveat = 0.1,
+    Array(concrete_solve(prob_nn, Vern7(), u0, θ, saveat = solution.t,
                          abstol=1e-6, reltol=1e-6,
                          sensealg = InterpolatingAdjoint(autojacvec=ReverseDiffVJP())))
 end
@@ -59,7 +64,7 @@ end
 # No regularisation right now
 function loss(θ)
     pred = predict(θ)
-    sum(abs2, tsdata .- pred), pred # + 1e-5*sum(sum.(abs, params(ann)))
+    sum(abs2, noisy_data .- pred), pred # + 1e-5*sum(sum.(abs, params(ann)))
 end
 
 loss(p)
@@ -81,13 +86,14 @@ plot(losses, yaxis = :log, xaxis = :log, xlabel = "Iterations", ylabel = "Loss")
 
 # Plot the data and the approximation
 NNsolution = predict(res2.minimizer)
+# Trained on noisy data vs real solution
 plot(solution.t, NNsolution')
 plot!(solution.t, tsdata')
 
 # Collect the state trajectory and the derivatives
-X = tsdata
+X = noisy_data
+# Ideal derivatives
 DX = Array(solution(solution.t, Val{1})) #- [p[1]*(X[1,:])';  -p[4]*(X[2,:])']
-L̃ = ann(X,res2.minimizer)
 
 prob_nn2 = ODEProblem(dudt_,u0, tspan, res2.minimizer)
 _sol = solve(prob_nn2, Tsit5())
@@ -97,12 +103,13 @@ DX_ = Array(_sol(solution.t, Val{1}))
 plot(DX')
 plot!(DX_')
 
+# Ideal data
 L = [-p_[2]*(X[1,:].*X[2,:])';p_[3]*(X[1,:].*X[2,:])']
 L̂ = ann(X,res2.minimizer)
 scatter(L')
-plot!(L̃')
+plot!(L̂')
 
-scatter(abs.(L-L̃)', yaxis = :log)
+scatter(abs.(L-L̂)', yaxis = :log)
 
 # Create a Basis
 @variables u[1:2]
@@ -111,16 +118,17 @@ polys = Operation[1]
 for i ∈ 1:5
     push!(polys, u[1]^i)
     push!(polys, u[2]^i)
-    for j ∈ i:3
-        if i == j
+    for j ∈ i:4
+        if i != j
             push!(polys, (u[1]^i)*(u[2]^j))
+            push!(polys, u[2]^i*u[1]^i)
         end
     end
 end
 
 # And some other stuff
-h = [cos(u[1]); sin(u[1]); polys...]
-basis = Basis(polys, u)
+h = [cos.(u)...; sin.(u)...; polys...]
+basis = Basis(h, u)
 
 # Create an optimizer for the SINDY problem
 opt = STRRidge(1e-1)
@@ -135,7 +143,7 @@ println(Ψ.basis)
 println(Ψ.basis)
 # Test on uode derivative data
 # We use even less data since the nn
-Ψ = SInDy(X[:, 5:end], L̂[:, 5:end], basis,λ,  opt = opt, maxiter = 100) # Suceed
+Ψ = SInDy(noisy_data[:, 2:end], L̂[:, 2:end], basis,λ,  opt = opt, maxiter = 100, normalize = true, denoise = true) # Suceed
 println(Ψ.basis)
 
 # Build a ODE for the estimated system
