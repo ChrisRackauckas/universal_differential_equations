@@ -105,7 +105,7 @@ plot!(DX_')
 
 # Ideal data
 L = [-p_[2]*(solution[1,:].*solution[2,:])';p_[3]*(solution[1,:].*solution[2,:])']
-L̂ = ann(X,res2.minimizer)
+L̂ = ann(_sol[:,:],res2.minimizer)
 scatter(L')
 plot!(L̂')
 
