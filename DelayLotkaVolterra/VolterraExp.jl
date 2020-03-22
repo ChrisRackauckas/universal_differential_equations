@@ -20,7 +20,7 @@ function lotka(du, u, p, t)
 end
 
 # Define the experimental parameter
-tspan = (0.0f0,2.5f0)
+tspan = (0.0f0,3.0f0)
 u0 = Float32[0.44249296,4.6280594]
 p_ = Float32[1.3, 0.9, 0.8, 1.8]
 prob = ODEProblem(lotka, u0,tspan, p_)
@@ -115,35 +115,33 @@ scatter(abs.(L-L̂)', yaxis = :log)
 @variables u[1:2]
 # Lots of polynomials
 polys = Operation[1]
-for i ∈ 1:5
+for i ∈ 1:3
     push!(polys, u[1]^i)
     push!(polys, u[2]^i)
-    for j ∈ i:4
+    for j ∈ 1:i
+        push!(polys, (u[1]^i)*(u[2]^j))
         if i != j
-            push!(polys, (u[1]^i)*(u[2]^j))
-            push!(polys, u[2]^i*u[1]^i)
+            push!(polys, u[2]^j*u[1]^i)
         end
     end
 end
 
-# And some other stuff
-h = [cos.(u)...; sin.(u)...; polys...]
-basis = Basis(h, u)
+basis = Basis(polys, u)
 
 # Create an optimizer for the SINDY problem
-opt = STRRidge(1e-1)
+opt = STRRidge(1e-3)
 # Create the thresholds which should be used in the search process
 λ = exp10.(-6:0.1:0)
 
 # Test on original data and without further knowledge
-Ψ = SInDy(X[:, :], DX[:, :], basis, λ, opt = opt, maxiter = 100) # Fail
+Ψ = SInDy(X[:, :], DX[:, :], basis, λ, opt = opt, maxiter = 100, normalize = true, denoise = true) # Fail
 println(Ψ.basis)
 # Test on ideal derivative data ( not available )
-Ψ = SInDy(X[:, 5:end], L[:, 5:end], basis, λ, opt = opt, maxiter = 100) # Suceed
+Ψ = SInDy(X[:, 3:end], L[:, 3:end], basis, λ, opt = opt, maxiter = 100, normalize = true, denoise = true) # Suceed
 println(Ψ.basis)
 # Test on uode derivative data
 # We use even less data since the nn
-Ψ = SInDy(noisy_data[:, 2:end], L̂[:, 2:end], basis,λ,  opt = opt, maxiter = 100, normalize = true, denoise = true) # Suceed
+Ψ = SInDy(noisy_data[:, 3:end], L̂[:, 3:end], basis,λ,  opt = opt, maxiter = 100, normalize = true, denoise = true) # Suceed
 println(Ψ.basis)
 
 # Build a ODE for the estimated system
@@ -163,13 +161,13 @@ plot(solution)
 plot!(a_solution)
 
 # Look at long term prediction
-t_long = (0.0, 50.0)
+t_long = (0.0, 30.0)
 a_prob = ODEProblem(approx, u0, t_long, p_)
-a_solution = solve(a_prob, Tsit5()) # Using higher tolerances here results in exit of julia
+a_solution = solve(a_prob, Tsit5(), atol = 1e-6, rtol = 1e-6, saveat = 0.1) # Using higher tolerances here results in exit of julia
 plot(a_solution)
 
 prob_true2 = ODEProblem(lotka, u0, t_long, p_)
-solution_long = solve(prob_true2, Tsit5(), saveat = a_solution.t)
+solution_long = solve(prob_true2, Tsit5(), atol = 1e-6, rtol = 1e-6, saveat = a_solution.t)
 plot!(solution_long)
 
 
@@ -178,7 +176,7 @@ using JLD2
 @save "knowledge_enhanced_NN.jld2" solution Ψ a_solution NNsolution ann solution_long X L L̂
 @load "knowledge_enhanced_NN.jld2" solution Ψ a_solution NNsolution ann solution_long X L L̂
 
-p1 = plot(0.1:0.1:2,abs.(Array(solution)[:,2:end] .- NNsolution[:,2:end])' .+ eps(Float32),
+p1 = plot(0.1:0.1:tspan[2],abs.(Array(solution)[:,2:end] .- NNsolution[:,2:end])' .+ eps(Float32),
           lw = 3, yaxis = :log, title = "Timeseries of UODE Error",
           color = [3 :orange], xlabel = "t",
           label = ["x(t)" "y(t)"],
