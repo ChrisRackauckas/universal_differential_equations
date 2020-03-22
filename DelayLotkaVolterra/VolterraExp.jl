@@ -32,7 +32,7 @@ plot!(solution, alpha = 0.5)
 # Ideal data
 tsdata = Array(solution)
 # Add noise to the data
-noisy_data = tsdata + Float32(1e-3)*randn(eltype(tsdata), size(tsdata))
+noisy_data = tsdata + Float32(1e-4)*randn(eltype(tsdata), size(tsdata))
 
 plot(abs.(tsdata-noisy_data)')
 
@@ -178,7 +178,7 @@ using JLD2
 @save "knowledge_enhanced_NN.jld2" solution Ψ a_solution NNsolution ann solution_long X L L̂
 @load "knowledge_enhanced_NN.jld2" solution Ψ a_solution NNsolution ann solution_long X L L̂
 
-p1 = plot(0.1:0.1:2,abs.(Array(solution)[:,2:end] .- NNsolution[:,2:end])' .+ eps(Float32),
+p1 = plot(0.1:0.1:tspan[end],abs.(Array(solution)[:,2:end] .- NNsolution[:,2:end])' .+ eps(Float32),
           lw = 3, yaxis = :log, title = "Timeseries of UODE Error",
           color = [3 :orange], xlabel = "t",
           label = ["x(t)" "y(t)"],
