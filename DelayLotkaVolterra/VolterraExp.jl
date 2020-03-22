@@ -96,7 +96,7 @@ X = noisy_data
 DX = Array(solution(solution.t, Val{1})) #- [p[1]*(X[1,:])';  -p[4]*(X[2,:])']
 
 prob_nn2 = ODEProblem(dudt_,u0, tspan, res2.minimizer)
-_sol = solve(prob_nn2, Tsit5())
+_sol = solve(prob_nn2, Tsit5(), saveat = solution.t)
 DX_ = Array(_sol(solution.t, Val{1}))
 
 # The learned derivatives
@@ -132,7 +132,6 @@ basis = Basis(polys, u)
 opt = STRRidge(1e-3)
 # Create the thresholds which should be used in the search process
 λ = exp10.(-6:0.1:0)
-
 # Test on original data and without further knowledge
 Ψ = SInDy(X[:, :], DX[:, :], basis, λ, opt = opt, maxiter = 100, normalize = true, denoise = true) # Fail
 println(Ψ.basis)
@@ -141,7 +140,7 @@ println(Ψ.basis)
 println(Ψ.basis)
 # Test on uode derivative data
 # We use even less data since the nn
-Ψ = SInDy(noisy_data[:, 3:end], L̂[:, 3:end], basis,λ,  opt = opt, maxiter = 100, normalize = true, denoise = true) # Suceed
+Ψ = SInDy(Array(_sol[:, 1:end]), L̂[:, 1:end], basis,λ,  opt = opt, maxiter = 200, normalize = true, denoise = true) # Suceed
 println(Ψ.basis)
 
 # Build a ODE for the estimated system
