@@ -32,7 +32,7 @@ plot!(solution, alpha = 0.5)
 # Ideal data
 tsdata = Array(solution)
 # Add noise to the data
-noisy_data = tsdata + Float32(1e-5)*randn(eltype(tsdata), size(tsdata))
+noisy_data = tsdata + Float32(1e-4)*randn(eltype(tsdata), size(tsdata))
 
 plot(abs.(tsdata-noisy_data)')
 
@@ -133,17 +133,17 @@ basis = Basis(h, u)
 # Create an optimizer for the SINDY problem
 opt = SR3()
 # Create the thresholds which should be used in the search process
-λ = exp10.(-6:0.1:0)
+λ = exp10.(-7:0.1:1)
 
 # Test on original data and without further knowledge
-Ψ = SInDy(X[:, :], DX[:, :], basis, λ, opt = opt, maxiter = 100) # Fail
+Ψ = SInDy(X[:, :], DX[:, :], basis, λ, opt = opt, maxiter = 10000) # Fail
 println(Ψ.basis)
 # Test on ideal derivative data ( not available )
-Ψ = SInDy(X[:, 5:end], L[:, 5:end], basis, λ, opt = opt, maxiter = 100) # Suceed
+Ψ = SInDy(X[:, 5:end], L[:, 5:end], basis, λ, opt = opt, maxiter = 10000) # Suceed
 println(Ψ.basis)
 # Test on uode derivative data
 # We use even less data since the nn
-Ψ = SInDy(noisy_data[:, 2:end], L̂[:, 2:end], basis,λ,  opt = opt, maxiter = 100, normalize = true, denoise = true) # Suceed
+Ψ = SInDy(noisy_data[:, 2:end], L̂[:, 2:end], basis,λ,  opt = opt, maxiter = 100000, normalize = true, denoise = true) # Suceed
 println(Ψ.basis)
 
 # Build a ODE for the estimated system
