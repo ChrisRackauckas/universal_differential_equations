@@ -131,7 +131,7 @@ h = [cos.(u)...; sin.(u)...; polys...]
 basis = Basis(h, u)
 
 # Create an optimizer for the SINDY problem
-opt = STRRidge(1e-1)
+opt = SR3()
 # Create the thresholds which should be used in the search process
 λ = exp10.(-6:0.1:0)
 
