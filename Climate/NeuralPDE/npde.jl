@@ -4,7 +4,12 @@ using Revise
 using Zygote, Optim
 using OrdinaryDiffEq, Flux, DiffEqFlux, LinearAlgebra, Plots
 using DiffEqSensitivity
+using IterTools
+using Random
+#Random.seed!(0)
+print(rand(1:100))
 const EIGEN_EST = Ref(0.0f0)
+
 const USE_GPU = Ref(false)
 
 USE_GPU[] = false # the network is small enough such that CPU works just great
@@ -13,6 +18,7 @@ USE_GPU[] && (using CuArrays)
 
 _gpu(arg) = USE_GPU[] ? gpu(arg) : cpu(arg)
 _cu(arg) = USE_GPU[] ? cu(arg) : identity(arg)
+
 
 function getops(grid, T=Float32)
     N, dz = length(grid), step(grid)
@@ -45,6 +51,7 @@ function getops(grid, T=Float32)
     return (D1=T.(D1), D2=T.(D2))
 end
 
+
 function getu0(grid, T=Float32)
     z = grid[2:N-1]
     f0 = z -> T(exp(-200*(z-0.75)^2))
@@ -72,49 +79,56 @@ soldata = ground_truth(grid, tspan)
 ann = FastChain(FastDense(30,8,tanh), FastDense(8,30,tanh)) |> _gpu
 pp = initial_params(ann)
 lyrs = Flux.params(pp)
+
 function dudt_(u,p,t)
     Φ = ann 
     return ops.D1*Φ(u, p) + ops.D2*u
 end
 
-function predict_adjoint(fullp)
+function predict_adjoint(fullp, i)
     Array(concrete_solve(prob,
                          ROCK4(eigen_est = (integ)->integ.eigen_est = EIGEN_EST[]),
-    u0, fullp, saveat = saveat))
+    u0, fullp, saveat = saveat[i:i+5]))
 end
 
-function loss_adjoint(fullp, data)
-    #I am pretty sure this is how I pass to the loss function
-    print(data)
-    pre = predict_adjoint(fullp)
-    sum(abs2, training_data - pre)
+function loss_adjoint(fullp, i, y)
+    println(i)
+    #=
+    1. I would love, if I could be able to insert rand(1:size(training_data)[2]-5) right here
+    but I get an error to try to solve it I tried 2.
+    #=
+    pre = predict_adjoint(fullp,i)
+    sum(abs2, training_data[:,i:i+5] - pre)
 end
 
-function random_data()
-    #just a temp function for random data returns array
-    print("here")
-    return ones(5) 
-end
 
-cb = function(fullp, l)
-    println(l)
+#function mini_batch(training_data, 
+cb = function(fullp, l, pred)
+    display(l)
     return false
 end
 
 
-saveat = range(tspan..., length = 30) #time range
+saveat = range(tspan..., length = 40) #time range
 prob = ODEProblem{false}(dudt_,u0,tspan,pp)
 training_data = _cu(soldata(saveat))
-#HERE is where I am stuck, what do I do with the iterator
-epochs = Iterators.repeated([random_data()], 20)
-display(epochs)
+
 concrete_solve(prob, ROCK4(eigen_est = (integ)->integ.eigen_est = EIGEN_EST[]), u0, pp) 
 #loss_adjoint(pp)
 
-#function loss_adjoint_gradient!(G, fullp)
-#    G .= Zygote.gradient(loss_adjoint, fullp)[1]
-#end
-res = DiffEqFlux.sciml_train(loss_adjoint, pp, BFGS(initial_stepnorm=0.01), epochs;cb = cb,maxiters = 1000)
+#=
+2. I created a generator that creates a random value as desired, to batch the data, current problems when printing i in loss_adjoint, 
+is that they do not change as expected. Typically get something like
+1111111333333333333333333333333, and then the iterations stop. Becuase the learning is only happening on a very small subsection. 
+=#
+
+#=
+3. TLDR: I would like to have a different random variable be used every time loss_adjoint is called, but I do not see how I would be able to do that. 
+And in npde_data.jl, I get an out of memory error
+=#
+data = ((rand(1:size(training_data)[2]-5), 3) for i in 1:5)
+res = DiffEqFlux.sciml_train(loss_adjoint, pp, BFGS(initial_stepnorm=0.01), data,cb = cb, maxiters=3)
+
 #result =  optimize(loss_adjoint, loss_adjoint_gradient!, pp, BFGS(), Optim.Options(extended_trace=true,callback = cb))
 
 #prob2 = ODEProblem{false}(dudt_,u0,(0f0,10f0),pp)
