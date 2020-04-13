@@ -215,7 +215,7 @@ savefig("estimated_exposure.pdf")
 # Create an optimizer for the SINDY problem
 opt = SR3()
 # Create the thresholds which should be used in the search process
-thresholds = exp10.(-7:0.1:-1)
+thresholds = exp10.(-6:0.1:1)
 
 # Test on original data and without further knowledge
 Ψ_direct = SInDy(X[2:4, :], DX[2:4, :], basis, thresholds, opt = opt, maxiter = 50000) # Fail
@@ -224,7 +224,7 @@ println(Ψ_direct.basis)
 Ψ_ideal = SInDy(X[2:4, 5:end], L[5:end], basis, thresholds, opt = opt, maxiter = 50000) # Succeed
 println(Ψ_ideal.basis)
 # Test on uode derivative data
-Ψ = SInDy(noisy_data[2:4, 2:end], L̂[2:end], basis, thresholds,  opt = opt, maxiter = 50000, normalize = true, denoise = true) # Succeed
+Ψ = SInDy(noisy_data[2:4, 2:end], L̂[2:end], basis, thresholds,  opt = opt, maxiter = 10000, normalize = true, denoise = true) # Succeed
 println(Ψ.basis)
 
 # Build a ODE for the estimated system
