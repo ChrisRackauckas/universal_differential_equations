@@ -88,21 +88,25 @@ end
 function predict_adjoint(fullp, i)
     Array(concrete_solve(prob,
                          ROCK4(eigen_est = (integ)->integ.eigen_est = EIGEN_EST[]),
-    u0, fullp, saveat = saveat[i:i+5]))
+    u0, fullp, saveat = saveat[i[1]:i[1]+i[2]]))
 end
 
-function loss_adjoint(fullp, i, y)
-    println(i)
+function loss_adjoint(fullp, x, y)
+    println(x)
     #=
     1. I would love, if I could be able to insert rand(1:size(training_data)[2]-5) right here
     but I get an error to try to solve it I tried 2.
-    #=
-    pre = predict_adjoint(fullp,i)
-    sum(abs2, training_data[:,i:i+5] - pre)
+    =#
+    pre = predict_adjoint(fullp,(x,y))
+    sum(abs2, training_data[:,x:x+y] - pre)
 end
 
 
-#function mini_batch(training_data, 
+function mini_batch(training_data, k)
+	return ((rand(1:size(training_data)[2] -k), k) for i in 1:10000)
+end
+
+
 cb = function(fullp, l, pred)
     display(l)
     return false
@@ -126,8 +130,13 @@ is that they do not change as expected. Typically get something like
 3. TLDR: I would like to have a different random variable be used every time loss_adjoint is called, but I do not see how I would be able to do that. 
 And in npde_data.jl, I get an out of memory error
 =#
-data = ((rand(1:size(training_data)[2]-5), 3) for i in 1:5)
-res = DiffEqFlux.sciml_train(loss_adjoint, pp, BFGS(initial_stepnorm=0.01), data,cb = cb, maxiters=3)
+k = 10
+#data = ((rand(1:size(training_data)[2]-5), 3) for i in 1:5)
+data = ((rand(1:size(training_data)[2] -k), k) for i in 1:10000)
+#for x in mini_batch(training_data, 5)
+#@show x
+#end
+res = DiffEqFlux.sciml_train(loss_adjoint, pp, BFGS(initial_stepnorm=0.01), data,cb = cb)
 
 #result =  optimize(loss_adjoint, loss_adjoint_gradient!, pp, BFGS(), Optim.Options(extended_trace=true,callback = cb))
 

@@ -40,7 +40,6 @@ function getops(grid, T=Float32)
 end
 
 file = jldopen("../DataGeneration/rayleigh_taylor_instability_3d_horizontal_averages.jld2")
-
 Is = keys(file["timeseries/t"])
 
 N = file["grid/Nz"]
@@ -59,7 +58,7 @@ grid = range(0, 1, length = N)
 tspan = (t[1], t[end])
 u0 = _cu(soldata[1,2:end-1])
 ops = getops(grid)
-
+file = []
 ann = FastChain(FastDense(N-2,N-2,tanh), FastDense(N-2,N-2,tanh), FastDense(N-2,N-2,tanh),
             FastDense(N-2,N-2,tanh), FastDense(N-2,N-2,tanh)) |> _gpu
 pp = initial_params(ann)
@@ -73,49 +72,41 @@ end
 function predict_adjoint(fullp, i)    
 	Array(concrete_solve(prob,
 			     ROCK4(eigen_est = (integ)->integ.eigen_est = EIGEN_EST[]),
-			     u0, fullp, saveat = saveat[i:i+5]))
+			     u0, fullp, saveat = saveat[i[1]:i[1]+i[2]]))
 end
-function loss_adjoint(fullp, i, y)
-    pre = predict_adjoint(fullp, i)
-    sum(abs2, training_data[i:i+5] - pre)
+function loss_adjoint(fullp, x, y)
+    println(x)
+    pre = predict_adjoint(fullp, (x,y))
+    sum(abs2, training_data[:, x:x+y] - pre)
 end
 
-#=
-cb = function ()
-    arr = Array(training_data)
-    cur_pred = collect(Flux.data(predict_adjoint()))
-    #n = size(arr, 1)
-    #pl = scatter(1:n,arr[:,10],label="data", legend =:bottomright, title = "10th time over space")
-    scatter!(pl,1:n,cur_pred[:,10],label="prediction")
-    pl2 = scatter(saveat,arr[end÷2,:],label="data", legend =:bottomright, title = "middle point over time")
-    scatter!(pl2,saveat,cur_pred[end÷2,:],label="prediction")
-    #display(plot(pl, pl2, size=(600, 300)))
-    display(loss_adjoint())
-end
-=#
 function cb(p, l)
 	display(l)
 	false
 end
 
-#cb(trace::Optim.OptimizationTrace) = cb(last(trace))
 
 prob = ODEProblem{false}(dudt_,u0,tspan,pp)
 #concrete_solve(prob, ROCK4(eigen_est = (integ)->integ.eigen_est = EIGEN_EST[]), u0, pp)
+
 nn = 1
 #print("here")
 saveat = t
 soldata = soldata'
 soldata = soldata[2:end-1, :]
 training_data = _cu(soldata)
-#epochs = Iterators.repeated((), 20)
-#learning_rate = ADAM(0.01)
-#Flux.train!(loss_adjoint, lyrs, epochs, learning_rate, cb=cb)
-data = ((rand(1:size(training_data)[2]-5),0) for i in 1:100)
-res = DiffEqFlux.sciml_train(loss_adjoint, pp, BFGS(initial_stepnorm=0.01), data, cb=cb)
+soldata = []
+t = []
+
+k = 5
+data = ((rand(1:size(training_data)[2] -k), k) for i in 1:10000) 
+
+res = DiffEqFlux.sciml_train(loss_adjoint, pp, BFGS(initial_stepnorm=0.01), data, cb=cb, maxiters = 3)
+#=
 #=
 learning_rate = ADAM(0.001)
 epochs = Iterators.repeated((), 300)
 Flux.train!(loss_adjoint, lyrs, epochs, learning_rate, cb=cb)
 @time loss_adjoint()
+=#
 =#
