@@ -206,6 +206,7 @@ S,E,I,R,N,D,C = eachrow(X)
 F,β0,α,κ,μ,_,γ,d,λ = p_
 L = β.(0:tspan[end],β0,D,N,κ,α).*S.*I./N
 L̂ = vec(ann([S./N I D./N]',res2_uode.minimizer))
+X̂ = [S./N I D./N]'
 
 scatter(L,title="Estimated vs Expected Exposure Term",label="True Exposure")
 plot!(L̂,label="Estimated Exposure")
@@ -224,7 +225,7 @@ println(Ψ_direct.basis)
 Ψ_ideal = SInDy(X[2:4, 5:end], L[5:end], basis, thresholds, opt = opt, maxiter = 50000) # Succeed
 println(Ψ_ideal.basis)
 # Test on uode derivative data
-Ψ = SInDy(noisy_data[2:4, 2:end], L̂[2:end], basis, thresholds,  opt = opt, maxiter = 10000, normalize = true, denoise = true) # Succeed
+Ψ = SInDy(X̂[:, 2:end], L̂[2:end], basis, thresholds,  opt = opt, maxiter = 10000, normalize = true, denoise = true) # Succeed
 println(Ψ.basis)
 
 # Build a ODE for the estimated system
