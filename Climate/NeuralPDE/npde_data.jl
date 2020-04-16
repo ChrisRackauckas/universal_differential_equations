@@ -8,7 +8,7 @@ using Zygote, Optim
 const EIGEN_EST = Ref(0.0f0)
 const USE_GPU = Ref(false)
 #USE_GPU[] = false # the network is small enough such that CPU works just great
-USE_GPU[] = true
+USE_GPU[] = false
 
 USE_GPU[] && (using CuArrays)
 
@@ -42,31 +42,31 @@ end
 file = jldopen("../DataGeneration/rayleigh_taylor_instability_3d_horizontal_averages.jld2")
 Is = keys(file["timeseries/t"])
 
-N = file["grid/Nz"]
+N = floor(Int, file["grid/Nz"]/2)
 Lz = file["grid/Lz"]
-Nt = length(Is)
+Nt = floor(Int, length(Is))
 
 t = Float32.(zeros(Nt))
 soldata = Float32.(zeros(Nt, N))
-
 for (i, I) in enumerate(Is)
-    t[i] = file["timeseries/t/$I"]
-    soldata[i, :] .= file["timeseries/b/$I"]
+        t[i] = file["timeseries/t/$I"]
+        soldata[i, :] .= file["timeseries/b/$I"][1:2:end]
 end
-
 grid = range(0, 1, length = N)
 tspan = (t[1], t[end])
-u0 = _cu(soldata[1,2:end-1])
+u0 = _cu(soldata[1, 2:end-1])
 ops = getops(grid)
-file = []
 ann = FastChain(FastDense(N-2,N-2,tanh), FastDense(N-2,N-2,tanh), FastDense(N-2,N-2,tanh),
-            FastDense(N-2,N-2,tanh), FastDense(N-2,N-2,tanh)) |> _gpu
+           FastDense(N-2,N-2,tanh), FastDense(N-2,N-2,tanh))
 pp = initial_params(ann)
 lyrs = Flux.params(pp)
 
+
+
+
 function dudt_(u,p,t)
     Φ = ann
-    return ops.D1*Φ(u) + ops.D2*u
+    return ops.D1*Φ(u,p) + ops.D2*u
 end
 
 function predict_adjoint(fullp, i)    
@@ -74,8 +74,8 @@ function predict_adjoint(fullp, i)
 			     ROCK4(eigen_est = (integ)->integ.eigen_est = EIGEN_EST[]),
 			     u0, fullp, saveat = saveat[i[1]:i[1]+i[2]]))
 end
+
 function loss_adjoint(fullp, x, y)
-    println(x)
     pre = predict_adjoint(fullp, (x,y))
     sum(abs2, training_data[:, x:x+y] - pre)
 end
@@ -90,18 +90,17 @@ prob = ODEProblem{false}(dudt_,u0,tspan,pp)
 #concrete_solve(prob, ROCK4(eigen_est = (integ)->integ.eigen_est = EIGEN_EST[]), u0, pp)
 
 nn = 1
-#print("here")
 saveat = t
 soldata = soldata'
 soldata = soldata[2:end-1, :]
 training_data = _cu(soldata)
-soldata = []
-t = []
 
-k = 5
+k = 15
 data = ((rand(1:size(training_data)[2] -k), k) for i in 1:10000) 
 
-res = DiffEqFlux.sciml_train(loss_adjoint, pp, BFGS(initial_stepnorm=0.01), data, cb=cb, maxiters = 3)
+res = DiffEqFlux.sciml_train(loss_adjoint, pp, BFGS(initial_stepnorm=0.01), data, cb=cb)
+
+
 #=
 #=
 learning_rate = ADAM(0.001)
@@ -110,3 +109,4 @@ Flux.train!(loss_adjoint, lyrs, epochs, learning_rate, cb=cb)
 @time loss_adjoint()
 =#
 =#
+
