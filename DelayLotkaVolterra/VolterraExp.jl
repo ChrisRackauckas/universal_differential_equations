@@ -118,7 +118,7 @@ polys = Operation[1]
 for i ∈ 1:5
     push!(polys, u[1]^i)
     push!(polys, u[2]^i)
-    for j ∈ i:4
+    for j ∈ i:5
         if i != j
             push!(polys, (u[1]^i)*(u[2]^j))
             push!(polys, u[2]^i*u[1]^i)
@@ -133,50 +133,76 @@ basis = Basis(h, u)
 # Create an optimizer for the SINDY problem
 opt = SR3()
 # Create the thresholds which should be used in the search process
-λ = exp10.(-7:0.1:1)
+λ = exp10.(-10:0.1:3)
+# Target function to choose the results from; x = L0 of coefficients and L2-Error of the model
+f_target(x, w) = iszero(x[1]) ? Inf : norm(w.*x, 2)
 
 # Test on original data and without further knowledge
-Ψ = SInDy(X[:, :], DX[:, :], basis, λ, opt = opt, maxiter = 10000) # Fail
-println(Ψ.basis)
+Ψ = SInDy(X[:, :], DX[:, :], basis, λ, opt = opt, maxiter = 10000, f_target = f_target) # Fail
+println(Ψ)
+print_equations(Ψ)
+
 # Test on ideal derivative data ( not available )
-Ψ = SInDy(X[:, 5:end], L[:, 5:end], basis, λ, opt = opt, maxiter = 10000) # Suceed
-println(Ψ.basis)
+Ψ = SInDy(X[:, 5:end], L[:, 5:end], basis, λ, opt = opt, maxiter = 10000, f_target = f_target) # Suceed
+println(Ψ)
+print_equations(Ψ)
+
 # Test on uode derivative data
-# We use even less data since the nn
-Ψ = SInDy(noisy_data[:, 2:end], L̂[:, 2:end], basis,λ,  opt = opt, maxiter = 100000, normalize = true, denoise = true) # Suceed
-println(Ψ.basis)
+Ψ = SInDy(noisy_data[:, 2:end], L̂[:, 2:end], basis, λ,  opt = opt, maxiter = 100000, normalize = true, denoise = true, f_target = f_target) # Suceed
+println(Ψ)
+print_equations(Ψ)
+p̂ = parameters(Ψ)
+
+# The parameters are a bit off, so we reiterate another sindy term to get closer to the ground truth
+
+# Create function
+unknown_sys = ODESystem(Ψ)
+unknown_eq = ODEFunction(unknown_sys)
+# Just the equations
+b = Basis((u, p, t)->unknown_eq(u, [1.; 1.], t), u)
+# Retune for better parameters -> we could also use DiffEqFlux or other parameter estimation tools here.
+Ψf = SInDy(noisy_data[:, 2:end], L̂[:, 2:end], b, opt = SR3(0.01), maxiter = 100, convergence_error = 1e-18) # Suceed
+println(Ψf)
+p̂ = parameters(Ψf)
+
+# Create function
+unknown_sys = ODESystem(Ψf)
+unknown_eq = ODEFunction(unknown_sys)
 
 # Build a ODE for the estimated system
 function approx(du, u, p, t)
     # Add SInDy Term
-    z = Ψ(u)
-    du[1] = p_[1]*u[1] + z[1]
-    du[2] = -p_[4]*u[2] + z[2]
+    α, δ, β, γ = p
+    z = unknown_eq(u, [β; γ], t)
+    du[1] = α*u[1] + z[1]
+    du[2] = -δ*u[2] + z[2]
 end
 
 # Create the approximated problem and solution
-a_prob = ODEProblem(approx, u0, tspan, p_)
+ps = [p_[[1,4]]; p̂]
+a_prob = ODEProblem(approx, u0, tspan, ps)
 a_solution = solve(a_prob, Tsit5(), saveat = 0.1)
 
 # Plot
 plot(solution)
 plot!(a_solution)
 
+
 # Look at long term prediction
 t_long = (0.0, 50.0)
-a_prob = ODEProblem(approx, u0, t_long, p_)
-a_solution = solve(a_prob, Tsit5()) # Using higher tolerances here results in exit of julia
+a_prob = ODEProblem(approx, u0, t_long, ps)
+a_solution = solve(a_prob, Tsit5(), saveat = 0.5) # Using higher tolerances here results in exit of julia
 plot(a_solution)
 
 prob_true2 = ODEProblem(lotka, u0, t_long, p_)
-solution_long = solve(prob_true2, Tsit5(), saveat = a_solution.t)
+solution_long = solve(prob_true2, Tsit5(), saveat = 0.5)
 plot!(solution_long)
 
 
 
 using JLD2
-@save "knowledge_enhanced_NN.jld2" solution Ψ a_solution NNsolution ann solution_long X L L̂
-@load "knowledge_enhanced_NN.jld2" solution Ψ a_solution NNsolution ann solution_long X L L̂
+@save "knowledge_enhanced_NN.jld2" solution unknown_sys a_solution NNsolution ann solution_long X L L̂
+@load "knowledge_enhanced_NN.jld2" solution unknown_sys a_solution NNsolution ann solution_long X L L̂
 
 p1 = plot(0.1:0.1:tspan[end],abs.(Array(solution)[:,2:end] .- NNsolution[:,2:end])' .+ eps(Float32),
           lw = 3, yaxis = :log, title = "Timeseries of UODE Error",
