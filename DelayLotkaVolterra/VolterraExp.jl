@@ -191,11 +191,11 @@ plot!(a_solution)
 # Look at long term prediction
 t_long = (0.0, 50.0)
 a_prob = ODEProblem(approx, u0, t_long, ps)
-a_solution = solve(a_prob, Tsit5(), saveat = 0.5) # Using higher tolerances here results in exit of julia
+a_solution = solve(a_prob, Tsit5()) # Using higher tolerances here results in exit of julia
 plot(a_solution)
 
 prob_true2 = ODEProblem(lotka, u0, t_long, p_)
-solution_long = solve(prob_true2, Tsit5(), saveat = 0.5)
+solution_long = solve(prob_true2, Tsit5(), saveat = a_solution.t)
 plot!(solution_long)
 
 
