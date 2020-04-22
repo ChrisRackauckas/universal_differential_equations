@@ -1,10 +1,6 @@
 cd(@__DIR__)
 using Pkg; Pkg.activate("."); Pkg.instantiate()
 
-# Single experiment, move to ensemble further on
-# Some good parameter values are stored as comments right now
-# because this is really good practice
-
 using OrdinaryDiffEq
 using ModelingToolkit
 using DataDrivenDiffEq
@@ -23,6 +19,8 @@ end
 tspan = (0.0f0,3.0f0)
 u0 = Float32[0.44249296,4.6280594]
 p_ = Float32[1.3, 0.9, 0.8, 1.8]
+
+# Create a problem and a trajectory
 prob = ODEProblem(lotka, u0,tspan, p_)
 solution = solve(prob, Vern7(), abstol=1e-12, reltol=1e-12, saveat = 0.1)
 
@@ -32,16 +30,15 @@ plot!(solution, alpha = 0.5)
 # Ideal data
 tsdata = Array(solution)
 # Add noise to the data
-noisy_data = tsdata + Float32(1e-5)*randn(eltype(tsdata), size(tsdata))
-
-plot(abs.(tsdata-noisy_data)')
+noisy_data = tsdata + Float32(1e-3)*randn(eltype(tsdata), size(tsdata))
 
 # Define the neueral network which learns L(x, y, y(t-τ))
 # Actually, we do not care about overfitting right now, since we want to
 # extract the derivative information without numerical differentiation.
-ann = FastChain(FastDense(2, 32, tanh),FastDense(32, 32, tanh), FastDense(32, 2))
+ann = FastChain(FastDense(2, 64, swish),FastDense(64, 64, swish), FastDense(64, 64, swish),FastDense(64, 2))
 p = initial_params(ann)
 
+# Hybrid ODE
 function dudt_(u, p,t)
     x, y = u
     z = ann(u,p)
@@ -50,10 +47,6 @@ function dudt_(u, p,t)
 end
 
 prob_nn = ODEProblem(dudt_,u0, tspan, p)
-s = concrete_solve(prob_nn, Tsit5(), u0, p, saveat = solution.t)
-
-plot(solution)
-plot!(s)
 
 function predict(θ)
     Array(concrete_solve(prob_nn, Vern7(), u0, θ, saveat = solution.t,
@@ -67,10 +60,9 @@ function loss(θ)
     sum(abs2, noisy_data .- pred), pred # + 1e-5*sum(sum.(abs, params(ann)))
 end
 
-loss(p)
+losses = []
 
-const losses = []
-callback(θ,l,pred) = begin
+callback(losses, θ,l,pred) = begin
     push!(losses, l)
     if length(losses)%50==0
         println(losses[end])
@@ -78,8 +70,10 @@ callback(θ,l,pred) = begin
     false
 end
 
-res1 = DiffEqFlux.sciml_train(loss, p, ADAM(0.01), cb=callback, maxiters = 100)
-res2 = DiffEqFlux.sciml_train(loss, res1.minimizer, BFGS(initial_stepnorm=0.01), cb=callback, maxiters = 10000)
+cb_(θ, l, pred) = callback(losses, θ, l, pred)
+
+res1 = DiffEqFlux.sciml_train(loss, p, ADAM(0.01), cb=cb_, maxiters = 100)
+res2 = DiffEqFlux.sciml_train(loss, res1.minimizer, BFGS(initial_stepnorm=0.01), cb=cb_, maxiters = 10000)
 
 # Plot the losses
 plot(losses, yaxis = :log, xaxis = :log, xlabel = "Iterations", ylabel = "Loss")
@@ -90,37 +84,16 @@ NNsolution = predict(res2.minimizer)
 plot(solution.t, NNsolution')
 plot!(solution.t, tsdata')
 
-# Collect the state trajectory and the derivatives
-X = noisy_data
-# Ideal derivatives
-DX = Array(solution(solution.t, Val{1})) #- [p[1]*(X[1,:])';  -p[4]*(X[2,:])']
-
-prob_nn2 = ODEProblem(dudt_,u0, tspan, res2.minimizer)
-_sol = solve(prob_nn2, Tsit5())
-DX_ = Array(_sol(solution.t, Val{1}))
-
-# The learned derivatives
-plot(DX')
-plot!(DX_')
-
-# Ideal data
-L = [-p_[2]*(X[1,:].*X[2,:])';p_[3]*(X[1,:].*X[2,:])']
-L̂ = ann(X,res2.minimizer)
-scatter(L')
-plot!(L̂')
-
-scatter(abs.(L-L̂)', yaxis = :log)
-
 # Create a Basis
 @variables u[1:2]
 # Lots of polynomials
 polys = Operation[1]
-for i ∈ 1:5
+for i ∈ 1:8
     push!(polys, u[1]^i)
     push!(polys, u[2]^i)
-    for j ∈ i:5
+    for j ∈ i:7
         if i != j
-            push!(polys, (u[1]^i)*(u[2]^j))
+            push!(polys, u[1]^j*u[2]^i)
             push!(polys, u[2]^i*u[1]^i)
         end
     end
@@ -129,26 +102,36 @@ end
 # And some other stuff
 h = [cos.(u)...; sin.(u)...; polys...]
 basis = Basis(h, u)
-
+println(basis)
 # Create an optimizer for the SINDY problem
 opt = SR3()
 # Create the thresholds which should be used in the search process
-λ = exp10.(-6:0.1:2)
+λ = exp10.(-10:0.1:10)
 # Target function to choose the results from; x = L0 of coefficients and L2-Error of the model
 f_target(x, w) = iszero(x[1]) ? Inf : norm(w.*x, 2)
 
 # Test on original data and without further knowledge
-Ψ = SInDy(X[:, :], DX[:, :], basis, λ, opt = opt, maxiter = 10000, f_target = f_target) # Fail
+X = Array(solution)
+DX = Array(solution(solution.t, Val{1}))
+Ψ = SInDy(X, DX[:, :], basis, λ, opt = opt, maxiter = 1000, f_target = f_target) # Fail
 println(Ψ)
 print_equations(Ψ)
 
 # Test on ideal derivative data ( not available )
-Ψ = SInDy(X[:, 5:end], L[:, 5:end], basis, λ, opt = opt, maxiter = 10000, f_target = f_target) # Succeed
+X = Array(solution)
+L = [-p_[2]*(X[1,:].*X[2,:])';p_[3]*(X[1,:].*X[2,:])']
+Ψ = SInDy(X, L, basis, λ, opt = opt, maxiter = 1000, f_target = f_target, denoise = true) # Succeed
 println(Ψ)
 print_equations(Ψ)
 
-# Test on uode derivative data
-Ψ = SInDy(X[:, 2:end], L̂[:, 2:end], basis, λ,  opt = opt, maxiter = 10000, normalize = true, denoise = true, f_target = f_target) # Succeed
+# Create the UODE data
+prob_nn2 = ODEProblem(dudt_,u0, tspan, res2.minimizer)
+_sol = solve(prob_nn2, Tsit5(), saveat = 0.01)
+X̂ = Array(_sol)
+L̂ = ann(_sol[:,:], res2.minimizer)
+opt = STRRidge()
+# Test on uode 
+Ψ = SInDy(Array(_sol)[:, :], L̂[:, :], basis, λ, opt = opt, maxiter = 10000, denoise = true, normalize = true, f_target = f_target) # Succeed
 println(Ψ)
 print_equations(Ψ)
 p̂ = parameters(Ψ)
@@ -157,16 +140,6 @@ p̂ = parameters(Ψ)
 
 # Create function
 unknown_sys = ODESystem(Ψ)
-unknown_eq = ODEFunction(unknown_sys)
-# Just the equations
-b = Basis((u, p, t)->unknown_eq(u, [1.; 1.], t), u)
-# Retune for better parameters -> we could also use DiffEqFlux or other parameter estimation tools here.
-Ψf = SInDy(noisy_data[:, 2:end], L̂[:, 2:end], b, opt = SR3(0.01), maxiter = 100, convergence_error = 1e-18) # Succeed
-println(Ψf)
-p̂ = parameters(Ψf)
-
-# Create function
-unknown_sys = ODESystem(Ψf)
 unknown_eq = ODEFunction(unknown_sys)
 
 # Build a ODE for the estimated system
@@ -201,8 +174,8 @@ plot!(solution_long)
 
 
 using JLD2
-@save "knowledge_enhanced_NN.jld2" solution unknown_sys a_solution NNsolution ann solution_long X L L̂
-@load "knowledge_enhanced_NN.jld2" solution unknown_sys a_solution NNsolution ann solution_long X L L̂
+@save "knowledge_enhanced_NN.jld2" solution unknown_sys a_solution NNsolution ann solution_long X L X̂ L̂
+@load "knowledge_enhanced_NN.jld2" solution unknown_sys a_solution NNsolution ann solution_long X L X̂ L̂
 
 p1 = plot(0.1:0.1:tspan[end],abs.(Array(solution)[:,2:end] .- NNsolution[:,2:end])' .+ eps(Float32),
           lw = 3, yaxis = :log, title = "Timeseries of UODE Error",
@@ -214,10 +187,10 @@ p1 = plot(0.1:0.1:tspan[end],abs.(Array(solution)[:,2:end] .- NNsolution[:,2:end
 # Plot L₂
 p2 = plot(X[1,:], X[2,:], L[2,:], lw = 3,
      title = "Neural Network Fit of U2(t)", color = 3,
-     label = "Neural Network", xaxis = "x", yaxis="y",
+     label = "True Missing Term", xaxis = "x", yaxis="y",
      titlefont = "Helvetica", legendfont = "Helvetica",
      legend = :bottomright)
-plot!(X[1,:], X[2,:], L̂[2,:], lw = 3, label = "True Missing Term", color=:orange)
+scatter!(X̂[1,1:5:end], X̂[2,1:5:end], L̂[2,1:5:end], lw = 3, label = "Neural Network Fit", color=:orange)
 
 c1 = 3 # RGBA(174/255,192/255,201/255,1) # Maroon
 c2 = :orange # RGBA(132/255,159/255,173/255,1) # Red
