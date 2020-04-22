@@ -130,8 +130,8 @@ _sol = solve(prob_nn2, Tsit5(), saveat = 0.01)
 X̂ = Array(_sol)
 L̂ = ann(_sol[:,:], res2.minimizer)
 opt = STRRidge()
-# Test on uode 
-Ψ = SInDy(Array(_sol)[:, :], L̂[:, :], basis, λ, opt = opt, maxiter = 10000, denoise = true, normalize = true, f_target = f_target) # Succeed
+# Test on uode
+Ψ = SInDy(X̂, L̂, basis, λ, opt = opt, maxiter = 100, denoise = false, normalize = true, f_target = f_target) # Succeed
 println(Ψ)
 print_equations(Ψ)
 p̂ = parameters(Ψ)
