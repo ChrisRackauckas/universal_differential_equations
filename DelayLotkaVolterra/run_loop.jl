@@ -63,7 +63,7 @@ loop_sparsity = []
 loop_error = []
 failures = 0
 
-for i in 1:200
+for i in 1:75
 
     global loop_losses, loop_sparsity, loop_error, basis, X, failures
 
