@@ -32,7 +32,8 @@ plot!(solution, alpha = 0.5)
 # Ideal data
 X = Array(solution)
 # Add noise to the data
-Xₙ = X + Float32(1e-5)*randn(eltype(X), size(X))
+println("Generate noisy data")
+Xₙ = X + Float32(1e-3)*randn(eltype(X), size(X))
 
 # Define the neueral network which learns L(x, y, y(t-τ))
 # Actually, we do not care about overfitting right now, since we want to
@@ -62,7 +63,7 @@ end
 # No regularisation right now
 function loss(θ)
     pred = predict(θ)
-    sum(abs2, Xₙ.- pred), pred 
+    sum(abs2, Xₙ .- pred), pred 
 end
 
 # Test
@@ -96,7 +97,7 @@ plot(solution.t, NNsolution')
 plot!(solution.t, X')
 
 # Ideal derivatives
-DX = Array(solution(solution.t, Val{1})) #- [p[1]*(X[1,:])';  -p[4]*(X[2,:])']
+DX = Array(solution(solution.t, Val{1}))
 
 prob_nn2 = ODEProblem(dudt_,u0, tspan, res2.minimizer)
 _sol = solve(prob_nn2, Tsit5())
