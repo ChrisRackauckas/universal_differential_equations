@@ -198,7 +198,7 @@ git-tree-sha1 = "ddab53b5e70612b43bafce2e3c2be5df8cd431ca"
 repo-rev = "master"
 repo-url = "https://github.com/SciML/DataDrivenDiffEq.jl.git"
 uuid = "2445eb08-9709-466a-b3fc-47e12bd697a2"
-version = "0.1.4"
+version = "0.3.1"
 
 [[DataStructures]]
 deps = ["InteractiveUtils", "OrderedCollections"]
