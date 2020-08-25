@@ -87,7 +87,7 @@ for i in 1:75
     sol_nn = solve(prob_nn, Tsit5(), u0=u0, p=p, saveat=solution.t)
 
     function predict(θ)
-        Array(concrete_solve(prob_nn, Vern7(), u0 = u0, p = θ, saveat=solution.t,
+        Array(solve(prob_nn, Vern7(), u0 = u0, p = θ, saveat=solution.t,
                          abstol=1e-6, reltol=1e-6,
                          sensealg=InterpolatingAdjoint(autojacvec=ReverseDiffVJP())))
     end
