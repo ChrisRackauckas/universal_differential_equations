@@ -158,7 +158,7 @@ for i in 1:75
 
 # Test on uode derivative data
     println("Starting sparse regression")
-    Ψ = SINDy(Xₙ[:, 2:end], L̂[:, 2:end], basis, λ,  opt, maxiter=10000, normalize=true, denoise=true, g = g) # Succeed
+    Ψ = SINDy(Xₙ[:, 2:end], L̂[:, 2:end], basis, λ,  opt, g = g, maxiter = 10000, normalize = true, denoise = true) # Succeed
 
 
 # Extract the parameter
@@ -174,7 +174,7 @@ for i in 1:75
     b = Basis((u, p, t) -> unknown_eq(u, [1.; 1.], t), u)
 
 # Retune for better parameters -> we could also use DiffEqFlux or other parameter estimation tools here.
-    Ψf = SINDy(Xₙ[:, 2:end], L̂[:, 2:end], b, opt=STRRidge(0.01), maxiter=100, convergence_error=1e-18) # Succeed
+    Ψf = SINDy(Xₙ[:, 2:end], L̂[:, 2:end], b, STRRidge(0.01), maxiter=100, convergence_error=1e-18) # Succeed
     
     push!(loop_error, get_error(Ψf))
     push!(loop_sparsity, get_sparsity(Ψf))
