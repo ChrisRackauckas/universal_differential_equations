@@ -49,13 +49,13 @@ function dudt_(u, p,t)
 end
 
 prob_nn = ODEProblem(dudt_,u0, tspan, p)
-sol_nn = concrete_solve(prob_nn, Tsit5(), u0, p, saveat = solution.t)
+sol_nn = solve(prob_nn, Tsit5(), u0 = u0, p = p, saveat = solution.t)
 
 plot(solution)
 plot!(sol_nn)
 
 function predict(θ)
-    Array(concrete_solve(prob_nn, Vern7(), u0, θ, saveat = solution.t,
+    Array(solve(prob_nn, Vern7(), u0 = u0, p=θ, saveat = solution.t,
                          abstol=1e-6, reltol=1e-6,
                          sensealg = InterpolatingAdjoint(autojacvec=ReverseDiffVJP())))
 end
@@ -140,28 +140,27 @@ end
 h = [cos.(u)...; sin.(u)...; polys...]
 basis = Basis(h, u)
 
-# Create an optimizer for the SINDY problem
+# Create an optimizer for the SINDy problem
 opt = SR3()
 # Create the thresholds which should be used in the search process
 λ = exp10.(-7:0.1:3)
 # Target function to choose the results from; x = L0 of coefficients and L2-Error of the model
-f_target(x, w) = iszero(x[1]) ? Inf : norm(w.*x, 2)
-
+g(x) = x[1] < 1 ? Inf : norm(x, 2)
 # Test on original data and without further knowledge
-println("SINDY on full ideal, unavailable data")
-Ψ = SInDy(Xₙ[:, :], DX[:, :], basis, λ, opt = opt, maxiter = 10000, f_target = f_target) # Fail
+println("SINDy on full ideal, unavailable data")
+Ψ = SINDy(Xₙ[:, :], DX[:, :], basis, λ, opt, g = g, maxiter = 10000) # Fail
 println(Ψ)
 print_equations(Ψ)
 
 # Test on ideal derivative data for unknown function ( not available )
-println("SINDY on partial ideal, unavailable data")
-Ψ = SInDy(Xₙ[:, 5:end], L̄[:, 5:end], basis, λ, opt = opt, maxiter = 10000, f_target = f_target) # Succeed
+println("SINDy on partial ideal, unavailable data")
+Ψ = SINDy(Xₙ[:, 1:end], L̄[:, 1:end], basis, λ,opt, g = g, maxiter = 10000) # Succeed
 println(Ψ)
 print_equations(Ψ)
 
 # Test on uode derivative data
-println("SINDY on learned, partial, available data")
-Ψ = SInDy(Xₙ[:, 2:end], L̂[:, 2:end], basis, λ,  opt = opt, maxiter = 10000, normalize = true, denoise = true, f_target = f_target) # Succeed
+println("SINDy on learned, partial, available data")
+Ψ = SINDy(Xₙ[:, 2:end], L̂[:, 2:end], basis, λ,  opt, g = g, maxiter = 10000, normalize = true, denoise = true) # Succeed
 println(Ψ)
 print_equations(Ψ)
 
@@ -170,7 +169,7 @@ p̂ = parameters(Ψ)
 println("First parameter guess : $(p̂)")
 
 # The parameters are a bit off, but the equations are recovered
-# Start another sindy run to get closer to the ground truth
+# Start another SINDy run to get closer to the ground truth
 # Create function
 unknown_sys = ODESystem(Ψ)
 unknown_eq = ODEFunction(unknown_sys)
@@ -179,7 +178,7 @@ unknown_eq = ODEFunction(unknown_sys)
 b = Basis((u, p, t)->unknown_eq(u, [1.; 1.], t), u)
 
 # Retune for better parameters -> we could also use DiffEqFlux or other parameter estimation tools here.
-Ψf = SInDy(Xₙ[:, 2:end], L̂[:, 2:end], b, opt = STRRidge(0.01), maxiter = 100, convergence_error = 1e-18) # Succeed
+Ψf = SINDy(Xₙ[:, 2:end], L̂[:, 2:end], b, STRRidge(0.01), maxiter = 100, convergence_error = 1e-18) # Succeed
 println(Ψf)
 p̂ = parameters(Ψf)
 println("Second parameter guess : $(p̂)")
@@ -190,7 +189,7 @@ recovered_eq = ODEFunction(recovered_sys)
 
 # Build a ODE for the estimated system
 function dudt(du, u, p, t)
-    # Add SInDy Term
+    # Add SINDy Term
     α, δ, β, γ = p
     z = recovered_eq(u, [β; γ], t)
     du[1] = α*u[1] + z[1]
