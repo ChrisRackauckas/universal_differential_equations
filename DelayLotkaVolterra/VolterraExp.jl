@@ -154,7 +154,7 @@ print_equations(Ψ)
 
 # Test on ideal derivative data for unknown function ( not available )
 println("SINDy on partial ideal, unavailable data")
-Ψ = SINDy(Xₙ[:, 5:end], L̄[:, 5:end], basis, λ,opt, g = g, maxiter = 10000) # Succeed
+Ψ = SINDy(Xₙ[:, 1:end], L̄[:, 1:end], basis, λ,opt, g = g, maxiter = 10000) # Succeed
 println(Ψ)
 print_equations(Ψ)
 
