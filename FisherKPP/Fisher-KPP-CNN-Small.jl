@@ -86,12 +86,10 @@ gcf()
 ########################
 # Define the neural PDE
 ########################
-n_weights = 10
+n_weights = 3
 
 #for the reaction term
 rx_nn = Chain(Dense(1, n_weights, tanh),
-                Dense(n_weights, 2*n_weights, tanh),
-                Dense(2*n_weights, n_weights, tanh),
                 Dense(n_weights, 1),
                 x -> x[1])
 
@@ -229,13 +227,15 @@ cb = function (p,l,pred)
     display(gcf())
     count += 1
 
-    false
+    l < 0.01 # Exit when fit to 2 decimal places
 end
 
 #train
-res1 = DiffEqFlux.sciml_train(loss_rd, p, ADAM(0.001), cb=cb, maxiters = 100)
-res2 = DiffEqFlux.sciml_train(loss_rd, res1.minimizer, ADAM(0.001), cb=cb, maxiters = 300)
-res3 = DiffEqFlux.sciml_train(loss_rd, res2.minimizer, BFGS(), cb=cb, maxiters = 1000)
+@time begin
+    res1 = DiffEqFlux.sciml_train(loss_rd, p, ADAM(0.001), cb=cb, maxiters = 100)
+    res2 = DiffEqFlux.sciml_train(loss_rd, res1.minimizer, ADAM(0.001), cb=cb, maxiters = 300)
+    res3 = DiffEqFlux.sciml_train(loss_rd, res2.minimizer, BFGS(), cb=cb, maxiters = 1000, allow_f_increases=true)
+end
 
 pstar = res3.minimizer
 
@@ -306,3 +306,91 @@ xlabel("Epochs"); ylabel("Log(loss)")
 tight_layout()
 savefig(@sprintf("%s/loss_vs_epoch.pdf", save_folder))
 gcf()
+
+
+#=
+# Success rate
+
+# 2 decimal places 15 parameters
+
+Loss: 0.0062    D0: 5.9522 Weights:(1.0385,      -2.0765,
+    1.0380)          Sum: -0.0000                               1.0380)
+updating figure
+3430.385576 seconds (4.28 G allocations: 248.824 GiB, 1.31%
+gc time)
+
+Loss: 0.0095    D0: 6.1954 Weights:(0.9715,      -1.9432,
+        0.9716)          Sum: -0.0000
+updating figure
+2824.449183 seconds (3.35 G allocations: 194.702 GiB, 1.32%
+gc time)
+
+Loss: 0.0094    D0: 5.7375 Weights:(1.0357,      -2.0714,
+        1.0358)          Sum: -0.0000
+updating figure
+1174.592376 seconds (1.41 G allocations: 83.035 GiB, 1.22% gc time)
+
+Loss: 0.0084    D0: 5.9525 Weights:(1.0049,      -2.0096,
+        1.0047)          Sum: 0.0000
+updating figure
+1334.078451 seconds (1.61 G allocations: 94.637 GiB, 1.23% gc time)
+
+Loss: 0.0075    D0: 7.4841 Weights:(0.8076,      -1.6145,       0.8069)          Sum: -0.0000
+updating figure
+saved figure
+1053.729274 seconds (1.16 G allocations: 68.289 GiB, 1.12% gc time)
+
+# 2 decimal places 7 parameters
+
+Loss: 0.0095    D0: 6.1389 Weights:(0.9875,      -1.9749,
+        0.9873)          Sum: 0.0000
+updating figure
+1415.089830 seconds (1.43 G allocations: 82.891 GiB, 1.37% gc time)
+
+Loss: 0.0095    D0: 6.1381 Weights:(0.9447,      -1.8887,       0.9441)          Sum: -0.0000
+updating figure
+3293.038574 seconds (4.09 G allocations: 234.305 GiB, 1.10% gc time)
+
+Loss: 0.0095    D0: 5.9216 Weights:(0.9869,      -1.9738,
+        0.9869)          Sum: 0.0000
+updating figure
+3233.307375 seconds (4.09 G allocations: 234.477 GiB, 0.98%
+gc time
+
+Loss: 0.0095    D0: 5.9216 Weights:(0.9869,      -1.9738,
+        0.9869)          Sum: 0.0000
+updating figure
+3265.894690 seconds (4.09 G allocations: 234.477 GiB, 0.98%
+gc time)
+
+Loss: 0.0093    D0: 6.4483 Weights:(0.9128,      -1.8256,       0.9128)         Sum: 0.0000
+updating figure
+1332.252349 seconds (1.44 G allocations: 83.367 GiB, 1.09% gc time)
+
+# 2 decimal places 4 parameters
+
+Loss: 0.4370    D0: 0.0457 Weights:(138.9983,    -277.9936,     138.9953)       Sum: 0.0000
+updating figure
+2210.916386 seconds (2.53 G allocations: 146.694 GiB, 1.07% gc time)
+
+Loss: 0.3760    D0: 103.9210 Weights:(0.0533,    -0.1073,       0.0533)         Sum: -0.0007
+updating figure
+2296.853421 seconds (2.67 G allocations: 154.814 GiB, 1.08% gc time)
+
+Loss: 0.3894    D0: 160.0180 Weights:(0.0367,    -0.0737,       0.0367)         Sum: -0.0003
+updating figure
+2262.799906 seconds (2.61 G allocations: 151.395 GiB, 1.08% gc time)
+
+Loss: 0.3894    D0: 160.0180 Weights:(0.0367,    -0.0737,       0.0367)         Sum: -0.0003
+updating figure
+2346.022370 seconds (2.61 G allocations: 151.395 GiB, 1.09% gc time)
+
+Loss: 0.2225    D0: 2739.4200 Weights:(0.0020,   -0.0040,       0.0020)         Sum: -0.0001
+updating figure
+5764.320007 seconds (6.49 G allocations: 372.446 GiB, 1.22% gc time)
+=#
+
+x = [1415.089830,3293.038574,3233.307375,3265.894690,1332.252349]
+mean(x)
+using Statistics
+std(x)

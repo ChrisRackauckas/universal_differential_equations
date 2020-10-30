@@ -9,7 +9,7 @@ const USE_GPU = Ref(false)
 
 USE_GPU[] = false # the network is small enough such that CPU works just great
 
-USE_GPU[] && (using CuArrays)
+USE_GPU[] && (using CUDA)
 
 _gpu(arg) = USE_GPU[] ? gpu(arg) : cpu(arg)
 _cu(arg) = USE_GPU[] ? cu(arg) : identity(arg)
@@ -98,7 +98,7 @@ function cb(opt_state:: Optim.OptimizationState)
     pl2 = scatter(saveat,training_data[N÷2,:],label="data", legend =:bottomright, title="Timeseries Plot at Middle X")
     scatter!(pl2,saveat,cur_pred[N÷2,:],label="prediction")
     display(plot(pl, pl2, size=(600, 300)))
-    display(opt_state.value)    
+    display(opt_state.value)
     false
 end
 
@@ -108,7 +108,7 @@ cb(trace::Optim.OptimizationTrace) = cb(last(trace))
 saveat = range(tspan..., length = 30) #time range
 prob = ODEProblem{false}(dudt_,u0,tspan,pp)
 training_data = _cu(soldata(saveat))
-concrete_solve(prob, ROCK4(eigen_est = (integ)->integ.eigen_est = EIGEN_EST[]), u0, pp) 
+concrete_solve(prob, ROCK4(eigen_est = (integ)->integ.eigen_est = EIGEN_EST[]), u0, pp)
 loss_adjoint(pp)
 
 function loss_adjoint_gradient!(G, fullp)

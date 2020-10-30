@@ -86,14 +86,10 @@ gcf()
 ########################
 # Define the neural PDE
 ########################
-n_weights = 10
+n_weights = 3
 
-#for the reaction term
-rx_nn = Chain(Dense(1, n_weights, tanh),
-                Dense(n_weights, 2*n_weights, tanh),
-                Dense(2*n_weights, n_weights, tanh),
-                Dense(n_weights, 1),
-                x -> x[1])
+A = [FourierBasis(n_weights)]
+rx_nn = TensorLayer(A, 1)
 
 #conv with bias with initial values as 1/dx^2
 w_err = 0.0
@@ -103,14 +99,11 @@ diff_cnn_ = Conv(init_w, [0.], pad=(0,0,0,0))
 #initialize D0 close to D/dx^2
 D0 = [6.5]
 
-p1,re1 = Flux.destructure(rx_nn)
+p1 = 0.01randn(n_weights)
 p2,re2 = Flux.destructure(diff_cnn_)
 p = [p1;p2;D0]
-full_restructure(p) = re1(p[1:length(p1)]), re2(p[(length(p1)+1):end-1]), p[end]
 
 function nn_ode(u,p,t)
-    rx_nn = re1(p[1:length(p1)])
-
     u_cnn_1   = [p[end-4] * u[end] + p[end-3] * u[1] + p[end-2] * u[2]]
     u_cnn     = [p[end-4] * u[i-1] + p[end-3] * u[i] + p[end-2] * u[i+1] for i in 2:Nx-1]
     u_cnn_end = [p[end-4] * u[end-1] + p[end-3] * u[end] + p[end-2] * u[1]]
@@ -122,7 +115,7 @@ function nn_ode(u,p,t)
     #u_cnn_1 = reshape(diff_cnn_(reshape(vcat(u[end:end], u[1:1], u[2:2]), (3, 1, 1, 1))), (1,))
     #u_cnn_end = reshape(diff_cnn_(reshape(vcat(u[end-1:end-1], u[end:end], u[1:1]), (3, 1, 1, 1))), (1,))
 
-    [rx_nn([u[i]])[1] for i in 1:Nx] + p[end] * vcat(u_cnn_1, u_cnn, u_cnn_end)
+    [rx_nn([u[i]/π],p[1:length(p1)])[1] for i in 1:Nx] + p[end] * vcat(u_cnn_1, u_cnn, u_cnn_end)
 end
 
 ########################
@@ -161,7 +154,7 @@ w3_arr = Float64[]
 
 #callback function to observe training
 cb = function (p,l,pred)
-    rx_nn, diff_cnn_, D0 = full_restructure(p)
+    rx_nn_p, diff_cnn_, D0 = p[1:length(p1)],re2(p[(length(p1)+1):(end-1)]),p[end]
     push!(train_arr, l)
     push!(diff_arr, p[end])
 
@@ -192,7 +185,7 @@ cb = function (p,l,pred)
 
         ax = subplot(133); global ax
         u = collect(0:0.01:1)
-        rx_line = plot(u, rx_nn.([[elem] for elem in u]), label="NN")[1];
+        rx_line = plot(u, rx_nn.([[elem/π] for elem in u],(rx_nn_p,)), label="NN")[1];
         global rx_line
         plot(u, reaction.(u), label="True")
         title("Reaction Term")
@@ -209,7 +202,7 @@ cb = function (p,l,pred)
         ttl.set_text(@sprintf("Epoch = %d", count))
 
         u = collect(0:0.01:1)
-        rx_pred = rx_nn.([[elem] for elem in u])
+        rx_pred = reduce(vcat,rx_nn.([[elem/π] for elem in u],(rx_nn_p,)))
         rx_line.set_ydata(rx_pred)
         u = collect(0:0.01:1)
 
@@ -229,13 +222,15 @@ cb = function (p,l,pred)
     display(gcf())
     count += 1
 
-    false
+    l < 0.01 # Exit when fit to 2 decimal places
 end
 
 #train
-res1 = DiffEqFlux.sciml_train(loss_rd, p, ADAM(0.001), cb=cb, maxiters = 100)
-res2 = DiffEqFlux.sciml_train(loss_rd, res1.minimizer, ADAM(0.001), cb=cb, maxiters = 300)
-res3 = DiffEqFlux.sciml_train(loss_rd, res2.minimizer, BFGS(), cb=cb, maxiters = 1000)
+@time begin
+    res1 = DiffEqFlux.sciml_train(loss_rd, p, ADAM(0.001), cb=cb, maxiters = 100)
+    res2 = DiffEqFlux.sciml_train(loss_rd, res1.minimizer, ADAM(0.001), cb=cb, maxiters = 300)
+    res3 = DiffEqFlux.sciml_train(loss_rd, res2.minimizer, BFGS(initial_stepnorm=0.00001), cb=cb, maxiters = 1000, allow_f_increases=true)
+end
 
 pstar = res3.minimizer
 
@@ -306,3 +301,100 @@ xlabel("Epochs"); ylabel("Log(loss)")
 tight_layout()
 savefig(@sprintf("%s/loss_vs_epoch.pdf", save_folder))
 gcf()
+
+#=
+
+# 3 parameters
+
+Loss: 0.0094    D0: 5.7811 Weights:(1.1501,      -2.3004,       1.1503)         Sum: -0.0000
+updating figure
+237.483188 seconds (875.53 M allocations: 44.014 GiB, 3.10% gc time)
+
+Loss: 0.0095    D0: 5.7752 Weights:(1.1496,      -2.2988,       1.1492)         Sum: 0.0000
+updating figure
+saved figure
+240.444140 seconds (885.66 M allocations: 44.519 GiB, 3.11% gc time)
+
+Loss: 0.0086    D0: 5.7983 Weights:(1.1519,      -2.3035,       1.1517)         Sum: -0.0000
+updating figure
+234.218061 seconds (917.69 M allocations: 46.116 GiB, 3.20% gc time)
+
+Loss: 0.0090    D0: 5.1810 Weights:(1.2899,      -2.5798,       1.2899)         Sum: 0.0000
+updating figure
+232.159919 seconds (930.76 M allocations: 46.780 GiB, 3.25% gc time)
+
+Loss: 0.0095    D0: 5.7827 Weights:(1.1524,      -2.3052,       1.1527)         Sum: -0.0000
+updating figure
+239.525352 seconds (953.27 M allocations: 47.905 GiB, 3.23% gc time)
+
+# 5 parameters
+
+Loss: 0.0016    D0: 5.8669 Weights:(1.0638,      -2.1274,       1.0636)         Sum: 0.0000
+updating figure
+243.928965 seconds (1.00 G allocations: 50.893 GiB, 3.40% gc time)
+
+Loss: 0.0069    D0: 5.8545 Weights:(1.0472,      -2.0954,       1.0482)         Sum: -0.0000
+updating figure
+244.803636 seconds (1.01 G allocations: 51.578 GiB, 3.51% gc time)
+
+Loss: 0.0069    D0: 5.8545 Weights:(1.0472,      -2.0954,       1.0482)         Sum: -0.0000
+updating figure
+240.307752 seconds (1.00 G allocations: 51.091 GiB, 3.43% gc time)
+
+Loss: 0.0085    D0: 5.8546 Weights:(1.0782,      -2.1505,       1.0723)         Sum: 0.0000
+updating figure
+265.215108 seconds (1.14 G allocations: 57.873 GiB, 3.59% gc time)
+
+Loss: 0.0039    D0: 5.8330 Weights:(1.0403,      -2.0784,       1.0382)         Sum: -0.0000
+updating figure
+246.503862 seconds (1.07 G allocations: 54.304 GiB, 3.59% gc time)
+
+# 7 parameters
+
+Loss: 0.0012    D0: 5.9098 Weights:(1.0402,      -2.0810,       1.0408)         Sum: -0.0000
+updating figure
+242.417536 seconds (1.14 G allocations: 56.570 GiB, 3.71% gc time)
+
+Loss: 0.0055    D0: 5.9350 Weights:(1.0404,      -2.0825,       1.0421)         Sum: -0.0000
+updating figure
+252.128401 seconds (1.16 G allocations: 57.507 GiB, 3.88% gc time)
+
+Loss: 0.0086    D0: 5.9322 Weights:(1.0501,      -2.1005,       1.0503)         Sum: -0.0001
+updating figure
+249.834412 seconds (1.14 G allocations: 56.479 GiB, 3.71% gc time)
+
+Loss: 0.0083    D0: 5.8940 Weights:(1.0432,      -2.0869,       1.0437)         Sum: 0.0001
+updating figure
+255.021489 seconds (1.21 G allocations: 59.928 GiB, 3.92% gc time)
+
+Loss: 0.0052    D0: 5.9229 Weights:(1.0481,      -2.0961,       1.0481)         Sum: 0.0000
+updating figure
+253.374001 seconds (1.23 G allocations: 60.636 GiB, 3.71% gc time)
+
+# 15 parameters
+
+Loss: 0.0032    D0: 6.1526 Weights:(1.0477,      -2.0939,       1.0462)         Sum: -0.0000
+updating figure
+267.148464 seconds (1.72 G allocations: 83.585 GiB, 4.00% gc time)
+
+Loss: 0.0057    D0: 6.1925 Weights:(1.0960,      -2.1901,       1.0942)         Sum: 0.0000
+updating figure
+281.902850 seconds (1.91 G allocations: 92.720 GiB, 4.15% gc time)
+
+Loss: 0.0043    D0: 6.1548 Weights:(1.0607,      -2.1218,       1.0611)         Sum: 0.0000
+updating figure
+262.655202 seconds (1.76 G allocations: 85.483 GiB, 4.01% gc time)
+
+Loss: 0.0088    D0: 6.1617 Weights:(1.0751,      -2.1503,       1.0751)         Sum: -0.0001
+updating figure
+267.427766 seconds (1.80 G allocations: 87.616 GiB, 3.99% gc time)
+
+Loss: 0.0095    D0: 6.1630 Weights:(1.0691,      -2.1416,       1.0724)         Sum: -0.0001
+updating figure
+269.782135 seconds (1.80 G allocations: 87.805 GiB, 4.00% gc time)
+=#
+
+x = [242.417536,252.128401,249.834412,255.021489,253.374001]
+mean(x)
+using Statistics
+std(x)
