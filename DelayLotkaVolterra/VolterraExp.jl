@@ -63,7 +63,7 @@ end
 # No regularisation right now
 function loss(θ)
     pred = predict(θ)
-    sum(abs2, Xₙ .- pred), pred 
+    sum(abs2, Xₙ .- pred), pred
 end
 
 # Test
@@ -118,12 +118,12 @@ plot!(L̂')
 # Plot the error
 scatter(abs.(L̄-L̂)', yaxis = :log)
 
-## Sparse Identification 
+## Sparse Identification
 
 # Create a Basis
 @variables u[1:2]
 # Lots of polynomials
-polys = Operation[1]
+polys = Any[1]
 
 for i ∈ 1:5
     push!(polys, u[1]^i)
