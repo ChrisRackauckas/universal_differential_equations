@@ -54,6 +54,6 @@ include("./loop_recoveries.jl")
 @info "Start evaluation loops"
 for i in 1:1:5
     Xₙ .= X .+ (noisy_magnitude(i)*x̄) .* randn(eltype(X), size(X)...)
-    recover_dynamics(X1n, t1, "Scenario_1", "$i")
+    recover_dynamics(Xₙ, t, "Scenario_1", "$i")
 end
 @info "Finished evaluation loops"
