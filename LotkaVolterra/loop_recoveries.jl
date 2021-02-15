@@ -1,58 +1,8 @@
-## Environment and packages
-cd(@__DIR__)
-using Pkg; Pkg.activate("."); Pkg.instantiate()
 
-using OrdinaryDiffEq
-using ModelingToolkit
-using DataDrivenDiffEq
-using LinearAlgebra, DiffEqSensitivity, Optim
-using DiffEqFlux, Flux
-using Plots
-gr()
-using JLD2, FileIO
-using Statistics
-# Set a random seed for reproduceable behaviour
-using Random
-Random.seed!(1234)
+function recover_dynamics(X, t, svname, grpname, p_ = Float32[1.3, 0.9, 0.8, 1.8])
 
+    @info "Started run $svname $(grpname)."
 
-# Create a function to adapt the noise magnitude
-function noisy_magnitude(iteration)
-    iteration <= 40 && return Float32(1e-3)
-    iteration <= 80 && return Float32(5e-3)
-    iteration <= 120 && return Float32(1e-2)
-    iteration <= 160 && return Float32(2.5e-2)
-    return Float32(5e-2)
-end
-
-## Data generation
-function lotka!(du, u, p, t)
-    α, β, γ, δ = p
-    du[1] = α*u[1] - β*u[2]*u[1]
-    du[2] = γ*u[1]*u[2]  - δ*u[2]
-end
-
-# Define the experimental parameter
-tspan = (0.0f0,3.0f0)
-u0 = Float32[0.44249296,4.6280594]
-p_ = Float32[1.3, 0.9, 0.8, 1.8]
-prob = ODEProblem(lotka!, u0,tspan, p_)
-solution = solve(prob, Vern7(), abstol=1e-12, reltol=1e-12, saveat = 0.1)
-
-# Ideal data
-X = Array(solution)
-t = solution.t
-
-# Add noise in terms of the mean
-x̄ = mean(X, dims = 2)*5e-2
-
-## Define the network
-# Gaussian RBF as activation
-rbf(x) = exp.(-(x.^2))
-
-function recover_dynamics(X, t, svname, grpname)
-
-    @info "Started run $(grpname)."
 
     # Define the network 2->5->5->5->2
     U = FastChain(
@@ -120,7 +70,7 @@ function recover_dynamics(X, t, svname, grpname)
         cb = callback,
         maxiters = 200,
     )
-    println("Training loss after $(length(losses)) iterations: $(losses[end])")
+    println("$svname $(grpname) : Training loss after $(length(losses)) iterations: $(losses[end])")
     # Train with BFGS
     res2 = DiffEqFlux.sciml_train(
         loss,
@@ -130,7 +80,7 @@ function recover_dynamics(X, t, svname, grpname)
         maxiters = 10000,
     )
     println(
-        "Final training loss after $(length(losses)) iterations: $(losses[end])",
+        "$svname $(grpname) : Final training loss after $(length(losses)) iterations: $(losses[end])",
     )
 
     p_trained = res2.minimizer
@@ -149,7 +99,7 @@ function recover_dynamics(X, t, svname, grpname)
     # Create an optimizer for the SINDy problem
     opt = SR3(Float32(1e-2), Float32(0.1))
     # Create the thresholds which should be used in the search process
-    λ = exp10.(-7:0.1:5)
+    λ = Float32.(exp10.(-7:0.1:7))
     # Target function to choose the results from; x = L0 of coefficients and L2-Error of the model
     g(x) = x[1] < 1 ? Inf : norm(x, 2)
 
@@ -167,19 +117,19 @@ function recover_dynamics(X, t, svname, grpname)
         X̂,
         Ŷ,
         b,
-        STRRidge(0.01),
+        STRRidge(0.01f0),
         maxiter = 100,
-        convergence_error = 1e-18,
+        convergence_error = Float32(1e-18),
     ) # Succeed
 
     p̂ = parameters(Ψf)
 
-    @info "Found equations : $(Ψf.equations.eqs)"
-    @info "Parameter estimation : $(p̂)"
+    @info "$svname $(grpname) : Found equations : $(Ψf.equations.eqs)"
+    @info "$svname $(grpname) : Parameter estimation : $(p̂)"
 
     ## Save the results
 
-    jldopen("$(svname)recovery_loop.jld2", "a+") do file
+    jldopen("$(svname)_recovery_loop.jld2", "a+") do file
         mygroup = JLD2.Group(file, grpname)
         mygroup["X"] = X
         mygroup["t"] = t
@@ -189,12 +139,7 @@ function recover_dynamics(X, t, svname, grpname)
         mygroup["result"] = Ψf
     end
 
-    @info "Finished run $(grpname)."
+    @info "Finished run $svname $(grpname)."
 
     return
-end
-
-for i in 1:200
-    Xₙ = X .+ (noisy_magnitude(i)*x̄) .* randn(eltype(X), size(X)...)
-    recover_dynamics(Xₙ, t, "Scenario_1_broadnoise_", "$i")
 end
