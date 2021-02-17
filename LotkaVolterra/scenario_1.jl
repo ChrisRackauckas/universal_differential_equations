@@ -108,6 +108,7 @@ println("Final training loss after $(length(losses)) iterations: $(losses[end])"
 # Plot the losses
 pl_losses = plot(1:200, losses[1:200], yaxis = :log10, xaxis = :log10, xlabel = "Iterations", ylabel = "Loss", label = "ADAM", color = :blue)
 plot!(201:length(losses), losses[201:end], yaxis = :log10, xaxis = :log10, xlabel = "Iterations", ylabel = "Loss", label = "BFGS", color = :red)
+savefig(pl_losses, joinpath(pwd(), "plots", "$(svname)_losses.pdf"))
 # Rename the best candidate
 p_trained = res2.minimizer
 
@@ -115,20 +116,25 @@ p_trained = res2.minimizer
 # Plot the data and the approximation
 X̂ = predict(p_trained, Xₙ[:,1], t[1]:0.05f0:t[end])
 # Trained on noisy data vs real solution
-pl_trajectory = scatter(t[1]:0.05f0:t[end], transpose(X̂), ylabel = "t", xlabel ="x(t), y(t)", color = :red, label = ["UDE Approximation" nothing])
-plot!(t, transpose(Xₙ), color = :black, label = ["Measurements" nothing])
+pl_trajectory = plot(t[1]:0.05f0:t[end], transpose(X̂), xlabel = "t", ylabel ="x(t), y(t)", color = :red, label = ["UDE Approximation" nothing])
+scatter!(t, transpose(Xₙ), color = :black, label = ["Measurements" nothing])
+savefig(pl_trajectory, joinpath(pwd(), "plots", "$(svname)_trajectory_reconstruction.pdf"))
 
 # Ideal unknown interactions of the predictor
 Ȳ = [-p_[2]*(X̂[1,:].*X̂[2,:])';p_[3]*(X̂[1,:].*X̂[2,:])']
 # Neural network guess
 Ŷ = U(X̂,p_trained)
 
-pl_reconstruction = scatter(t[1]:0.05f0:t[end], transpose(Ŷ), ylabel = "t", xlabel ="I1(t), I2(t)", color = :red, label = ["UDE Approximation" nothing])
+pl_reconstruction = plot(t[1]:0.05f0:t[end], transpose(Ŷ), xlabel = "t", ylabel ="U(x,y)", color = :red, label = ["UDE Approximation" nothing])
 plot!(t[1]:0.05f0:t[end], transpose(Ȳ), color = :black, label = ["True Interaction" nothing])
+savefig(pl_reconstruction, joinpath(pwd(), "plots", "$(svname)_missingterm_reconstruction.pdf"))
 
 # Plot the error
-pl_reconstruction_error = scatter(t[1]:0.05f0:t[end], norm.(eachcol(Ȳ-Ŷ)), yaxis = :log, xlabel = "t", ylabel = "L2-Error", color = :black)
-
+pl_reconstruction_error = plot(t[1]:0.05f0:t[end], norm.(eachcol(Ȳ-Ŷ)), yaxis = :log, xlabel = "t", ylabel = "L2-Error", label = nothing, color = :red)
+pl_missing = plot(pl_reconstruction, pl_reconstruction_error, layout = (2,1))
+savefig(pl_missing, joinpath(pwd(), "plots", "$(svname)_missingterm_reconstruction_and_error.pdf"))
+pl_overall = plot(pl_trajectory, pl_missing)
+savefig(pl_overall, joinpath(pwd(), "plots", "$(svname)_reconstruction.pdf"))
 ## Symbolic regression via sparse regression ( SINDy based )
 
 # Create a Basis
@@ -141,7 +147,7 @@ basis = Basis(b, u)
 # Create an optimizer for the SINDy problem
 opt = SR3(Float32(1e-2), Float32(0.1))
 # Create the thresholds which should be used in the search process
-λ = exp10.(-7:0.1:5)
+λ = Float32.(exp10.(-7:0.1:5))
 # Target function to choose the results from; x = L0 of coefficients and L2-Error of the model
 g(x) = x[1] < 1 ? Inf : norm(x, 2)
 
@@ -162,13 +168,14 @@ p̂ = parameters(Ψ)
 println("First parameter guess : $(p̂)")
 
 # Just the equations
-b = Basis((u, p, t)->Ψ(u, [1.; 1.], t), u)
+b = Basis((u, p, t)->Ψ(u, [1f0; 1f0], t), u)
 
 # Retune for better parameters -> we could also use DiffEqFlux or other parameter estimation tools here.
 Ψf = SINDy(X̂, Ŷ, b, STRRidge(0.01f0), maxiter = 100, convergence_error = Float32(1e-18)) # Succeed
 println(Ψf)
 p̂ = parameters(Ψf)
-println("Second parameter guess : $(p̂)")
+println("Second parameter guess : $(abs.(p̂))")
+println("True parameter : $(p_[2:3])")
 
 # Define the recovered, hyrid model
 function recovered_dynamics!(du,u, p, t, p_true)
@@ -193,14 +200,14 @@ plot!(estimate)
 t_long = (0.0f0, 50.0f0)
 estimation_prob = ODEProblem(estimated_dynamics!, u0, t_long, p̂)
 estimate_long = solve(estimation_prob, Tsit5(), saveat = 0.1) # Using higher tolerances here results in exit of julia
-plot(approximate_solution_long)
+plot(estimate_long)
 
 true_prob = ODEProblem(lotka!, u0, t_long, p_)
-true_solution_long = solve(true_prob, Tsit5(), saveat = approximate_solution_long.t)
+true_solution_long = solve(true_prob, Tsit5(), saveat = estimate_long.t)
 plot!(true_solution_long)
 
 ## Save the results
-save("$(svname)recovery_$(noise_magnitude).jld2",
+save(joinpath(pwd(), "results" ,"$(svname)recovery_$(noise_magnitude).jld2"),
     "solution", solution, "X", Xₙ, "t" , t, "neural_network" , U, "initial_parameters", p, "trained_parameters" , p_trained, # Training
     "losses", losses, "result", Ψf, "recovered_parameters", p̂, # Recovery
     "long_solution", true_solution_long, "long_estimate", estimate_long) # Estimation
@@ -241,4 +248,4 @@ l = @layout [grid(1,2)
              grid(1,1)]
 plot(p1,p2,p3,layout = l)
 
-savefig("$(svname)full_plot.pdf")
+savefig(joinpath(pwd(),"plots","$(svname)full_plot.pdf"))
