@@ -22,13 +22,12 @@ Random.seed!(5443)
 hudson_bay_data = readdlm("hudson_bay_data.dat", '\t', Float32, '\n')
 # Measurements of prey and predator
 Xₙ = Matrix(transpose(hudson_bay_data[:, 2:3]))
-plot(t, transpose(Xₙ))
+t = hudson_bay_data[:, 1] .- hudson_bay_data[1, 1]
 # Normalize the data; since the data domain is strictly positive
 # we just need to divide by the maximum
 xscale = maximum(Xₙ, dims =2)
 Xₙ .= 1f0 ./ xscale .* Xₙ
 # Time from 0 -> n
-t = hudson_bay_data[:, 1] .- hudson_bay_data[1, 1]
 tspan = (t[1], t[end])
 
 # Plot the data
@@ -168,13 +167,13 @@ p_trained = res3.minimizer
 tsample = t[1]:0.5:t[end]
 X̂ = predict(p_trained, Xₙ[:,1], tsample)
 # Trained on noisy data vs real solution
-plot(t, transpose(Xₙ), color = :black, label = ["Measurements" nothing])
+plot(t, transpose(Xₙ), color = :black, label = ["Measurements" nothing], xlabel = "t", ylabel = "x(t), y(t)")
 plot!(tsample, transpose(X̂), color = :red, label = ["Interpolation" nothing])
 
 # Neural network guess
 Ŷ = U(X̂,p_trained[3:end])
 
-scatter(tsample, transpose(Ŷ), xlabel = "t", ylabel ="I1(t), I2(t)", color = :red, label = ["UDE Approximation" nothing])
+scatter(tsample, transpose(Ŷ), xlabel = "t", ylabel ="U(x,y)", color = :red, label = ["UDE Approximation" nothing])
 
 ## Symbolic regression via sparse regression ( SINDy based )
 
@@ -187,7 +186,7 @@ b = [polynomial_basis(u, 5); sin.(u)]
 basis = Basis(b, u)
 
 # Create an optimizer for the SINDy problem
-opt = SR3(Float32(1e-2), Float32(1e-2))
+opt = STRRidge()
 # Create the thresholds which should be used in the search process
 λ = Float32.(exp10.(-7:0.1:3))
 # Target function to choose the results from; x = L0 of coefficients and L2-Error of the model
@@ -198,37 +197,26 @@ println("SINDy on learned, partial, available data")
 Ψ = SINDy(X̂, Ŷ, basis, λ,  opt, g = g, maxiter = 50000, normalize = true, denoise = true)
 println(Ψ)
 print_equations(Ψ)
-
 # Extract the parameter
 p̂ = parameters(Ψ)
 println("First parameter guess : $(p̂)")
 
-# Just the equations -> we reiterate on sindy here
-# searching all linear independent components again
-b = Basis((u, p, t)->Ψ(u, ones(length(p̂)), t), u, linear_independent = true)
-println(b)
-# Retune for better parameters -> we could also use DiffEqFlux or other parameter estimation tools here.
-opt = SR3(Float32(1e-2), Float32(1e-2))
-Ψf = SINDy(X̂, Ŷ, b, opt, maxiter = 10000,  normalize = true, convergence_error = eps()) # Succeed
-println(Ψf)
-print_equations(Ψf)
-p̂ = parameters(Ψf)
-println("Second parameter guess : $(p̂)")
 
 # Define the recovered, hyrid model with the rescaled dynamics
 function recovered_dynamics!(du,u, p, t)
-    û = Ψf(u, p[3:4]) # Network prediction
+    û = Ψ(u, p[3:4]) # Network prediction
     du[1] = p[1]*u[1] + û[1]
     du[2] = -p[2]*u[2] + û[2]
 end
 
 p_model = [p_trained[1:2];p̂]
 estimation_prob = ODEProblem(recovered_dynamics!, Xₙ[:, 1], tspan, p_model)
-estimate = solve(estimation_prob, Tsit5(), saveat = 0.1)
+estimate = solve(estimation_prob, Tsit5(), saveat = t)
 
 # Plot
-plot(t, transpose(Xₙ))
-plot!(estimate)
+plot(t, transpose(Xₙ), color = :black, label = ["Measurements" nothing], xlabel = "t", ylabel = "x(t), y(t)")
+scatter!(estimate, color = :red, label = ["Recovered" nothing])
+
 
 ## Simulation
 
@@ -239,8 +227,8 @@ estimate_long = solve(estimation_prob, Tsit5(), saveat = 0.25)
 plot(estimate_long)
 
 ## Save the results
-save("Hudson_Bay_recovery.jld2",
+save(joinpath(pwd(),"results","Hudson_Bay_recovery.jld2"),
     "X", Xₙ, "t" , t, "neural_network" , U, "initial_parameters", p, "trained_parameters" , p_trained, # Training
-    "losses", losses, "result", Ψf, "recovered_parameters", p̂, # Recovery
+    "losses", losses, "result", Ψ, "recovered_parameters", p̂, # Recovery
     "model", recovered_dynamics!, "model_parameter", p_model,
     "long_estimate", estimate_long) # Estimation
