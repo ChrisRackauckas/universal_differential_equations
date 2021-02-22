@@ -49,6 +49,7 @@ function rc_ode(rho, p, t)
     D * lap * rho + reaction.(rho)
 end
 
+# Generate random measurements
 probpde = ODEProblem(rc_ode, rho_ic(Delta), (0.0f0, T), saveat=dt)
 solution = solve(probpde, Tsit5());
 
@@ -58,15 +59,17 @@ t = solution.t
 
 # Add noise in terms of the mean
 x̄ = mean(X, dims = 2)
-noise_magnitude = Float32(1e-2)
+noise_magnitude = Float32(2.5e-2)
 Xₙ = X .+ (noise_magnitude*x̄) .* randn(eltype(X), size(X))
+
+
 
 pl_solution_1 = plot(solution, color = :black, ylabel = "rho(x,t)", label = ["True Data" [nothing for i in 1:Nx-1]...])
 scatter!(t, transpose(Xₙ), color = :red,label = ["Noisy Data" [nothing for i in 1:Nx-1]...], legend =:bottomright)
 # Create dataset plot
 pl_contour = contour(t,x,Xₙ, xlabel = "t", ylabel = "x", fill = (true, :thermal))
 pl_initial_data = plot(pl_solution_1, pl_contour, layout = (1,2))
-savefig(pl_initial_data, "$(svname)full_data_$(noise_magnitude).pdf")
+savefig(pl_initial_data, joinpath(pwd(), "plots","$(svname)full_data_$(noise_magnitude).pdf"))
 
 ## Neural Network setup
 ## Define the network
@@ -131,22 +134,35 @@ end
 # First train with ADAM
 res1 = DiffEqFlux.sciml_train(objective_pde, p, ADAM(0.1f0), cb=callback, maxiters = 200)
 # Train with BFGS
-res2 = DiffEqFlux.sciml_train(objective_pde, res1.minimizer, BFGS(initial_stepnorm=0.1f0), cb=callback, maxiters = 10000)
+res2 = DiffEqFlux.sciml_train(objective_pde, res1.minimizer, BFGS(initial_stepnorm=0.01f0), cb=callback, maxiters = 10000)
 
 p_trained = res2.minimizer
 
-## Data evaluation
-tsample = t[1]:1.0*mean(diff(t)):t[end]
+## Data evaluation -> we subsample here!
+tsample = t[1]:0.5*mean(diff(t)):t[end]
 X̂ = predict_pde(p_trained, Xₙ[:,1], tsample)
+# Trained on noisy data vs real solution
+pl_trajectory = plot(tsample, transpose(X̂), xlabel = "t", ylabel ="rho(x,t)", color = :red,
+ label = ["UDE Approximation" [nothing for i in 1:25]...])
+scatter!(t, transpose(Xₙ), color = :black, label = ["Measurements"  [nothing for i in 1:25]...], legend = :bottomright)
+savefig(pl_trajectory, joinpath(pwd(), "plots", "$(svname)_trajectory_reconstruction.pdf"))
+
 
 # Create estimates
 R̂ = similar(X̂)
-
+R̄ = similar(X̂)
 for i in 1:size(X̂, 1), j in 1:size(X̂, 2)
     R̂[i,j] = rx_nn(X̂[i,j], p_trained[1:length(p1s)])[1]
+    R̄[i,j] = reaction(X̂[i,j])
 end
-plot(tsample, R̂', legend = nothing)
 
+pl_reconstruction = plot(tsample, R̂', label = ["UDE Approximation" [nothing for i in 1:25]...], color = :red, xlabel = "t", ylabel = "Reaction(x,t)")
+plot!(tsample, R̄', label = ["True Reaction" [nothing for i in 1:25]...], color = :black)
+pl_reconstruction_error = plot(tsample, norm.(eachcol(R̂ - R̄)), color = :red, xlabel = "t", ylabel = "L2 Error")
+pl_missing = plot(pl_reconstruction, pl_reconstruction_error, layout = (2,1))
+savefig(pl_missing, joinpath(pwd(), "plots", "$(svname)_missingterm_reconstruction_and_error.pdf"))
+pl_overall = plot(pl_trajectory, pl_missing)
+savefig(pl_overall, joinpath(pwd(), "plots", "$(svname)_reconstruction.pdf"))
 ## Symbolic regression via sparse regression / SINDy using DataDrivenDiffEq
 
 # Reshape the reactions
@@ -157,17 +173,17 @@ b = Basis(monomial_basis(u, 10), u)
 # use all measurements as one variable
 Xs = vcat(eachrow(X̂[1:end, :])...)
 Rs = vcat(eachrow(R̂[1:end, :])...)
-opt = STRRidge()#SR3(Float32(1e-2), Float32(1e-2))
+opt = STRRidge()
 λs = Float32.(exp10.(-3:0.01:2))
 g(x) = x[1] < 1 ? Inf : norm(x,2)
 Ψ = SINDy(Xs, Rs,b, λs, opt, denoise = true, normalize = true, g = g, maxiter = 20000)
 println(Ψ)
 print_equations(Ψ)
-
+print("Estimated parameters : $(parameters(Ψ))")
 
 ## Save the results
 
-save("$(svname)recovery_$(noise_magnitude).jld2",
+save(joinpath(pwd(), "results" ,"$(svname)recovery_$(noise_magnitude).jld2"),
     "solution", solution, "X", Xₙ, "t" , t, "neural_network" , rx_nn, "initial_parameters", p, "trained_parameters" , p_trained, # Training
     "losses", losses, "result", Ψ,  # Recovery
     ) # Estimation
