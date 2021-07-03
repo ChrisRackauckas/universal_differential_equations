@@ -5,7 +5,7 @@ using Pkg; Pkg.activate("."); Pkg.instantiate()
 using OrdinaryDiffEq
 using ModelingToolkit
 using DataDrivenDiffEq
-using LinearAlgebra, DiffEqSensitivity, Optim
+using LinearAlgebra, Optim
 using DiffEqFlux, Flux
 using Plots
 gr()
@@ -13,8 +13,12 @@ using JLD2, FileIO
 using Statistics
 # Set a random seed for reproduceable behaviour
 using Random
-
 Random.seed!(2345)
+
+#### NOTE
+# Since the recent release of DataDrivenDiffEq v0.6.0 where a complete overhaul of the optimizers took
+# place, SR3 has been used. Right now, STLSQ performs better and has been changed.
+
 
 # Create a name for saving ( basically a prefix )
 svname = "Scenario_2_"
@@ -108,7 +112,6 @@ function loss(θ)
         # Add the boundary condition in y
         l += abs(YS[i, 2] .- X̂[2, end])
     end
-
     return l
 end
 
@@ -128,15 +131,15 @@ end
 
 # First train with ADAM for better convergence -> move the parameters into a
 # favourable starting positing for BFGS
-res1 = DiffEqFlux.sciml_train(loss, p, ADAM(0.1f0), cb=callback, maxiters = 200)
+res1 = DiffEqFlux.sciml_train(loss, p, ADAM(0.1f0), cb=callback, maxiters = 300)
 println("Training loss after $(length(losses)) iterations: $(losses[end])")
 # Train with BFGS
-res2 = DiffEqFlux.sciml_train(loss, res1.minimizer, BFGS(initial_stepnorm=0.01f0), cb=callback, maxiters = 10000)
+res2 = DiffEqFlux.sciml_train(loss, res1.minimizer, BFGS(initial_stepnorm=0.01f0), cb=callback, maxiters = 10000, g_tol = 1e-10)
 println("Final training loss after $(length(losses)) iterations: $(losses[end])")
 
 # Plot the losses
-pl_losses = plot(1:200, losses[1:200], yaxis = :log10, xaxis = :log10, xlabel = "Iterations", ylabel = "Loss", label = "ADAM", color = :blue)
-plot!(201:length(losses), losses[201:end], yaxis = :log10, xaxis = :log10, xlabel = "Iterations", ylabel = "Loss", label = "BFGS", color = :red)
+pl_losses = plot(1:300, losses[1:300], yaxis = :log10, xaxis = :log10, xlabel = "Iterations", ylabel = "Loss", label = "ADAM", color = :blue)
+plot!(301:length(losses), losses[301:end], yaxis = :log10, xaxis = :log10, xlabel = "Iterations", ylabel = "Loss", label = "BFGS", color = :red)
 savefig(pl_losses, joinpath(pwd(), "plots", "$(svname)_losses.pdf"))
 
 # Rename the best candidate
@@ -144,9 +147,10 @@ p_trained = res2.minimizer
 
 ## Analysis of the trained network
 # Plot the data and the approximation
-X̂ = predict(p_trained)
+ts = first(solution.t):mean(diff(solution.t))/2:last(solution.t)
+X̂ = predict(p_trained, Xₙ[:, 1], ts)
 # Trained on noisy data vs real solution
-pl_trajectory = plot(t, transpose(X̂), ylabel = "t", xlabel ="x(t), y(t)", color = :red, label = ["UDE Approximation" nothing])
+pl_trajectory = plot(ts, transpose(X̂), ylabel = "t", xlabel ="x(t), y(t)", color = :red, label = ["UDE Approximation" nothing])
 scatter!(t, X[1,:], color = :black, label = "Measurements")
 ymeasurements = unique!(vcat(YS...))
 tmeasurements = unique!(vcat([[ts[1], ts[end]] for ts in eachrow(TS)]...))
@@ -158,12 +162,12 @@ Ȳ = [-p_[2]*(X̂[1,:].*X̂[2,:])';p_[3]*(X̂[1,:].*X̂[2,:])']
 # Neural network guess
 Ŷ = U(X̂,p_trained[2:end])
 
-pl_reconstruction = plot(t, transpose(Ŷ), xlabel = "t", ylabel ="U(x,y)", color = :red, label = ["UDE Approximation" nothing])
-plot!(t, transpose(Ȳ), color = :black, label = ["True Interaction" nothing], legend = :topleft)
+pl_reconstruction = plot(ts, transpose(Ŷ), xlabel = "t", ylabel ="U(x,y)", color = :red, label = ["UDE Approximation" nothing])
+plot!(ts, transpose(Ȳ), color = :black, label = ["True Interaction" nothing], legend = :topleft)
 savefig(pl_reconstruction, joinpath(pwd(), "plots", "$(svname)_missingterm_reconstruction.pdf"))
 
 # Plot the error
-pl_reconstruction_error = plot(t, norm.(eachcol(Ȳ-Ŷ)), yaxis = :log, xlabel = "t", ylabel = "L2-Error", color = :red, label = nothing)
+pl_reconstruction_error = plot(ts, norm.(eachcol(Ȳ-Ŷ)), yaxis = :log, xlabel = "t", ylabel = "L2-Error", color = :red, label = nothing)
 pl_missing = plot(pl_reconstruction, pl_reconstruction_error, layout = (2,1))
 savefig(pl_missing, joinpath(pwd(), "plots", "$(svname)_missingterm_reconstruction_and_error.pdf"))
 pl_overall = plot(pl_trajectory, pl_missing)
@@ -172,49 +176,39 @@ savefig(pl_overall, joinpath(pwd(), "plots", "$(svname)_reconstruction.pdf"))
 
 # Create a Basis
 @variables u[1:2]
-
 # Generate the basis functions, multivariate polynomials up to deg 5
 # and sine
 b = [polynomial_basis(u, 5); sin.(u)]
 basis = Basis(b, u)
 
-# Create an optimizer for the SINDy problem
-opt = SR3(Float32(1e-2), Float32(1e-2))
 # Create the thresholds which should be used in the search process
-λ = Float32.(exp10.(-7:0.1:3))
+λ = Float32.(exp10.(-3:0.01:5))
+# Create an optimizer for the SINDy problem
+opt = STLSQ(λ)
 # Target function to choose the results from; x = L0 of coefficients and L2-Error of the model
-g(x) = x[1] < 1 ? Inf : norm(x, 2)
+g(x) = x[1] <= 1 ? Inf : 2*x[1]-2*log(x[2])
 
+# Define different problems for the recovery
+full_problem = ContinuousDataDrivenProblem(solution)
+ideal_problem = ContinuousDataDrivenProblem(X̂, ts, DX = Ȳ)
+nn_problem = ContinuousDataDrivenProblem(X̂, ts, DX = Ŷ)
 # Test on ideal derivative data for unknown function ( not available )
-println("SINDy on partial ideal, unavailable data")
-Ψ = SINDy(X̂, Ȳ, basis, λ, opt, g = g, maxiter = 10000) # Succeed
-println(Ψ)
-print_equations(Ψ)
-
-# Test on uode derivative data
-println("SINDy on learned, partial, available data")
-Ψ = SINDy(X̂, Ŷ, basis, λ,  opt, g = g, maxiter = 10000, normalize = true, denoise = true) # Succeed
-println(Ψ)
-print_equations(Ψ)
-
-# Extract the parameter
-p̂ = parameters(Ψ)
-println("First parameter guess : $(p̂)")
-
-# Just the equations
-b = Basis((u, p, t)->Ψ(u, [1.; 1.], t), u)
-
-# Retune for better parameters -> we could also use DiffEqFlux or other parameter estimation tools here.
-Ψf = SINDy(X̂, Ŷ, b, STRRidge(0.01), maxiter = 100, convergence_error = 1e-18) # Succeed
-println(Ψf)
-p̂ = parameters(Ψf)
-println("Second parameter guess : $(p̂)")
-println("Overall parameter guess : $(abs.([p̂; p_trained[1]]))")
-println("True paramter : $(p_[2:end])")
+println("Sparse regression")
+full_res = solve(full_problem, basis, opt, maxiter = 10000, progress = true)
+ideal_res = solve(ideal_problem, basis, opt, maxiter = 10000, progress = true)
+nn_res = solve(nn_problem, basis, opt, maxiter = 10000, progress = true)
+# Store the results
+results = [full_res; ideal_res; nn_res]
+# Show the results
+map(println, results)
+# Show the results
+map(println ∘ result, results)
+# Show the identified parameters
+map(println ∘ parameter_map, results)
 
 # Define the recovered, hyrid model
 function recovered_dynamics!(du,u, p, t, p_true)
-    û = Ψf(u, p) # Network prediction
+    û = nn_res(u, p) # Network prediction
     du[1] = p_true[1]*u[1] + û[1]
     du[2] = -p_trained[1]*u[2] + û[2] # Learned paramter + prediction
 end
@@ -222,7 +216,7 @@ end
 # Closure with the known parameter
 estimated_dynamics!(du,u,p,t) = recovered_dynamics!(du,u,p,t,p_)
 
-estimation_prob = ODEProblem(estimated_dynamics!, u0, tspan, p̂)
+estimation_prob = ODEProblem(estimated_dynamics!, u0, tspan, parameters(nn_res))
 estimate = solve(estimation_prob, Tsit5(), saveat = t)
 
 # Plot
@@ -233,7 +227,7 @@ plot!(estimate)
 
 # Look at long term prediction
 t_long = (0.0f0, 50.0f0)
-estimation_prob = ODEProblem(estimated_dynamics!, u0, t_long, p̂)
+estimation_prob = ODEProblem(estimated_dynamics!, u0, t_long, parameters(nn_res))
 estimate_long = solve(estimation_prob, Tsit5(), saveat = 0.1) # Using higher tolerances here results in exit of julia
 plot(estimate_long)
 
@@ -244,7 +238,7 @@ plot!(true_solution_long)
 ## Save the results
 save(joinpath(pwd(), "results" ,"$(svname)recovery_$(noise_magnitude).jld2"),
     "solution", solution, "X", Xₙ, "t" , t, "neural_network" , U, "initial_parameters", p, "trained_parameters" , p_trained, # Training
-    "losses", losses, "result", Ψf, "recovered_parameters", p̂, # Recovery
+    "losses", losses, "result", nn_res, "recovered_parameters", parameters(nn_res), # Recovery
     "long_solution", true_solution_long, "long_estimate", estimate_long) # Estimation
 
 

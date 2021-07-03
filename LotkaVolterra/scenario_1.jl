@@ -6,7 +6,7 @@ using Pkg; Pkg.activate("."); Pkg.instantiate()
 using OrdinaryDiffEq
 using ModelingToolkit
 using DataDrivenDiffEq
-using LinearAlgebra, DiffEqSensitivity, Optim
+using LinearAlgebra, Optim
 using DiffEqFlux, Flux
 using Plots
 gr()
@@ -15,6 +15,10 @@ using Statistics
 # Set a random seed for reproduceable behaviour
 using Random
 Random.seed!(1234)
+
+#### NOTE
+# Since the recent release of DataDrivenDiffEq v0.6.0 where a complete overhaul of the optimizers took
+# place, SR3 has been used. Right now, STLSQ performs better and has been changed.
 
 # Create a name for saving ( basically a prefix )
 svname = "Scenario_1_"
@@ -48,7 +52,7 @@ scatter!(t, transpose(Xₙ), color = :red, label = ["Noisy Data" nothing])
 # Gaussian RBF as activation
 rbf(x) = exp.(-(x.^2))
 
-# Define the network 2->5->5->5->2
+# Multilayer FeedForward
 U = FastChain(
     FastDense(2,5,rbf), FastDense(5,5, rbf), FastDense(5,5, rbf), FastDense(5,2)
 )
@@ -114,10 +118,11 @@ p_trained = res2.minimizer
 
 ## Analysis of the trained network
 # Plot the data and the approximation
-X̂ = predict(p_trained, Xₙ[:,1], t[1]:0.05f0:t[end])
+ts = first(solution.t):mean(diff(solution.t))/2:last(solution.t)
+X̂ = predict(p_trained, Xₙ[:,1], ts)
 # Trained on noisy data vs real solution
-pl_trajectory = plot(t[1]:0.05f0:t[end], transpose(X̂), xlabel = "t", ylabel ="x(t), y(t)", color = :red, label = ["UDE Approximation" nothing])
-scatter!(t, transpose(Xₙ), color = :black, label = ["Measurements" nothing])
+pl_trajectory = plot(ts, transpose(X̂), xlabel = "t", ylabel ="x(t), y(t)", color = :red, label = ["UDE Approximation" nothing])
+scatter!(solution.t, transpose(Xₙ), color = :black, label = ["Measurements" nothing])
 savefig(pl_trajectory, joinpath(pwd(), "plots", "$(svname)_trajectory_reconstruction.pdf"))
 
 # Ideal unknown interactions of the predictor
@@ -125,12 +130,12 @@ Ȳ = [-p_[2]*(X̂[1,:].*X̂[2,:])';p_[3]*(X̂[1,:].*X̂[2,:])']
 # Neural network guess
 Ŷ = U(X̂,p_trained)
 
-pl_reconstruction = plot(t[1]:0.05f0:t[end], transpose(Ŷ), xlabel = "t", ylabel ="U(x,y)", color = :red, label = ["UDE Approximation" nothing])
-plot!(t[1]:0.05f0:t[end], transpose(Ȳ), color = :black, label = ["True Interaction" nothing])
+pl_reconstruction = plot(ts, transpose(Ŷ), xlabel = "t", ylabel ="U(x,y)", color = :red, label = ["UDE Approximation" nothing])
+plot!(ts, transpose(Ȳ), color = :black, label = ["True Interaction" nothing])
 savefig(pl_reconstruction, joinpath(pwd(), "plots", "$(svname)_missingterm_reconstruction.pdf"))
 
 # Plot the error
-pl_reconstruction_error = plot(t[1]:0.05f0:t[end], norm.(eachcol(Ȳ-Ŷ)), yaxis = :log, xlabel = "t", ylabel = "L2-Error", label = nothing, color = :red)
+pl_reconstruction_error = plot(ts, norm.(eachcol(Ȳ-Ŷ)), yaxis = :log, xlabel = "t", ylabel = "L2-Error", label = nothing, color = :red)
 pl_missing = plot(pl_reconstruction, pl_reconstruction_error, layout = (2,1))
 savefig(pl_missing, joinpath(pwd(), "plots", "$(svname)_missingterm_reconstruction_and_error.pdf"))
 pl_overall = plot(pl_trajectory, pl_missing)
@@ -144,51 +149,38 @@ savefig(pl_overall, joinpath(pwd(), "plots", "$(svname)_reconstruction.pdf"))
 b = [polynomial_basis(u, 5); sin.(u)]
 basis = Basis(b, u)
 
-# Create an optimizer for the SINDy problem
-opt = SR3(Float32(1e-2), Float32(0.1))
 # Create the thresholds which should be used in the search process
-λ = Float32.(exp10.(-7:0.1:5))
-# Target function to choose the results from; x = L0 of coefficients and L2-Error of the model
-g(x) = x[1] < 1 ? Inf : norm(x, 2)
-
+λ = Float32.(exp10.(-7:0.1:0))
+# Create an optimizer for the SINDy problem
+opt = STLSQ(λ)
+# Define different problems for the recovery
+full_problem = ContinuousDataDrivenProblem(solution)
+ideal_problem = ContinuousDataDrivenProblem(X̂, ts, DX = Ȳ)
+nn_problem = ContinuousDataDrivenProblem(X̂, ts, DX = Ŷ)
 # Test on ideal derivative data for unknown function ( not available )
-println("SINDy on partial ideal, unavailable data")
-Ψ = SINDy(X̂, Ȳ, basis, λ, opt, g = g, maxiter = 10000) # Succeed
-println(Ψ)
-print_equations(Ψ)
-
-# Test on uode derivative data
-println("SINDy on learned, partial, available data")
-Ψ = SINDy(X̂, Ŷ, basis, λ,  opt, g = g, maxiter = 50000, normalize = true, denoise = true, convergence_error = Float32(1e-10)) # Succeed
-println(Ψ)
-print_equations(Ψ)
-
-# Extract the parameter
-p̂ = parameters(Ψ)
-println("First parameter guess : $(p̂)")
-
-# Just the equations
-b = Basis((u, p, t)->Ψ(u, [1f0; 1f0], t), u)
-
-# Retune for better parameters -> we could also use DiffEqFlux or other parameter estimation tools here.
-Ψf = SINDy(X̂, Ŷ, b, STRRidge(0.01f0), maxiter = 100, convergence_error = Float32(1e-18)) # Succeed
-println(Ψf)
-p̂ = parameters(Ψf)
-println("Second parameter guess : $(abs.(p̂))")
-println("True parameter : $(p_[2:3])")
+println("Sparse regression")
+full_res = solve(full_problem, basis, opt, maxiter = 10000, progress = true)
+ideal_res = solve(ideal_problem, basis, opt, maxiter = 10000, progress = true)
+nn_res = solve(nn_problem, basis, opt, maxiter = 10000, progress = true)
+# Store the results
+results = [full_res; ideal_res; nn_res]
+# Show the results
+map(println, results)
+# Show the results
+map(println ∘ result, results)
+# Show the identified parameters
+map(println ∘ parameter_map, results)
 
 # Define the recovered, hyrid model
-function recovered_dynamics!(du,u, p, t, p_true)
-    û = Ψf(u, p) # Network prediction
-    du[1] = p_true[1]*u[1] + û[1]
-    du[2] = -p_true[4]*u[2] + û[2]
+function recovered_dynamics!(du,u, p, t)
+    û = nn_res(u, p) # Network prediction
+    du[1] = p_[1]*u[1] + û[1]
+    du[2] = -p_[4]*u[2] + û[2]
 end
 
-# Closure with the known parameter
-estimated_dynamics!(du,u,p,t) = recovered_dynamics!(du,u,p,t,p_)
 
-estimation_prob = ODEProblem(estimated_dynamics!, u0, tspan, p̂)
-estimate = solve(estimation_prob, Tsit5(), saveat = t)
+estimation_prob = ODEProblem(recovered_dynamics!, u0, tspan, parameters(nn_res))
+estimate = solve(estimation_prob, Tsit5(), saveat = solution.t)
 
 # Plot
 plot(solution)
@@ -208,8 +200,8 @@ plot!(true_solution_long)
 
 ## Save the results
 save(joinpath(pwd(), "results" ,"$(svname)recovery_$(noise_magnitude).jld2"),
-    "solution", solution, "X", Xₙ, "t" , t, "neural_network" , U, "initial_parameters", p, "trained_parameters" , p_trained, # Training
-    "losses", losses, "result", Ψf, "recovered_parameters", p̂, # Recovery
+    "solution", solution, "X", Xₙ, "t" , ts, "neural_network" , U, "initial_parameters", p, "trained_parameters" , p_trained, # Training
+    "losses", losses, "result", nn_res, "recovered_parameters", parameters(nn_res), # Recovery
     "long_solution", true_solution_long, "long_estimate", estimate_long) # Estimation
 
 

@@ -5,7 +5,7 @@ using Pkg; Pkg.activate("."); Pkg.instantiate()
 using OrdinaryDiffEq
 using ModelingToolkit
 using DataDrivenDiffEq
-using LinearAlgebra, DiffEqSensitivity, Optim
+using LinearAlgebra, Optim
 using DiffEqFlux, Flux
 using Plots
 gr()
@@ -106,9 +106,9 @@ prob_nn = ODEProblem(nn_ode, Xₙ[:, 1], (t[1], t[end]), p)
 
 function predict_pde(θ, X = Xₙ[:, 1], T = t)
   # No ReverseDiff if using Flux
-  Array(solve(prob_nn,Tsit5(),
+  Array(solve(prob_nn, Vern7(),
         u0 = X, p = θ, tspan = (T[1], T[end]), saveat=T,
-        sensealg=ForwardDiffSensitivity()
+        sensealg=ForwardDiffSensitivity(convert_tspan = false)#, reltol = 1e-4, abstol = 1e-4
         ))
 end
 
@@ -132,14 +132,13 @@ end
 
 ## Train the model
 # First train with ADAM
-res1 = DiffEqFlux.sciml_train(objective_pde, p, ADAM(0.1f0), cb=callback, maxiters = 200)
+res1 = DiffEqFlux.sciml_train(objective_pde, p, ADAM(0.1f0), cb=callback, maxiters = 40)
 # Train with BFGS
-res2 = DiffEqFlux.sciml_train(objective_pde, res1.minimizer, BFGS(initial_stepnorm=0.01f0), cb=callback, maxiters = 10000)
-
+res2 = DiffEqFlux.sciml_train(objective_pde, res1.minimizer, BFGS(initial_stepnorm=0.1f0), cb=callback, maxiters = 10000)
 p_trained = res2.minimizer
 
 ## Data evaluation -> we subsample here!
-tsample = t[1]:0.5*mean(diff(t)):t[end]
+tsample = t[1]:1.0*mean(diff(t)):t[end]
 X̂ = predict_pde(p_trained, Xₙ[:,1], tsample)
 # Trained on noisy data vs real solution
 pl_trajectory = plot(tsample, transpose(X̂), xlabel = "t", ylabel ="rho(x,t)", color = :red,
@@ -171,19 +170,24 @@ b = Basis(monomial_basis(u, 10), u)
 # We assume (via the modeling) a common mapping of the states
 # via the reaction. In other words a global function. Hence, we can
 # use all measurements as one variable
-Xs = vcat(eachrow(X̂[1:end, :])...)
-Rs = vcat(eachrow(R̂[1:end, :])...)
-opt = STRRidge()
-λs = Float32.(exp10.(-3:0.01:2))
-g(x) = x[1] < 1 ? Inf : norm(x,2)
-Ψ = SINDy(Xs, Rs,b, λs, opt, denoise = true, normalize = true, g = g, maxiter = 20000)
-println(Ψ)
-print_equations(Ψ)
-print("Estimated parameters : $(parameters(Ψ))")
+Xs = Matrix(vcat(eachrow(X̂[1:end, :])...)')
+Rs = Matrix(vcat(eachrow(R̂[1:end, :])...)')
 
+# Technically this is cheating until a general DataDrivenProblem is defined properly.
+# we work with the continuous form
+nn_prob = ContinuousDataDrivenProblem(Xs, zeros(Float32, size(Xs, 2)), DX = Rs)
+
+λs = Float32.(exp10.(-3:0.01:5))
+opt = STLSQ(λs)
+
+nn_res = solve(nn_prob, b, opt, maxiters = 1000, progress = true, denoise = true, normalize = false)
+# Print the output
+println(nn_res)
+println(result(nn_res))
+println(parameters(nn_res))
 ## Save the results
 
 save(joinpath(pwd(), "results" ,"$(svname)recovery_$(noise_magnitude).jld2"),
     "solution", solution, "X", Xₙ, "t" , t, "neural_network" , rx_nn, "initial_parameters", p, "trained_parameters" , p_trained, # Training
-    "losses", losses, "result", Ψ,  # Recovery
+    "losses", losses, "result", nn_res,  # Recovery
     ) # Estimation
