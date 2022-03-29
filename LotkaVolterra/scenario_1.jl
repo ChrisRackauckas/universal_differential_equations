@@ -190,7 +190,7 @@ plot!(estimate)
 
 # Look at long term prediction
 t_long = (0.0f0, 50.0f0)
-estimation_prob = ODEProblem(estimated_dynamics!, u0, t_long, p̂)
+estimation_prob = ODEProblem(recovered_dynamics!, u0, t_long, parameters(nn_res))
 estimate_long = solve(estimation_prob, Tsit5(), saveat = 0.1) # Using higher tolerances here results in exit of julia
 plot(estimate_long)
 
