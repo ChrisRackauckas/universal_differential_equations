@@ -7,13 +7,16 @@ using OrdinaryDiffEq
 using ModelingToolkit
 using DataDrivenDiffEq
 using LinearAlgebra, Optim
-using DiffEqFlux, Flux
+using Optimization, OptimizationFlux, OptimizationOptimJL #OptimizationFlux for ADAM and OptimizationOptimJL for BFGS
+using DiffEqSensitivity
+using Lux
 using Plots
 gr()
 using JLD2, FileIO
 using Statistics
 # Set a random seed for reproduceable behaviour
 using Random
+rng = Random.default_rng()
 Random.seed!(1234)
 
 #### NOTE
@@ -53,15 +56,15 @@ scatter!(t, transpose(Xₙ), color = :red, label = ["Noisy Data" nothing])
 rbf(x) = exp.(-(x.^2))
 
 # Multilayer FeedForward
-U = FastChain(
-    FastDense(2,5,rbf), FastDense(5,5, rbf), FastDense(5,5, rbf), FastDense(5,2)
+U = Lux.Chain(
+    Lux.Dense(2,5,rbf), Lux.Dense(5,5, rbf), Lux.Dense(5,5, rbf), Lux.Dense(5,2)
 )
-# Get the initial parameters
-p = initial_params(U)
+# Get the initial parameters and state variables of the model
+p, st = Lux.setup(rng, U)
 
 # Define the hybrid model
 function ude_dynamics!(du,u, p, t, p_true)
-    û = U(u, p) # Network prediction
+    û = U(u, p, st)[1] # Network prediction
     du[1] = p_true[1]*u[1] + û[1]
     du[2] = -p_true[4]*u[2] + û[2]
 end
@@ -75,7 +78,7 @@ prob_nn = ODEProblem(nn_dynamics!,Xₙ[:, 1], tspan, p)
 # Define a predictor
 function predict(θ, X = Xₙ[:,1], T = t)
     Array(solve(prob_nn, Vern7(), u0 = X, p=θ,
-                tspan = (T[1], T[end]), saveat = T,
+                saveat = T,
                 abstol=1e-6, reltol=1e-6,
                 sensealg = ForwardDiffSensitivity()
                 ))
@@ -91,22 +94,34 @@ end
 losses = Float32[]
 
 # Callback to show the loss during training
-callback(θ,l) = begin
-    push!(losses, l)
-    if length(losses)%50==0
-        println("Current loss after $(length(losses)) iterations: $(losses[end])")
-    end
-    false
+# callback(θ,l) = begin
+#     push!(losses, l)
+#     if length(losses)%50==0
+#         println("Current loss after $(length(losses)) iterations: $(losses[end])")
+#     end
+#     false
+# end
+
+callback = function (p, l)
+  push!(losses, l)
+  if length(losses)%50==0
+      println("Current loss after $(length(losses)) iterations: $(losses[end])")
+  end
+  return false
 end
 
 ## Training
 
 # First train with ADAM for better convergence -> move the parameters into a
 # favourable starting positing for BFGS
-res1 = DiffEqFlux.sciml_train(loss, p, ADAM(0.1f0), cb=callback, maxiters = 200)
+adtype = Optimization.AutoZygote()
+optf = Optimization.OptimizationFunction((x,p)->loss(x), adtype)
+optprob = Optimization.OptimizationProblem(optf, Lux.ComponentArray(p))
+res1 = Optimization.solve(optprob, ADAM(0.1), callback=callback, maxiters = 200)
 println("Training loss after $(length(losses)) iterations: $(losses[end])")
 # Train with BFGS
-res2 = DiffEqFlux.sciml_train(loss, res1.minimizer, BFGS(initial_stepnorm=0.01f0), cb=callback, maxiters = 10000)
+optprob2 = Optimization.OptimizationProblem(optf, res1.minimizer)
+res2 = Optimization.solve(optprob2, Optim.BFGS(initial_stepnorm=0.01), callback=callback, maxiters = 10000)
 println("Final training loss after $(length(losses)) iterations: $(losses[end])")
 
 # Plot the losses
@@ -128,7 +143,7 @@ savefig(pl_trajectory, joinpath(pwd(), "plots", "$(svname)_trajectory_reconstruc
 # Ideal unknown interactions of the predictor
 Ȳ = [-p_[2]*(X̂[1,:].*X̂[2,:])';p_[3]*(X̂[1,:].*X̂[2,:])']
 # Neural network guess
-Ŷ = U(X̂,p_trained)
+Ŷ = U(X̂,p_trained,st)[1]
 
 pl_reconstruction = plot(ts, transpose(Ŷ), xlabel = "t", ylabel ="U(x,y)", color = :red, label = ["UDE Approximation" nothing])
 plot!(ts, transpose(Ȳ), color = :black, label = ["True Interaction" nothing])
@@ -147,7 +162,7 @@ savefig(pl_overall, joinpath(pwd(), "plots", "$(svname)_reconstruction.pdf"))
 # Generate the basis functions, multivariate polynomials up to deg 5
 # and sine
 b = [polynomial_basis(u, 5); sin.(u)]
-basis = Basis(b, u)
+basis = Basis(b,u)
 
 # Create the thresholds which should be used in the search process
 λ = Float32.(exp10.(-7:0.1:0))
