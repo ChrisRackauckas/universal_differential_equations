@@ -93,15 +93,6 @@ end
 # Container to track the losses
 losses = Float32[]
 
-# Callback to show the loss during training
-# callback(θ,l) = begin
-#     push!(losses, l)
-#     if length(losses)%50==0
-#         println("Current loss after $(length(losses)) iterations: $(losses[end])")
-#     end
-#     false
-# end
-
 callback = function (p, l)
   push!(losses, l)
   if length(losses)%50==0
@@ -162,14 +153,14 @@ savefig(pl_overall, joinpath(pwd(), "plots", "$(svname)_reconstruction.pdf"))
 # Generate the basis functions, multivariate polynomials up to deg 5
 # and sine
 b = [polynomial_basis(u, 5); sin.(u)]
-basis = Basis(b,u)
+basis = Basis(b,u);
 
 # Create the thresholds which should be used in the search process
 λ = Float32.(exp10.(-7:0.1:0))
 # Create an optimizer for the SINDy problem
 opt = STLSQ(λ)
 # Define different problems for the recovery
-full_problem = ContinuousDataDrivenProblem(solution)
+full_problem = ContinuousDataDrivenProblem(X, t)
 ideal_problem = ContinuousDataDrivenProblem(X̂, ts, DX = Ȳ)
 nn_problem = ContinuousDataDrivenProblem(X̂, ts, DX = Ŷ)
 # Test on ideal derivative data for unknown function ( not available )
@@ -205,7 +196,7 @@ plot!(estimate)
 
 # Look at long term prediction
 t_long = (0.0f0, 50.0f0)
-estimation_prob = ODEProblem(estimated_dynamics!, u0, t_long, p̂)
+estimation_prob = ODEProblem(recovered_dynamics!, u0, t_long, parameters(nn_res))
 estimate_long = solve(estimation_prob, Tsit5(), saveat = 0.1) # Using higher tolerances here results in exit of julia
 plot(estimate_long)
 
