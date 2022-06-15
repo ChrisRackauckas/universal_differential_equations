@@ -46,7 +46,7 @@ t = solution.t
 
 # Add noise in terms of the mean
 x̄ = mean(X, dims = 2)
-noise_magnitude = Float32(5e-2)
+noise_magnitude = Float32(5e-3)
 Xₙ = X .+ (noise_magnitude*x̄) .* randn(eltype(X), size(X))
 
 plot(solution, alpha = 0.75, color = :black, label = ["True Data" nothing])
