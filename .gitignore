@@ -17,5 +17,5 @@ deps/src/
 docs/build/
 docs/site/
 LotkaVolterra/.DS_Store
-.DS_Store
+*.DS_Store
 Project.toml
