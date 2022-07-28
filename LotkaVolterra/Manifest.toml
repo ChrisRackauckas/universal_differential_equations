@@ -286,6 +286,12 @@ version = "3.45.0"
 deps = ["Artifacts", "Libdl"]
 uuid = "e66e0078-7015-5450-92f7-15fbd957f2ae"
 
+[[ComponentArrays]]
+deps = ["ArrayInterface", "ChainRulesCore", "LinearAlgebra", "Requires"]
+git-tree-sha1 = "bdbd8f6d825682ba991b69842a4053ac0f588226"
+uuid = "b0b7db55-cfe3-40fc-9ded-d10e2dbeff66"
+version = "0.12.4"
+
 [[CompositeTypes]]
 git-tree-sha1 = "d5b014b216dc891e81fea299638e4c10c657b582"
 uuid = "b152e2b5-7a66-4b01-a709-34e65c35f657"
@@ -1174,6 +1180,12 @@ git-tree-sha1 = "adc9421494fd93e31a18a66e49d79615ad6b2efa"
 uuid = "bdcacae8-1622-11e9-2a5c-532679323890"
 version = "0.12.120"
 
+[[Lux]]
+deps = ["Adapt", "CUDA", "ChainRulesCore", "ComponentArrays", "FillArrays", "Functors", "LinearAlgebra", "Markdown", "NNlib", "NNlibCUDA", "Optimisers", "Random", "Requires", "Setfield", "SparseArrays", "Statistics", "Zygote"]
+git-tree-sha1 = "94dc5071b0a99368ec4588b90046016db86f702d"
+uuid = "b2108857-7c20-44ae-9111-449ecde12c47"
+version = "0.4.11"
+
 [[MKL_jll]]
 deps = ["Artifacts", "IntelOpenMP_jll", "JLLWrappers", "LazyArtifacts", "Libdl", "Pkg"]
 git-tree-sha1 = "e595b205efd49508358f7dc670a940c790204629"
@@ -1385,6 +1397,24 @@ deps = ["ChainRulesCore", "Functors", "LinearAlgebra", "Random", "Statistics"]
 git-tree-sha1 = "62844c5525c3f13b3107aa2c25a06208ecadde88"
 uuid = "3bd65402-5787-11e9-1adc-39752487f4e2"
 version = "0.2.8"
+
+[[Optimization]]
+deps = ["ArrayInterfaceCore", "ConsoleProgressMonitor", "DiffResults", "DocStringExtensions", "Logging", "LoggingExtras", "Pkg", "Printf", "ProgressLogging", "Reexport", "Requires", "SciMLBase", "SparseArrays", "TerminalLoggers"]
+git-tree-sha1 = "34e947f0cdb8172f25533279d6abc28d03b29584"
+uuid = "7f7a1694-90dd-40f0-9382-eb1efda571ba"
+version = "3.8.0"
+
+[[OptimizationFlux]]
+deps = ["Flux", "Optimization", "Printf", "ProgressLogging", "Reexport"]
+git-tree-sha1 = "a2eb4ec758a38ce82ace42b806d341ac0457b604"
+uuid = "253f991c-a7b2-45f8-8852-8b9a9df78a86"
+version = "0.1.0"
+
+[[OptimizationOptimJL]]
+deps = ["Optim", "Optimization", "Reexport", "SparseArrays"]
+git-tree-sha1 = "76ac41f9e82ba98a600d8a380532adef76b27e15"
+uuid = "36348300-93cb-4f02-beb5-3c3902f8871e"
+version = "0.1.2"
 
 [[Opus_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
