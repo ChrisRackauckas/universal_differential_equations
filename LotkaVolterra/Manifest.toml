@@ -1404,17 +1404,17 @@ git-tree-sha1 = "34e947f0cdb8172f25533279d6abc28d03b29584"
 uuid = "7f7a1694-90dd-40f0-9382-eb1efda571ba"
 version = "3.8.0"
 
-[[OptimizationFlux]]
-deps = ["Flux", "Optimization", "Printf", "ProgressLogging", "Reexport"]
-git-tree-sha1 = "a2eb4ec758a38ce82ace42b806d341ac0457b604"
-uuid = "253f991c-a7b2-45f8-8852-8b9a9df78a86"
-version = "0.1.0"
-
 [[OptimizationOptimJL]]
 deps = ["Optim", "Optimization", "Reexport", "SparseArrays"]
 git-tree-sha1 = "76ac41f9e82ba98a600d8a380532adef76b27e15"
 uuid = "36348300-93cb-4f02-beb5-3c3902f8871e"
 version = "0.1.2"
+
+[[OptimizationOptimisers]]
+deps = ["Optimisers", "Optimization", "Printf", "ProgressLogging", "Reexport"]
+git-tree-sha1 = "e2f152fc4adc9a634ca6ec00de2f2500d8642789"
+uuid = "42dfb2eb-d2b4-4451-abcd-913932933ac1"
+version = "0.1.0"
 
 [[Opus_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]

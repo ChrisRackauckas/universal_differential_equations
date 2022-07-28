@@ -1,3 +1,4 @@
+
 ## Environment and packages
 cd(@__DIR__)
 using Pkg; Pkg.activate("."); Pkg.instantiate()
@@ -5,14 +6,18 @@ using Pkg; Pkg.activate("."); Pkg.instantiate()
 using OrdinaryDiffEq
 using ModelingToolkit
 using DataDrivenDiffEq
-using LinearAlgebra, Optim
-using DiffEqFlux, Flux
+using LinearAlgebra
+using Optimization, OptimizationOptimisers, OptimizationOptimJL #OptimizationFlux for ADAM and OptimizationOptimJL for BFGS
+using DiffEqSensitivity
+using Lux
+using ComponentArrays
 using Plots
 gr()
 using JLD2, FileIO
 using Statistics
 # Set a random seed for reproduceable behaviour
 using Random
+rng = Random.default_rng()
 Random.seed!(2345)
 
 #### NOTE
@@ -31,30 +36,31 @@ function lotka!(du, u, p, t)
 end
 
 # Define the experimental parameter
-tspan = (0.0f0,6.0f0)
-u0 = Float32[0.44249296,4.6280594]
-p_ = Float32[1.3, 0.9, 0.8, 1.8]
+tspan = (0.0,6.0)
+u0 = [0.44249296,4.6280594]
+p_ = [1.3, 0.9, 0.8, 1.8]
 prob = ODEProblem(lotka!, u0,tspan, p_)
 solution = solve(prob, Vern7(), abstol=1e-6, reltol=1e-6, saveat = 0.1)
-
-scatter(solution, alpha = 0.25)
-plot!(solution, alpha = 0.5)
 
 # Ideal data
 X = Array(solution)
 t = solution.t
+DX = Array(solution(solution.t, Val{1}))
+
+full_problem = DataDrivenProblem(X, t = t, DX = DX)
+
 # Add noise in terms of the mean
 x̄ = mean(X, dims = 2)
-noise_magnitude = Float32(1e-2)
+noise_magnitude = 5e-3
 Xₙ = X .+ (noise_magnitude*x̄) .* randn(eltype(X), size(X))
 
 # Subsample the data in y
 # We assume we have only 5 measurements in y, evenly distributed
-ty = collect(t[1]:Float32(6/5):t[end])
+ty = collect(t[1]:Float64(6/5):t[end])
 # Create datasets for the different measurements
 round(Int64, mean(diff(ty))/mean(diff(t)))
-XS = zeros(eltype(X), length(ty)-1, floor(Int64, mean(diff(ty))/mean(diff(t)))+1) # All x data
-TS = zeros(eltype(t), length(ty)-1, floor(Int64, mean(diff(ty))/mean(diff(t)))+1) # Time data
+XS = zeros(eltype(X), length(ty)-1, ceil(Int64, mean(diff(ty))/mean(diff(t)))+1) # All x data
+TS = zeros(eltype(t), length(ty)-1, ceil(Int64, mean(diff(ty))/mean(diff(t)))+1) # Time data
 YS = zeros(eltype(X), length(ty)-1, 2) # Just two measurements in y
 
 for i in 1:length(ty)-1
@@ -64,26 +70,28 @@ for i in 1:length(ty)-1
     YS[i, :] = [Xₙ[2, t .== ty[i]]'; Xₙ[2, t .== ty[i+1]]]
 end
 
-XS
-
 scatter!(t, transpose(Xₙ))
 ## Define the network
 # Gaussian RBF as activation
 rbf(x) = exp.(-(x.^2))
 
-# Define the network 2->5->5->5->2
-U = FastChain(
-    FastDense(2,5,rbf), FastDense(5,5, rbf), FastDense(5,5, rbf), FastDense(5,2)
+# Multilayer FeedForward
+U = Lux.Chain(
+    Lux.Dense(2,5,rbf), Lux.Dense(5,5, rbf), Lux.Dense(5,5, rbf), Lux.Dense(5,2)
 )
-# Get the initial parameters, first is linear decay
-p = [rand(Float32); initial_params(U)]
 
+# Get the initial parameters and state variables of the model
+p_nn, st_nn = Lux.setup(rng, U) 
+
+# Merge the parameters
+p = (;δ = rand(rng), ude = p_nn)
+p = ComponentVector{Float64}(p)
 # Define the hybrid model
 function ude_dynamics!(du,u, p, t, p_true)
-    û = U(u, p[2:end]) # Network prediction
+    û = U(u, p.ude, st_nn)[1] # Network prediction
     du[1] = p_true[1]*u[1] + û[1]
     # We assume a linear decay rate for the predator
-    du[2] = -p[1]*u[2] + û[2]
+    du[2] = -p.δ*u[2] + û[2]
 end
 
 # Closure with the known parameter
@@ -94,8 +102,8 @@ prob_nn = ODEProblem(nn_dynamics!,Xₙ[:, 1], tspan, p)
 ## Function to train the network
 # Define a predictor
 function predict(θ, X = Xₙ[:,1], T = t)
-    Array(solve(prob_nn, Vern7(), u0 = X, p=θ,
-                tspan = (T[1], T[end]), saveat = T,
+    _prob = remake(prob_nn, u0 = X, tspan = (T[1], T[end]), p = θ)
+    Array(solve(_prob, Vern7(), saveat = T,
                 abstol=1e-6, reltol=1e-6,
                 sensealg = ForwardDiffSensitivity()
                 ))
@@ -116,32 +124,34 @@ function loss(θ)
 end
 
 # Container to track the losses
-losses = Float32[]
+losses = Float64[]
 
-# Callback to show the loss during training
-callback(θ,l) = begin
-    push!(losses, l)
-    if length(losses)%50==0
-        println("Current loss after $(length(losses)) iterations: $(losses[end])")
-    end
-    false
+callback = function (p, l)
+  push!(losses, l)
+  if length(losses)%50==0
+      println("Current loss after $(length(losses)) iterations: $(losses[end])")
+  end
+  return false
 end
 
 ## Training
 
 # First train with ADAM for better convergence -> move the parameters into a
 # favourable starting positing for BFGS
-res1 = DiffEqFlux.sciml_train(loss, p, ADAM(0.1f0), cb=callback, maxiters = 300)
+adtype = Optimization.AutoZygote()
+optf = Optimization.OptimizationFunction((x,p)->loss(x), adtype)
+optprob = Optimization.OptimizationProblem(optf, p)
+res1 = Optimization.solve(optprob, ADAM(0.1), callback=callback, maxiters = 200)
 println("Training loss after $(length(losses)) iterations: $(losses[end])")
 # Train with BFGS
-res2 = DiffEqFlux.sciml_train(loss, res1.minimizer, BFGS(initial_stepnorm=0.01f0), cb=callback, maxiters = 10000, g_tol = 1e-10)
+optprob2 = Optimization.OptimizationProblem(optf, res1.minimizer)
+res2 = Optimization.solve(optprob2, Optim.BFGS(initial_stepnorm=0.01), callback=callback, maxiters = 10000)
 println("Final training loss after $(length(losses)) iterations: $(losses[end])")
 
 # Plot the losses
-pl_losses = plot(1:300, losses[1:300], yaxis = :log10, xaxis = :log10, xlabel = "Iterations", ylabel = "Loss", label = "ADAM", color = :blue)
-plot!(301:length(losses), losses[301:end], yaxis = :log10, xaxis = :log10, xlabel = "Iterations", ylabel = "Loss", label = "BFGS", color = :red)
+pl_losses = plot(1:200, losses[1:200], yaxis = :log10, xaxis = :log10, xlabel = "Iterations", ylabel = "Loss", label = "ADAM", color = :blue)
+plot!(201:length(losses), losses[201:end], yaxis = :log10, xaxis = :log10, xlabel = "Iterations", ylabel = "Loss", label = "BFGS", color = :red)
 savefig(pl_losses, joinpath(pwd(), "plots", "$(svname)_losses.pdf"))
-
 # Rename the best candidate
 p_trained = res2.minimizer
 
@@ -160,7 +170,7 @@ savefig(pl_trajectory, joinpath(pwd(), "plots", "$(svname)_trajectory_reconstruc
 # Ideal unknown interactions of the predictor
 Ȳ = [-p_[2]*(X̂[1,:].*X̂[2,:])';p_[3]*(X̂[1,:].*X̂[2,:])']
 # Neural network guess
-Ŷ = U(X̂,p_trained[2:end])
+Ŷ = U(X̂,p_trained.ude, st_nn)[1]
 
 pl_reconstruction = plot(ts, transpose(Ŷ), xlabel = "t", ylabel ="U(x,y)", color = :red, label = ["UDE Approximation" nothing])
 plot!(ts, transpose(Ȳ), color = :black, label = ["True Interaction" nothing], legend = :topleft)
@@ -182,21 +192,22 @@ b = [polynomial_basis(u, 5); sin.(u)]
 basis = Basis(b, u)
 
 # Create the thresholds which should be used in the search process
-λ = Float32.(exp10.(-3:0.01:5))
+λ = exp10.(-3:0.01:5)
 # Create an optimizer for the SINDy problem
 opt = STLSQ(λ)
 # Target function to choose the results from; x = L0 of coefficients and L2-Error of the model
 g(x) = x[1] <= 1 ? Inf : 2*x[1]-2*log(x[2])
 
 # Define different problems for the recovery
-full_problem = ContinuousDataDrivenProblem(solution)
-ideal_problem = ContinuousDataDrivenProblem(X̂, ts, DX = Ȳ)
-nn_problem = ContinuousDataDrivenProblem(X̂, ts, DX = Ŷ)
+ideal_problem = DirectDataDrivenProblem(X̂, Ȳ)
+nn_problem = DirectDataDrivenProblem(X̂,Ŷ)
+
 # Test on ideal derivative data for unknown function ( not available )
 println("Sparse regression")
 full_res = solve(full_problem, basis, opt, maxiter = 10000, progress = true)
 ideal_res = solve(ideal_problem, basis, opt, maxiter = 10000, progress = true)
 nn_res = solve(nn_problem, basis, opt, maxiter = 10000, progress = true)
+
 # Store the results
 results = [full_res; ideal_res; nn_res]
 # Show the results
@@ -226,7 +237,7 @@ plot!(estimate)
 ## Simulation
 
 # Look at long term prediction
-t_long = (0.0f0, 50.0f0)
+t_long = (0.0, 50.0)
 estimation_prob = ODEProblem(estimated_dynamics!, u0, t_long, parameters(nn_res))
 estimate_long = solve(estimation_prob, Tsit5(), saveat = 0.1) # Using higher tolerances here results in exit of julia
 plot(estimate_long)
