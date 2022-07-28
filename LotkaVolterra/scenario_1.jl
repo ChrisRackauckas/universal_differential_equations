@@ -6,8 +6,8 @@ using Pkg; Pkg.activate("."); Pkg.instantiate()
 using OrdinaryDiffEq
 using ModelingToolkit
 using DataDrivenDiffEq
-using LinearAlgebra, Optim
-using Optimization, OptimizationFlux, OptimizationOptimJL #OptimizationFlux for ADAM and OptimizationOptimJL for BFGS
+using LinearAlgebra, ComponentArrays
+using Optimization, OptimizationOptimisers, OptimizationOptimJL #OptimizationFlux for ADAM and OptimizationOptimJL for BFGS
 using DiffEqSensitivity
 using Lux
 using Plots
@@ -34,19 +34,22 @@ function lotka!(du, u, p, t)
 end
 
 # Define the experimental parameter
-tspan = (0.0f0,3.0f0)
-u0 = Float32[0.44249296,4.6280594]
-p_ = Float32[1.3, 0.9, 0.8, 1.8]
+tspan = (0.0,3.0)
+u0 = [0.44249296,4.6280594]
+p_ = [1.3, 0.9, 0.8, 1.8]
 prob = ODEProblem(lotka!, u0,tspan, p_)
 solution = solve(prob, Vern7(), abstol=1e-12, reltol=1e-12, saveat = 0.1)
 
 # Ideal data
 X = Array(solution)
 t = solution.t
+DX = Array(solution(solution.t, Val{1}))
+
+full_problem = DataDrivenProblem(X, t = t, DX = DX)
 
 # Add noise in terms of the mean
 x̄ = mean(X, dims = 2)
-noise_magnitude = Float32(5e-3)
+noise_magnitude = 5e-3
 Xₙ = X .+ (noise_magnitude*x̄) .* randn(eltype(X), size(X))
 
 plot(solution, alpha = 0.75, color = :black, label = ["True Data" nothing])
@@ -77,8 +80,8 @@ prob_nn = ODEProblem(nn_dynamics!,Xₙ[:, 1], tspan, p)
 ## Function to train the network
 # Define a predictor
 function predict(θ, X = Xₙ[:,1], T = t)
-    Array(solve(prob_nn, Vern7(), u0 = X, p=θ,
-                saveat = T,
+    _prob = remake(prob_nn, u0 = X, tspan = (T[1], T[end]), p = θ)
+    Array(solve(_prob, Vern7(), saveat = T,
                 abstol=1e-6, reltol=1e-6,
                 sensealg = ForwardDiffSensitivity()
                 ))
@@ -91,7 +94,7 @@ function loss(θ)
 end
 
 # Container to track the losses
-losses = Float32[]
+losses = Float64[]
 
 callback = function (p, l)
   push!(losses, l)
@@ -107,7 +110,7 @@ end
 # favourable starting positing for BFGS
 adtype = Optimization.AutoZygote()
 optf = Optimization.OptimizationFunction((x,p)->loss(x), adtype)
-optprob = Optimization.OptimizationProblem(optf, Lux.ComponentArray(p))
+optprob = Optimization.OptimizationProblem(optf, ComponentVector{Float64}(p))
 res1 = Optimization.solve(optprob, ADAM(0.1), callback=callback, maxiters = 200)
 println("Training loss after $(length(losses)) iterations: $(losses[end])")
 # Train with BFGS
@@ -156,18 +159,17 @@ b = [polynomial_basis(u, 5); sin.(u)]
 basis = Basis(b,u);
 
 # Create the thresholds which should be used in the search process
-λ = Float32.(exp10.(-7:0.1:0))
+λ = exp10.(-3:0.01:5)
 # Create an optimizer for the SINDy problem
 opt = STLSQ(λ)
 # Define different problems for the recovery
-full_problem = ContinuousDataDrivenProblem(X, t)
-ideal_problem = ContinuousDataDrivenProblem(X̂, ts, DX = Ȳ)
-nn_problem = ContinuousDataDrivenProblem(X̂, ts, DX = Ŷ)
+ideal_problem = DirectDataDrivenProblem(X̂, Ȳ)
+nn_problem = DirectDataDrivenProblem(X̂, Ŷ)
 # Test on ideal derivative data for unknown function ( not available )
 println("Sparse regression")
 full_res = solve(full_problem, basis, opt, maxiter = 10000, progress = true)
 ideal_res = solve(ideal_problem, basis, opt, maxiter = 10000, progress = true)
-nn_res = solve(nn_problem, basis, opt, maxiter = 10000, progress = true)
+nn_res = solve(nn_problem, basis, opt, maxiter = 10000, progress = true, sampler = DataSampler(Batcher(n = 4, shuffle = true)))
 # Store the results
 results = [full_res; ideal_res; nn_res]
 # Show the results
@@ -195,7 +197,7 @@ plot!(estimate)
 ## Simulation
 
 # Look at long term prediction
-t_long = (0.0f0, 50.0f0)
+t_long = (0.0, 50.0)
 estimation_prob = ODEProblem(recovered_dynamics!, u0, t_long, parameters(nn_res))
 estimate_long = solve(estimation_prob, Tsit5(), saveat = 0.1) # Using higher tolerances here results in exit of julia
 plot(estimate_long)
