@@ -5,14 +5,17 @@ using Pkg; Pkg.activate("."); Pkg.instantiate()
 using OrdinaryDiffEq
 using ModelingToolkit
 using DataDrivenDiffEq
-using LinearAlgebra, Optim
-using DiffEqFlux, Flux
+using LinearAlgebra, ComponentArrays
+using Optimization, OptimizationOptimisers, OptimizationOptimJL #OptimizationFlux for ADAM and OptimizationOptimJL for BFGS
+using DiffEqSensitivity
+using Lux
 using Plots
 gr()
 using JLD2, FileIO
 using Statistics
 # Set a random seed for reproduceable behaviour
 using Random
+rng = Random.default_rng()
 Random.seed!(1235)
 
 # Create a name for saving ( basically a prefix )
@@ -59,7 +62,7 @@ t = solution.t
 
 # Add noise in terms of the mean
 x̄ = mean(X, dims = 2)
-noise_magnitude = Float32(2.5e-2)
+noise_magnitude = Float32(5e-3)
 Xₙ = X .+ (noise_magnitude*x̄) .* randn(eltype(X), size(X))
 
 
@@ -77,40 +80,52 @@ savefig(pl_initial_data, joinpath(pwd(), "plots","$(svname)full_data_$(noise_mag
 rbf(x) = exp.(-(x.^2))
 
 # Create the network to recover the reaction
-rx_nn = FastChain(
-    FastDense(1, 5, rbf),
-    FastDense(5, 5, rbf),
-    FastDense(5, 5, rbf),
-    FastDense(5, 1)
+rx_nn = Lux.Chain(
+    Lux.Dense(1, 5, rbf),
+    Lux.Dense(5, 5, rbf),
+    Lux.Dense(5, 5, rbf),
+    Lux.Dense(5, 1)
 )
 
 #initialize D0 close to D/dx^2
 D0 = Float32[6.5]
-p1s = initial_params(rx_nn)
+
+# Get the initial parameters and state variables of the model
+p_nn, st_nn = Lux.setup(rng, rx_nn)
 p2s = zeros(Float32, 4)
-p = [p1s;p2s;D0]
+p = ComponentVector(;
+    ude = p_nn,
+    p2s = p2s,
+    D0 = D0
+)
+
 
 function nn_ode(u,p,t)
     # This is the dircetional derivative
-    u_cnn_1   = [p[end-4] * u[end] + p[end-3] * u[1] + p[end-2] * u[2]]
-    u_cnn     = [p[end-4] * u[i-1] + p[end-3] * u[i] + p[end-2] * u[i+1] for i in 2:size(u, 1)-1]
-    u_cnn_end = [p[end-4] * u[end-1] + p[end-3] * u[end] + p[end-2] * u[1]]
 
-    [rx_nn([ui], p[1:length(p1s)])[1] for ui in u] + p[end] * vcat(u_cnn_1, u_cnn, u_cnn_end)
+    ps_ = p.p2s
+    u_cnn_1   = [ps_[end-3] * u[end] + ps_[end-2] * u[1] + ps_[end-1] * u[2]]
+    u_cnn     = [ps_[end-3] * u[i-1] + ps_[end-2] * u[i] + ps_[end-1] * u[i+1] for i in 2:size(u, 1)-1]
+    u_cnn_end = [ps_[end-3] * u[end-1] + ps_[end-2] * u[end] + ps_[end-1] * u[1]]
+
+    reduce(vcat, map(u) do ui 
+        rx_nn([ui], p.ude, st_nn)[1]
+    end) + p.D0 .* vcat(u_cnn_1, u_cnn, u_cnn_end)
 end
 
 prob_nn = ODEProblem(nn_ode, Xₙ[:, 1], (t[1], t[end]), p)
-
+nn_ode(rho_ic(Delta), p, 0.0)
 
 ## Necessary functions
 
 function predict_pde(θ, X = Xₙ[:, 1], T = t)
-  # No ReverseDiff if using Flux
-  Array(solve(prob_nn, Vern7(),
-        u0 = X, p = θ, tspan = (T[1], T[end]), saveat=T,
-        sensealg=ForwardDiffSensitivity(convert_tspan = false)#, reltol = 1e-4, abstol = 1e-4
-        ))
+    _prob = remake(prob_nn, u0 = X, tspan = (T[1], T[end]), p = θ)
+    Array(solve(_prob, Vern7(), saveat = T,
+                sensealg = ForwardDiffSensitivity(convert_tspan = false)
+                ))
 end
+
+predict_pde(p)
 
 #match data and force the weights of the CNN to add up to zero
 function objective_pde(p)
@@ -130,18 +145,24 @@ callback(θ,l) = begin
     false
 end
 
-## Train the model
-# First train with ADAM
-res1 = DiffEqFlux.sciml_train(objective_pde, p, ADAM(0.1f0), cb=callback, maxiters = 40)
+# First train with ADAM for better convergence -> move the parameters into a
+# favourable starting positing for BFGS
+adtype = Optimization.AutoZygote()
+optf = Optimization.OptimizationFunction((x,p)->objective_pde(x), adtype)
+optprob = Optimization.OptimizationProblem(optf, p)
+res1 = Optimization.solve(optprob, ADAM(0.1), callback=callback, maxiters = 10)
+println("Training loss after $(length(losses)) iterations: $(losses[end])")
 # Train with BFGS
-res2 = DiffEqFlux.sciml_train(objective_pde, res1.minimizer, BFGS(initial_stepnorm=0.1f0), cb=callback, maxiters = 10000)
+optprob2 = Optimization.OptimizationProblem(optf, res1.minimizer)
+res2 = Optimization.solve(optprob2, Optim.BFGS(initial_stepnorm=0.001), callback=callback, maxiters = 100)
+println("Final training loss after $(length(losses)) iterations: $(losses[end])")
+
 p_trained = res2.minimizer
 
 ## Data evaluation -> we subsample here!
-tsample = t[1]:1.0*mean(diff(t)):t[end]
-X̂ = predict_pde(p_trained, Xₙ[:,1], tsample)
+X̂ = predict_pde(p_trained)
 # Trained on noisy data vs real solution
-pl_trajectory = plot(tsample, transpose(X̂), xlabel = "t", ylabel ="rho(x,t)", color = :red,
+pl_trajectory = plot(t, transpose(X̂), xlabel = "t", ylabel ="rho(x,t)", color = :red,
  label = ["UDE Approximation" [nothing for i in 1:25]...])
 scatter!(t, transpose(Xₙ), color = :black, label = ["Measurements"  [nothing for i in 1:25]...], legend = :bottomright)
 savefig(pl_trajectory, joinpath(pwd(), "plots", "$(svname)_trajectory_reconstruction.pdf"))
@@ -151,7 +172,7 @@ savefig(pl_trajectory, joinpath(pwd(), "plots", "$(svname)_trajectory_reconstruc
 R̂ = similar(X̂)
 R̄ = similar(X̂)
 for i in 1:size(X̂, 1), j in 1:size(X̂, 2)
-    R̂[i,j] = rx_nn(X̂[i,j], p_trained[1:length(p1s)])[1]
+    R̂[i,j] = rx_nn([X̂[i,j]], p_trained.ude, st_nn)[1][1]
     R̄[i,j] = reaction(X̂[i,j])
 end
 
@@ -175,7 +196,7 @@ Rs = Matrix(vcat(eachrow(R̂[1:end, :])...)')
 
 # Technically this is cheating until a general DataDrivenProblem is defined properly.
 # we work with the continuous form
-nn_prob = ContinuousDataDrivenProblem(Xs, zeros(Float32, size(Xs, 2)), DX = Rs)
+nn_prob = DirectDataDrivenProblem(Xs, Rs)
 
 λs = Float32.(exp10.(-3:0.01:5))
 opt = STLSQ(λs)
